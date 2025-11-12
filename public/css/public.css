@@ -1,0 +1,194 @@
+        /* Specific styles for the landing page */
+        body.landing-page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa; /* Light background */
+        }
+
+        .landing-header {
+            background-color: #343a40; /* Dark navbar */
+            color: white;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .landing-header .navbar-brand {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+        .landing-header .nav-link {
+            color: rgba(255,255,255,.75);
+            margin-left: 1rem;
+            transition: color 0.2s ease-in-out;
+        }
+        .landing-header .nav-link:hover, .landing-header .nav-link.active {
+            color: white;
+        }
+        .landing-header .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+         .landing-header .btn-outline-light {
+            margin-left: 0.5rem;
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/construction-hero.jpg'); /* Add a hero image */
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 6rem 1rem;
+            text-align: center;
+            flex-grow: 1; /* Make hero take available space if content is short */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        .hero-section p.lead {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero-section .cta-button {
+            font-size: 1.2rem;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .features-section {
+            padding: 4rem 1rem;
+            background-color: #ffffff;
+        }
+        .features-section .feature-icon {
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 1rem;
+        }
+        .footer {
+           align-items: center; 
+        }
+
+        .landing-footer {
+            background-color: #343a40;
+            color: rgba(255,255,255,.7);
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+        .landing-footer a {
+            color: rgba(255,255,255,.9);
+            text-decoration: none;
+        }
+        .landing-footer a:hover {
+            color: white;
+        }
+  
+
+
+        
+/* styles.css or blog_styles.css */
+
+/* --- Public Aside Sidebar Styling --- */
+.public-aside-sidebar {
+    /* No specific styling needed for the container itself unless you want a background or border */
+}
+
+.public-aside-sidebar .card {
+    border: 1px solid #e0e0e0; /* Softer border for cards */
+    border-radius: 0.375rem; /* Standard Bootstrap card radius */
+}
+
+.public-aside-sidebar .card-header {
+    background-color: #f8f9fa; /* Bootstrap light background */
+    border-bottom: 1px solid #e0e0e0; /* Softer border */
+    padding: 0.85rem 1.15rem; /* Adjust padding */
+}
+
+.public-aside-sidebar .card-header h5 {
+    font-size: 1.1rem; /* Slightly smaller heading for widgets */
+    font-weight: 500; /* Medium weight */
+    color: #333; /* Darker text color */
+}
+
+.public-aside-sidebar .card-header h5 .fas,
+.public-aside-sidebar .card-header h5 .far,
+.public-aside-sidebar .card-header h5 .fab {
+    color: #007bff; /* Primary color for icons in headers, or a neutral one */
+    margin-right: 0.5rem;
+    font-size: 0.9em; /* Icons slightly smaller than text */
+}
+
+.public-aside-sidebar .card-body {
+    padding: 1.15rem; /* Consistent padding */
+}
+
+/* Search Widget */
+.public-aside-sidebar .input-group .form-control {
+    border-right: 0; /* Remove right border if button is adjacent */
+}
+.public-aside-sidebar .input-group .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Bootstrap focus shadow */
+    border-color: #80bdff;
+}
+.public-aside-sidebar .input-group .btn-outline-primary {
+    border-color: #ced4da; /* Match form control border initially */
+}
+.public-aside-sidebar .input-group .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+
+/* Recent Posts Widget */
+.public-aside-sidebar .list-group-flush .list-group-item {
+    padding: 0.85rem 1.15rem;
+    border-color: #e9ecef; /* Lighter border for list items */
+    background-color: #fff; /* Ensure white background */
+}
+.public-aside-sidebar .list-group-flush .list-group-item:last-child {
+    border-bottom: 0; /* Remove bottom border for the last item if card has no footer */
+}
+
+.public-aside-sidebar .list-group-item a {
+    color: #212529; /* Default dark text color */
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+.public-aside-sidebar .list-group-item a:hover {
+    color: #0056b3; /* Primary hover color */
+    text-decoration: none; /* Or underline, if preferred */
+}
+
+.public-aside-sidebar .list-group-item small.text-muted {
+    font-size: 0.8em;
+    margin-top: 0.2rem;
+}
+
+/* Categories/Tags Widget */
+.public-aside-sidebar .card-body .btn-outline-secondary {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.25rem; /* Slightly less rounded for a modern feel */
+    color: #5a6268;
+    border-color: #ced4da;
+    transition: all 0.2s ease-in-out;
+}
+.public-aside-sidebar .card-body .btn-outline-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+    border-color: #5a6268;
+}
+
+/* Optional: If you add other widgets */
+.public-aside-sidebar .widget-title { /* A generic class you could use for widget titles */
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+

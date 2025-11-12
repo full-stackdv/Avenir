@@ -1,0 +1,94 @@
+
+<!--main_layouts.ejs-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'AvenirCon App' %></title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Global Styles -->
+  <link rel="stylesheet" href="/css/styles.css">
+  <!-- Main App Specific Styles -->
+  <link rel="stylesheet" href="/css/main_styles.css">
+    <!-- <link rel="stylesheet" href="/css/report_styles.css">--->
+       <link rel="stylesheet" href="/css/print.css">
+
+
+  
+  <!-- Profile specific styles (conditionally loaded or always if small) -->
+  <% if (typeof currentPath !== 'undefined' && currentPath.startsWith('/profile')) { %>
+    <link rel="stylesheet" href="/css/profile_styles.css">
+  <% } %>
+
+<!-- Report specific styles (conditionally loaded or always if small) -->
+  <% if (typeof currentPath !== 'undefined' && currentPath.startsWith('/projects/report')) { %>
+    <link rel="stylesheet" href="/css/report_styles.css">
+  <% } %>
+   
+  <!-- Page-specific stylesheets passed from controller -->
+  <% if (typeof pageStylesheets !== 'undefined' && Array.isArray(pageStylesheets)) { %>
+    <% pageStylesheets.forEach(function(style) { %>
+      <link rel="stylesheet" href="<%= style %>">
+    <% }); %>
+  <% } %>
+  <style>
+    body.app-body { padding-top: 56px; /* Navbar height */ background-color: #f4f6f9; /* Light neutral background */ }
+  </style>
+</head>
+<body class="app-body"> 
+  
+  <%- include('../partials/_main_navbar') %>
+
+  <div class="container-fluid mt-4 mb-5 app-content-area"> <!-- container-fluid for wider content by default -->
+    <div class="row">
+      <!-- Optional: Sidebar for main app sections if needed (e.g., project-specific nav) -->
+      <!--
+      <% if (typeof showAppSidebar !== 'undefined' && showAppSidebar) { %>
+        <nav class="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar app-sidebar">
+          <%- /* include('../partials/_app_sidebar_content') */ %>
+        </nav>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <% } else { %>
+      -->
+        <main class="col-12"> <!-- Full width if no app sidebar -->
+      <!-- <% } %> -->
+
+          <%- include('../partials/_messages') %>
+
+          <% if (typeof pageTitle !== 'undefined' && pageTitle) { %>
+            <div class="page-header mb-3 pt-3 pb-2 border-bottom app-page-header">
+              <h1 class="h2"><%- pageTitle %></h1>
+              <% if (typeof subTitle !== 'undefined' && subTitle) { %>
+                <p class="text-muted lead fs-6"><%- subTitle %></p>
+              <% } %>
+            </div>
+          <% } %>
+          
+          <%- body %>
+        
+        </main>
+    </div>
+  </div>
+
+  <!-- Optional App Footer -->
+  <!-- 
+  <footer class="app-footer py-3 mt-auto bg-light border-top text-center">
+    <small class="text-muted">© AvenirCon App Area</small>
+  </footer> 
+  -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/main_script.js"></script> <!-- Main app specific scripts -->
+
+  <!-- Page-specific scripts passed from controller -->
+  <% if (typeof pageScripts !== 'undefined' && Array.isArray(pageScripts)) { %>
+    <% pageScripts.forEach(function(script) { %>
+      <script src="<%= script %>"></script>
+    <% }); %>
+  <% } %>
+</body>
+</html>

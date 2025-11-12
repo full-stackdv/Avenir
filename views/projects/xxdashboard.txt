@@ -1,0 +1,62 @@
+<%- include('partials/_header', { title: 'Dashboard - ConstructPro' }) %>
+        
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <% if (user) { %>
+            <h1>Welcome, <%= user.first_name || user.username %>!</h1>
+        <% } else { %>
+            <h1>Dashboard</h1>
+        <% } %>
+        <a href="/projects/create" class="btn btn-success"><i class="fas fa-plus me-2"></i>Create New Project</a>
+    </div>
+
+    <% if (user) { %>
+        <p class="lead">This is your personal space within ConstructPro. Manage your projects and tasks efficiently.</p>
+        <hr>
+
+        <% if (typeof dashboard_error !== 'undefined' && dashboard_error) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= dashboard_error %>
+            </div>
+        <% } %>
+          
+        <h3 class="container mt-4 mb-3">My Projects</h3>
+     
+        <% if (typeof projects !== 'undefined' && projects.length > 0) { %>
+            <div class="list-group">
+                <% projects.forEach(function(project) { %>
+                    <a href="/projects/<%= project.id %>" class="list-group-item list-group-item-action flex-column align-items-start mb-2 shadow-sm">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">
+                                <% if (project.project_code) { %> <!-- DISPLAY PROJECT CODE -->
+                                    <span class="text-muted me-2">[<%= project.project_code %>]</span>
+                                <% } %>
+                                <%= project.name %>
+                            </h5>
+                            <small class="text-muted">Status: <span class="badge bg-<%= project.status === 'Completed' ? 'success' : (project.status === 'Active' ? 'primary' : (project.status === 'On Hold' ? 'warning' : 'secondary')) %>"><%= project.status %></span></small>
+                        </div>
+                        <p class="mb-1"><%= project.description ? project.description.substring(0, 150) + (project.description.length > 150 ? '...' : '') : 'No description available.' %></p>
+                        <small class="text-muted">Client: <%= project.client_name || 'N/A' %></small>
+                        <% if (project.creator_username) { %>
+                            <small class="text-muted d-block">Created by: <%= project.creator_username %></small>
+                        <% } %>
+                        <% if (project.start_date || project.end_date) { %>
+                            <small class="text-muted d-block">
+                                Dates: <%= project.start_date ? new Date(project.start_date).toLocaleDateString() : 'N/A' %> - <%= project.end_date ? new Date(project.end_date).toLocaleDateString() : 'N/A' %>
+                            </small>
+                        <% } %>
+                    </a>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="alert alert-secondary" role="alert">
+                You haven't created any projects yet. <a href="/projects/create" class="alert-link">Create your first project now!</a>
+            </div>
+        <% } %>
+
+    <% } else { %>
+        <p>You are not logged in. Please <a href="/login">login</a> to access your dashboard.</p>
+    <% } %>
+</div>
+
+<%- include('partials/_footer') %>

@@ -1,0 +1,156 @@
+<!-- views/public/about.ejs -->
+<header class="about-hero">
+    <div class="container">
+        <h1 class="display-4" style="color:aliceblue"><%= content.hero_title || 'About ConstructPro' %></h1>
+        <p class="lead"><%= content.hero_subtitle || 'Building on a Foundation of Excellence and Integrity.' %></p>
+    </div>
+</header>
+
+<section class="about-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="<%= content.our_story_image || '/images/company-milestone.jpg' %>" alt="ConstructPro at Work" class="img-fluid rounded shadow-lg">
+            </div>
+            <div class="col-lg-6">
+                <h3><%= content.our_story_heading || 'Our Story' %></h3>
+                <% if (content.our_story_text) { %>
+                    <%- content.our_story_text %> <%# Use <%- for rich_text %>
+                <% } else { %>
+                    <p>ConstructPro was established with a vision to transform the construction landscape. From humble beginnings, we've grown into a respected company, driven by a passion for quality, innovation, and client satisfaction. We've tackled diverse projects, from residential buildings to complex infrastructure, always striving to deliver exceptional results.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section bg-light py-5 mission-vision">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <h3><i class="<%= content.mission_icon || 'fas fa-bullseye' %> me-2 text-primary"></i><%= content.mission_heading || 'Our Mission' %></h3>
+                <% if (content.mission_text) { %>
+                    <%- content.mission_text %>
+                <% } else { %>
+                    <p>To provide exceptional construction services that meet the needs of our clients, while contributing to the development of our communities. We are committed to delivering projects on time, within budget, and to the highest quality standards, fostering lasting relationships with our clients and partners.</p>
+                <% } %>
+            </div>
+            <div class="col-md-6">
+                <h3><i class="<%= content.vision_icon || 'fas fa-eye' %> me-2 text-primary"></i><%= content.vision_heading || 'Our Vision' %></h3>
+                 <% if (content.vision_text) { %>
+                    <%- content.vision_text %>
+                <% } else { %>
+                    <p>To be the leading construction company in Ethiopia, renowned for excellence and sustainability. We aspire to set new standards in the industry, contributing to the nation's development through innovative and responsible construction practices.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section py-5 core-values">
+    <div class="container">
+        <h2 class="text-center mb-5"><%= content.core_values_heading || 'Our Core Values' %></h2>
+        <div class="row text-center">
+            <% if (content.core_values_list && Array.isArray(content.core_values_list)) { %>
+                <% content.core_values_list.forEach(value => { %>
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body">
+                                <i class="fas <%= value.icon || 'fa-star' %> fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title"><%= value.value %></h5>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <%# Fallback hardcoded values if content.core_values_list is not set %>
+                <% ['Integrity', 'Innovation', 'Quality', 'Customer Satisfaction', 'Safety', 'Sustainability'].forEach(valStr => { %>
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body">
+                                <% let iconCls = 'fa-star'; 
+                                   if (valStr.toLowerCase().includes('integrity')) iconCls = 'fa-shield-alt';
+                                   if (valStr.toLowerCase().includes('innovation')) iconCls = 'fa-lightbulb';
+                                %>
+                                <i class="fas <%= iconCls %> fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title"><%= valStr %></h5>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<section id="services" class="about-section bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5"><%= content.services_section_heading || 'Our Services' %></h2>
+        <div class="row">
+            <% if (content.services_list && Array.isArray(content.services_list)) { %>
+                <% content.services_list.forEach(service => { %>
+                    <div class="col-md-4 mb-3">
+                        <h5><%= service.title %></h5>
+                        <p><%= service.description %></p>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="col-md-4 mb-3"><h5>General Construction</h5><p>Commercial, residential, industrial.</p></div>
+                <div class="col-md-4 mb-3"><h5>Road & Bridge Construction</h5><p>Building essential infrastructure.</p></div>
+                <div class="col-md-4 mb-3"><h5>Water & Irrigation Projects</h5><p>Sustainable water solutions.</p></div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<section class="about-section py-5 team">
+    <div class="container">
+        <h2 class="text-center mb-5"><%= content.leadership_heading || 'Meet Our Leadership' %></h2>
+        <p class="text-center lead mb-5"><%= content.leadership_intro_text || 'The strength behind our success lies in our dedicated and experienced team.' %></p>
+        <div class="row">
+            <% if (content.leadership_list && Array.isArray(content.leadership_list)) { %>
+                <% content.leadership_list.forEach(member => { %>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card text-center shadow-sm h-100">
+                            <img src="<%= member.image || '/images/team-placeholder.jpg' %>" class="card-img-top" alt="<%= member.name %>" style="height: 250px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= member.name %></h5>
+                                <p class="card-text text-muted"><%= member.title %></p>
+                                <p class="small"><%= member.bio %></p>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card text-center shadow-sm h-100">
+                        <img src="/images/team-member-1.jpg" class="card-img-top" alt="CEO Temkin Sheref" style="height: 250px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">Eng. Temkin Sheref</h5>
+                            <p class="card-text text-muted">Chief Executive Officer</p>
+                            <p class="small">Founder with a passion for excellence and innovation in construction.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-4">
+                     <div class="card text-center shadow-sm h-100">
+                        <img src="/images/team-member-2.jpg" class="card-img-top" alt="Project Manager" style="height: 250px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">Eng. Mohammed Aba R.</h5>
+                            <p class="card-text text-muted">Head Project Manager</p>
+                             <p class="small">Experienced in managing large-scale construction projects efficiently.</p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<section class="about-section bg-primary text-white py-5 cta">
+    <div class="container text-center">
+        <h2 class="text-white"><%= content.cta_heading || 'Ready to Partner with ConstructPro?' %></h2>
+        <p class="lead my-4"><%= content.cta_text || 'Contact us today to learn more about our services and how we can help you achieve your construction goals.' %></p>
+        <a href="/contact" class="btn btn-warning btn-lg px-4"><%= content.cta_button_text || 'Get in Touch' %></a>
+    </div>
+</section>

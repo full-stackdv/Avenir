@@ -1,0 +1,156 @@
+<% tasks.forEach(task => { %>
+  <li data-task-id="<%= task.id %>" data-parent-id="<%= task.parent_template_task_id || '' %>" class="template-task-item mb-2 p-2 border rounded" style="margin-left: <%= level * 25 %>px; background-color: #f9f9f9;">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <strong>
+                <i class="fas fa-stream fa-fw"></i>
+                <%= task.name %>
+            </strong>
+            <% if (task.is_milestone) { %>
+                <span class="badge badge-pill badge-info ml-2">Milestone</span>
+            <% } %>
+        </div>
+        <div class="task-actions">
+            <button class="btn btn-xs btn-outline-primary edit-task-btn"
+                    data-toggle="modal"
+                    data-target="#editTaskModal"
+                    data-task-id="<%= task.id %>"
+                    data-template-id="<%= templateId %>" <!-- Pass templateId for the API call -->
+                    title="Edit Task">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-xs btn-outline-danger delete-task-btn"
+                    data-task-id="<%= task.id %>"
+                    data-template-id="<%= templateId %>" <!-- Make sure templateId is available here -->
+                    data-task-name="<%= task.name %>"
+                    title="Delete Task">
+                <i class="fas fa-trash"></i>
+            </button>
+            
+            <!-- MODIFIED Add Sub-task Button -->
+            <button class="btn btn-xs btn-outline-success add-subtask-btn" 
+                    data-toggle="modal" 
+                    data-target="#addSubTaskModal" 
+                    data-parent-task-id="<%= task.id %>" 
+                    data-parent-task-name="<%= task.name %>"
+                    title="Add Sub-task">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+            <button class="btn btn-xs btn-outline-danger delete-task-btn"
+                    data-task-id="<%= task.id %>"
+                    data-template-id="<%= templateId %>" <!-- Make sure templateId is available here -->
+                    data-task-name="<%= task.name %>"
+                    title="Delete Task">
+                <i class="fas fa-trash"></i>
+            </button>
+
+
+        </div>
+    </div>
+    <% if (task.description) { %>
+        <p class="text-muted mb-1 mt-1" style="font-size: 0.9em;"><%= task.description %></p>
+    <% } %>
+    <small class="text-muted d-block">
+        Duration: <%= task.planned_duration_days || 'N/A' %> days | Order: <%= task.task_order %>
+    </small>
+
+    <% if (task.children && task.children.length > 0) { %>
+      <ul class="list-unstyled mt-2" style="padding-left: 0;">
+        <%- include('../partials/_template_task_item_recursive', { tasks: task.children, templateId: templateId, level: level + 1 }) %>
+      </ul>
+    <% } %>
+  </li>
+<% }); %>
+
+
+<% tasks.forEach(task => { %>
+  <li data-task-id="<%= task.id %>" data-parent-id="<%= task.parent_template_task_id || '' %>" class="template-task-item mb-2 p-2 border rounded" style="margin-left: <%= level * 25 %>px; background-color: #f9f9f9;">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center"> <!-- Wrapper for handle and name -->
+            <span class="drag-handle" style="cursor: move; margin-right: 8px;"><i class="fas fa-grip-vertical"></i></span> <!-- DRAG HANDLE -->
+            <strong>
+                <i class="fas fa-stream fa-fw"></i>
+                <%= task.name %>
+            </strong>
+            <% if (task.is_milestone) { %>
+                <span class="badge badge-pill badge-info ml-2">Milestone</span>
+            <% } %>
+        </div>
+        <div class="task-actions">
+            <!-- ... (Edit, Add Sub-task, Delete buttons) ... -->
+        </div>
+    </div>
+    <!-- ... (description, duration, order) ... -->
+
+    <% if (task.children && task.children.length > 0) { %>
+      <!-- Add a class to the UL for SortableJS to target -->
+      <ul class="list-unstyled mt-2 template-task-children-list" style="padding-left: 0;" data-parent-id-for-list="<%= task.id %>">
+        <%- include('../partials/_template_task_item_recursive', { tasks: task.children, templateId: templateId, level: level + 1 }) %>
+      </ul>
+    <% } else { %>
+        <!-- Even if no children, provide a droppable area for tasks to be moved into this parent -->
+         <ul class="list-unstyled mt-2 template-task-children-list droppable-empty-list" style="padding-left: 0; min-height: 20px; /* border: 1px dashed #ccc; */" data-parent-id-for-list="<%= task.id %>">
+            <!-- This list will be targeted by SortableJS to allow dropping into an empty parent -->
+         </ul>
+    <% } %>
+  </li>
+<% }); %>
+
+
+
+
+
+
+
+
+
+
+
+<!--Create Partial File: views/partials/_template_task_item_recursive.ejs--->
+
+<% tasks.forEach(task => { %>
+  <li data-task-id="<%= task.id %>" data-parent-id="<%= task.parent_template_task_id || '' %>" class="template-task-item mb-2 p-2 border rounded" style="margin-left: <%= level * 25 %>px; background-color: #f9f9f9;">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center"> <!-- Wrapper for handle and name -->
+            <span class="drag-handle" style="cursor: move; margin-right: 8px;"><i class="fas fa-grip-vertical"></i></span> <!-- DRAG HANDLE -->
+            <strong>
+                <i class="fas fa-stream fa-fw"></i>
+                <%= task.name %>
+            </strong>
+            <% if (task.is_milestone) { %>
+                <span class="badge badge-pill badge-info ml-2">Milestone</span>
+            <% } %>
+        </div>
+        <div class="task-actions">
+            <!-- ... (Edit, Add Sub-task, Delete buttons) ... -->
+        </div>
+    </div>
+    <!-- ... (description, duration, order) ... -->
+
+    <% if (task.children && task.children.length > 0) { %>
+      <!-- Add a class to the UL for SortableJS to target -->
+      <ul class="list-unstyled mt-2 template-task-children-list" style="padding-left: 0;" data-parent-id-for-list="<%= task.id %>">
+        <%- include('../partials/_template_task_item_recursive', { tasks: task.children, templateId: templateId, level: level + 1 }) %>
+      </ul>
+    <% } else { %>
+        <!-- Even if no children, provide a droppable area for tasks to be moved into this parent -->
+         <ul class="list-unstyled mt-2 template-task-children-list droppable-empty-list" style="padding-left: 0; min-height: 20px; /* border: 1px dashed #ccc; */" data-parent-id-for-list="<%= task.id %>">
+            <!-- This list will be targeted by SortableJS to allow dropping into an empty parent -->
+         </ul>
+    <% } %>
+  </li>
+<% }); %>
+
+<% tasks.forEach(task => { %>
+<li data-task-id="<%= task.id %>" style="margin-left: 20px;"> <!-- Basic styling for hierarchy -->
+  <strong><%= task.name %></strong>
+  <% if (task.description) { %><p><small><%= task.description %></small></p><% } %>
+  <p><small>Duration: <%= task.planned_duration_days || 'N/A' %> days | Order: <%= task.task_order %> | Milestone: <%= task.is_milestone ? 'Yes' : 'No' %></small></p>
+  <!-- Placeholders for future Edit/Delete/Add Sub-task buttons -->
+  <% if (task.children && task.children.length > 0) { %>
+  <ul>
+    <%- include('../partials/_template_task_item_recursive', { tasks: task.children }) %>
+  </ul>
+  <% } %>
+</li>
+<% }); %>

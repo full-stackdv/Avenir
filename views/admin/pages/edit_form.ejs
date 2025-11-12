@@ -1,0 +1,145 @@
+<%# views/admin/pages/edit_form.ejs %>
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/admin/pages">Manage Page Content</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit: <%= pageDisplayName %> (<%= pageKey %>)</li>
+        </ol>
+    </nav>
+
+    <%- include('../../partials/_messages') %>
+
+    <h2 class="h3 mb-3">Editing Content for: <span class="fw-normal"><%= pageDisplayName %></span> (<code><%= pageKey %></code>)</h2>
+    
+    <% if (sections && sections.length > 0) { %>
+        <form action="/admin/pages/<%= pageKey %>/edit" method="POST" enctype="multipart/form-data">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <% sections.forEach(function(section, index) { %>
+                        <div class="mb-4 p-3 border rounded bg-light">
+                            <h5 class="mb-1"><%= section.label %></h5>
+                            <p class="text-muted small mb-2">
+                                Section Key: <code><%= section.section_key %></code> | Type: <code><%= section.content_type %>
+                            </p>
+                            <% if (section.description) { %>
+                                <p class="small text-info"><i class="fas fa-info-circle me-1"></i><%= section.description %></p>
+                            <% } %>
+
+                            <% if (section.content_type === 'text') { %>
+                                <input type="text" 
+                                       class="form-control form-control-sm" 
+                                       name="content_value_<%= section.id %>" 
+                                       id="content_value_<%= section.id %>"
+                                       value="<%= section.content_value || '' %>">
+                            <% } else if (section.content_type === 'textarea' || section.content_type === 'rich_text') { %>
+                                <textarea class="form-control form-control-sm" 
+                                          name="content_value_<%= section.id %>" 
+                                          id="content_value_<%= section.id %>" 
+                                          rows="<%= section.content_type === 'rich_text' ? 8 : 4 %>"><%= section.content_value || '' %></textarea>
+                                <% if (section.content_type === 'rich_text') { %>
+                                    <small class="form-text text-muted">Rich text editor will be enabled here (e.g., CKEditor, TinyMCE).</small>
+                                <% } %>
+                            <% } else if (section.content_type === 'image_url') { %>
+                                <% if (section.content_value) { %>
+                                    <div class="mb-2 current-image-container">
+                                        <p class="mb-1 small">Current Image:</p>
+                                        <img src="<%= section.content_value.startsWith('http') ? section.content_value : (section.content_value.startsWith('/') ? '' : '/') + section.content_value %>?t=<%= new Date().getTime() %>" 
+                                             alt="Current Image for <%= section.label %>" 
+                                             style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; padding: 2px;">
+                                        <div class="form-check mt-1">
+                                            <input class="form-check-input" type="checkbox" value="true" 
+                                                   id="remove_image_<%= section.id %>" name="remove_image_<%= section.id %>">
+                                            <label class="form-check-label small" for="remove_image_<%= section.id %>">
+                                                Remove current image
+                                            </label>
+                                        </div>
+                                    </div>
+                                <% } %>
+                                <label for="image_file_<%= section.id %>" class="form-label small fw-bold">
+                                    <%= section.content_value ? 'Upload new to replace:' : 'Upload new image:' %>
+                                </label>
+                                <input class="form-control form-control-sm" 
+                                       type="file" 
+                                       name="image_file_<%= section.id %>" <%# This name is used in controller with req.files %>
+                                       id="image_file_<%= section.id %>" 
+                                       accept="image/png, image/jpeg, image/gif, image/webp, image/svg">
+                            <% } else if (section.content_type === 'json_list') { %>
+                                <textarea class="form-control form-control-sm" 
+                                          name="content_value_<%= section.id %>" 
+                                          id="content_value_<%= section.id %>" 
+                                          rows="6" 
+                                          placeholder="Enter valid JSON array e.g., [{"key":"value"}, {...}]"><%= section.content_value || '' %></textarea>
+                                <small class="form-text text-muted">
+                                    Enter content as a valid JSON array. 
+                                    Example for simple list: <code>["Item 1", "Item 2"]</code>.
+                                    Example for objects: <code>[{"title":"Project A","img":"/path.jpg"}, {"title":"Project B","img":"/path2.jpg"}]</code>
+                                </small>
+                            <% } else { %>
+                                <p class="text-danger">Unsupported content type: <%= section.content_type %></p>
+                            <% } %>
+                        </div>
+                        <% if (index < sections.length - 1) { %> <hr class="my-3"> <% } %>
+                    <% }); %>
+                </div>
+                <div class="card-footer text-end">
+                    <a href="/admin/pages" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Page Content</button>
+                </div>
+            </div>
+        </form>
+    <% } else { %>
+        <div class="alert alert-warning">
+            No editable sections found for this page (<code><%= pageKey %></code>). 
+            Please ensure seed data is correctly inserted into the 'page_content' table.
+        </div>
+        <a href="/admin/pages" class="btn btn-secondary">Back to Pages List</a>
+    <% } %>
+</div>
+
+<%- contentFor('pageStyles') %>
+<style>
+    .current-image-container img {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .bg-light { /* Bootstrap class, ensure it's what you want or customize */
+        background-color: #f8f9fa !important; 
+    }
+</style>
+
+<%- contentFor('pageScripts') %>
+<script>
+    // Add client-side validation for JSON textareas if desired
+    document.querySelectorAll('textarea[name^="content_value_"]').forEach(textarea => {
+        const correspondingSection = sections.find(s => `content_value_${s.id}` === textarea.name);
+        if (correspondingSection && correspondingSection.content_type === 'json_list') {
+            textarea.addEventListener('blur', function() {
+                try {
+                    if (this.value.trim() !== "") {
+                        JSON.parse(this.value);
+                        this.classList.remove('is-invalid');
+                        // Remove any existing custom error message sibling
+                        let sibling = this.nextElementSibling;
+                        if (sibling && sibling.classList.contains('json-error-feedback')) {
+                            sibling.remove();
+                        }
+                    } else {
+                         this.classList.remove('is-invalid'); // Allow empty
+                    }
+                } catch (e) {
+                    this.classList.add('is-invalid');
+                    let sibling = this.nextElementSibling;
+                    if (!sibling || !sibling.classList.contains('json-error-feedback')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback json-error-feedback d-block'; // d-block to show
+                        errorDiv.textContent = 'Invalid JSON format: ' + e.message.substring(0, e.message.indexOf(':'));
+                        this.parentNode.insertBefore(errorDiv, this.nextSibling);
+                    } else {
+                         sibling.textContent = 'Invalid JSON format: ' + e.message.substring(0, e.message.indexOf(':'));
+                    }
+                }
+            });
+        }
+    });
+</script>

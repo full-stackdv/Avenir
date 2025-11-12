@@ -1,0 +1,84 @@
+<%# views/admin/content/announcements/form.ejs %>
+<div class="container-fluid mt-4">
+    <%- include('../../../partials/_messages') %>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="card-title mb-0">
+                <i class="fas fa-bullhorn mr-2"></i>
+                <%= announcement ? 'Edit Announcement' : 'Create New Announcement' %>
+            </h4>
+        </div>
+        <form action="<%= formAction %>" method="POST">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="title">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="title" name="title" value="<%= announcement ? announcement.title : '' %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">Content <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="content" name="content" rows="5" required><%= announcement ? announcement.content : '' %></textarea>
+                    <small class="form-text text-muted">Basic HTML is allowed. For more complex content, consider a Rich Text Editor integration later.</small>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="start_date">Start Date (Optional)</label>
+                            <input type="datetime-local" class="form-control" id="start_date" name="start_date" 
+                                   value="<%= announcement && announcement.start_date ? new Date(announcement.start_date).toISOString().slice(0,16) : '' %>">
+                            <small class="form-text text-muted">Announcement will be visible from this date/time.</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="end_date">End Date (Optional)</label>
+                            <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                                   value="<%= announcement && announcement.end_date ? new Date(announcement.end_date).toISOString().slice(0,16) : '' %>">
+                            <small class="form-text text-muted">Announcement will be hidden after this date/time.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Announcement Type</label>
+                    <select class="form-control" id="type" name="type">
+                        <option value="info" <%= (announcement && announcement.type === 'info') || !announcement ? 'selected' : '' %>>Info (Blue)</option>
+                        <option value="success" <%= announcement && announcement.type === 'success' ? 'selected' : '' %>>Success (Green)</option>
+                        <option value="warning" <%= announcement && announcement.type === 'warning' ? 'selected' : '' %>>Warning (Yellow)</option>
+                        <option value="danger" <%= announcement && announcement.type === 'danger' ? 'selected' : '' %>>Danger (Red)</option>
+                    </select>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="true" 
+                           <%= (announcement && announcement.is_active) || !announcement ? 'checked' : '' %>>
+                    <label class="form-check-label" for="is_active">Active</label>
+                    <small class="form-text text-muted">Uncheck to hide this announcement without deleting it.</small>
+                </div>
+
+            </div>
+            <div class="card-footer text-right">
+                <a href="/admin/content/announcements" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save mr-1"></i> <%= announcement ? 'Save Changes' : 'Create Announcement' %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- contentFor('pageScripts') %>
+<script>
+    // You might add client-side validation or a Rich Text Editor initialization here later.
+    // Example for a simple Rich Text Editor like TinyMCE (requires setup):
+    /*
+    tinymce.init({
+        selector: '#content',
+        plugins: 'lists link image code',
+        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | code'
+    });
+    */
+</script>
+

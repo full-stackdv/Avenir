@@ -1,0 +1,99 @@
+<% pageTitle = post ? `Comments for: ${post.title}` : "Manage Comments" %>
+
+<% if (post) { %>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 mb-0">Comments for "<%= post.title %>"</h2>
+            <a href="/admin/posts/<%= post.id %>/edit" class="small">Back to Edit Post</a> |
+            <a href="/blog/<%= post.slug %>" target="_blank" class="small">View Post on Site <i class="fas fa-external-link-alt fa-xs"></i></a>
+        </div>
+    </div>
+<% } else { %>
+    <h2 class="h3 mb-4">Manage Comments</h2>
+    <p class="text-danger">Error: Post information not available.</p>
+<% } %>
+
+
+<% if (typeof comments !== 'undefined' && comments.length > 0) { %>
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-striped table-hover table-bordered align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 35%;">Comment Content</th>
+                <th>Author</th>
+                <th>Submitted On</th>
+                <th>Status</th>
+                <th style="width: 20%;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% comments.forEach(function(comment) { %>
+            <tr>
+                <td>
+                    <p class="mb-1"><%- comment.content %></p>
+                    <small class="text-muted">Comment ID: <%= comment.id %></small>
+                </td>
+                <td>
+                    <% if (comment.user_id && comment.user_commenter_name) { %>
+                        <a href="#" title="View User Profile (placeholder)"><%= comment.user_commenter_name %></a> (User)
+                    <% } else if (comment.author_name) { %>
+                        <%= comment.author_name %> (Guest)
+                        <% if (comment.author_email) { %>
+                            <br><small class="text-muted"><a href="mailto:<%= comment.author_email %>"><%= comment.author_email %></a></small>
+                        <% } %>
+                    <% } else { %>
+                        Anonymous
+                    <% } %>
+                </td>
+                <td><%= new Date(comment.created_at).toLocaleString() %></td>
+                <td>
+                    <% if (comment.is_approved) { %>
+                        <span class="badge bg-success">Approved</span>
+                    <% } else { %>
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (!comment.is_approved) { %>
+                        <form action="/admin/posts/<%= post.id %>/comments/<%= comment.id %>/approve" method="POST" class="d-inline mb-1">
+                            <button type="submit" class="btn btn-sm btn-success me-1" title="Approve Comment">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </form>
+                    <% } else { %>
+                         <form action="/admin/posts/<%= post.id %>/comments/<%= comment.id %>/unapprove" method="POST" class="d-inline mb-1"> 
+                            <button type="submit" class="btn btn-sm btn-warning me-1" title="Unapprove Comment (Set to Pending)">
+                                <i class="fas fa-undo"></i> Unapprove
+                            </button>
+                        </form>
+                    <% } %>
+                    <form action="/admin/posts/<%= post.id %>/comments/<%= comment.id %>/delete" method="POST" class="d-inline delete-comment-form">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Comment" data-comment-author="<%= comment.user_commenter_name || comment.author_name || 'Anonymous' %>">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+<% } else { %>
+    <div class="alert alert-info">No comments found for this post.</div>
+<% } %>
+
+<script>
+// Added script for delete confirmation (could be in admin_script.js)
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteCommentForms = document.querySelectorAll('.delete-comment-form');
+    deleteCommentForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const author = this.dataset.commentAuthor || 'this comment';
+            const confirmation = confirm(`Are you sure you want to delete the comment by "${author}"? This action cannot be undone.`);
+            if (!confirmation) {
+                event.preventDefault();
+            }
+        });
+    });
+});
+</script>

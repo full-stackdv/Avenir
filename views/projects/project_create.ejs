@@ -1,0 +1,57 @@
+<%- include('../partials/_header', { 
+    title: 'Create New Project',
+    currentSection: 'projects',
+    stylesheets: ['/assets/css/dashboard.css']
+}) %>
+
+<%- include('../partials/_sidebar', { currentSection: 'projects' }) %>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1>Create New Project</h1>
+        <a href="/projects" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Projects
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-info-circle"></i> Project Details
+        </div>
+        <div class="card-body">
+            <form action="/projects" method="POST" id="project-form">
+                <div class="form-group">
+                    <label for="name">Project Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="end_date">End Date</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget">Budget ($)</label>
+                    <input type="number" id="budget" name="budget" class="form-control" step="0.01" min="0">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Project</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/_footer', { 
+    scripts: ['/assets/js/modules/project-form.js']
+}) %>

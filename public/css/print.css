@@ -1,0 +1,11 @@
+
+    /* Optional: Small CSS for better print layout / report readability */
+    @media print {
+        body { font-size: 10pt; }
+        .breadcrumb, .btn, .alert:not(.alert-danger):not(.alert-warning) { display: none !important; } /* Hide nav, buttons, success/info messages on print */
+        .card { box-shadow: none !important; border: 1px solid #ccc !important; margin-bottom: 1rem !important; }
+        .card-header { background-color: #f8f9fa !important; color: #000 !important; border-bottom: 1px solid #ccc !important;}
+        .table-responsive { overflow-x: hidden; } /* Prevent table scroll on print */
+        .progress-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; } /* Ensure progress bars print colors */
+    }
+     

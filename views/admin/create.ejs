@@ -1,0 +1,50 @@
+<% pageTitle = "Create New Post" %>
+
+<form action="/admin/posts/create" method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+        <input type="text" class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'title')) ? 'is-invalid' : '' %>" id="title" name="title" value="<%= typeof formData !== 'undefined' && formData.title ? formData.title : '' %>" required>
+        <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'title')) { %>
+            <div class="invalid-feedback"><%= errors.find(e => e.param === 'title').msg %></div>
+        <% } %>
+    </div>
+    
+    <div class="mb-3">
+        <label for="summary" class="form-label">Summary <span class="text-muted">(Optional, for listings)</span></label>
+        <textarea class="form-control" id="summary" name="summary" rows="3"><%= typeof formData !== 'undefined' && formData.summary ? formData.summary : '' %></textarea>
+    </div>
+    
+    <div class="mb-3">
+        <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+        <textarea class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'content')) ? 'is-invalid' : '' %>" id="content" name="content" rows="10" required><%= typeof formData !== 'undefined' && formData.content ? formData.content : '' %></textarea>
+        <small class="form-text text-muted">Plain text for now. Rich Text Editor can be added later.</small>
+        <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'content')) { %>
+            <div class="invalid-feedback"><%= errors.find(e => e.param === 'content').msg %></div>
+        <% } %>
+    </div>
+
+    <div class="mb-3">
+        <label for="feature_image" class="form-label">Feature Image <span class="text-muted">(Optional)</span></label>
+        <input class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'feature_image')) ? 'is-invalid' : '' %>" type="file" id="feature_image" name="feature_image" accept="image/png, image/jpeg, image/gif, image/webp">
+        <small class="form-text text-muted">Recommended: 1200x630px. Max 2MB. (Types: PNG, JPG, GIF, WEBP)</small>
+        <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'feature_image')) { %>
+            <div class="invalid-feedback"><%= errors.find(e => e.param === 'feature_image').msg %></div>
+        <% } %>
+    </div>
+    
+    <div class="mb-3">
+        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+        <select class="form-select <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'status')) ? 'is-invalid' : '' %>" id="status" name="status" required>
+            <option value="draft" <%= (typeof formData !== 'undefined' && formData.status === 'draft') || (!formData && 'draft' === 'draft') ? 'selected' : '' %>>Draft</option>
+            <option value="published" <%= (typeof formData !== 'undefined' && formData.status === 'published') ? 'selected' : '' %>>Published</option>
+            <option value="archived" <%= (typeof formData !== 'undefined' && formData.status === 'archived') ? 'selected' : '' %>>Archived</option>
+        </select>
+         <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'status')) { %>
+            <div class="invalid-feedback"><%= errors.find(e => e.param === 'status').msg %></div>
+        <% } %>
+    </div>
+    
+    <hr>
+    <button type="submit" class="btn btn-success px-4">Create Post</button>
+    <a href="/admin/posts" class="btn btn-secondary">Cancel</a>
+</form>

@@ -1,0 +1,323 @@
+
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  color: #343a40;
+  line-height: 1.6;
+}
+
+.container {
+  width: 85%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  background-color: #343a40;
+  color: #fff;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+header nav {
+  margin-top: 1rem;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1.1rem;
+}
+
+header nav a:hover {
+  text-decoration: underline;
+}
+
+.gallery-hero {
+  background-color: #e9ecef;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.gallery-hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #343a40;
+}
+
+.project-gallery {
+  padding: 4rem 0;
+}
+
+.gallery-filter {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.gallery-filter button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.gallery-filter button:hover {
+  background-color: #0056b3;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.project-item {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.project-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.project-item h3 {
+  font-size: 1.3rem;
+  margin: 1rem;
+  color: #343a40;
+}
+
+.project-item p {
+  font-size: 1rem;
+  margin: 0 1rem 1rem 1rem;
+  color: #6c757d;
+}
+
+.footer {
+  background-color: #343a40;
+  color: #fff;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 15px;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+  }
+  
+  .gallery-hero h2 {
+    font-size: 2rem;
+  }
+  
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gallery-filter button {
+    margin: 0 5px;
+  }
+}
+
+
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  width: 85%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  background-color: #343a40;
+  color: #fff;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+header nav {
+  margin-top: 1rem;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1.1rem;
+}
+
+header nav a:hover {
+  text-decoration: underline;
+}
+
+.about-hero {
+  background-color: #e9ecef;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.about-hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #343a40;
+}
+
+.our-story,
+.mission-vision,
+.core-values,
+.team,
+.sustainability,
+.community {
+  padding: 4rem 0;
+}
+
+.our-story h3,
+.mission-vision h3,
+.core-values h3,
+.team h3,
+.sustainability h3,
+.community h3 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #343a40;
+}
+
+.our-story p,
+.mission-vision p,
+.core-values p,
+.team p,
+.sustainability p,
+.community p {
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+.core-values ul {
+  list-style: none;
+  padding: 0;
+}
+
+.core-values ul li {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+.team-profiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 2rem;
+}
+
+.team-member {
+  width: 30%;
+  min-width: 250px;
+  margin-bottom: 2rem;
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.team-member h4 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+.team-member h5 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-style: italic;
+}
+
+.team-member p {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.cta {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.cta h3 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #343a40;
+}
+
+.footer {
+  background-color: #343a40;
+  color: #fff;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 15px;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+  }
+  
+  .about-hero h2 {
+    font-size: 2rem;
+  }
+  
+  .team-profiles {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .team-member {
+    width: 80%;
+    margin-bottom: 1.5rem;
+  }
+}

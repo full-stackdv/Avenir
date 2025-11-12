@@ -1,0 +1,30 @@
+// public/js/gallery_scripts.js
+document.addEventListener('DOMContentLoaded', () => {
+    const filterButtons = document.querySelectorAll('.gallery-filter button');
+    const galleryItems = document.querySelectorAll('.gallery-grid .project-item');
+
+    if (filterButtons.length > 0 && galleryItems.length > 0) {
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Manage active button state
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const filterValue = button.getAttribute('data-filter');
+
+                galleryItems.forEach(item => {
+                    item.classList.add('hide'); // Add hide class to start transition
+                    // After transition, set display to none for proper layout reflow
+                    setTimeout(() => {
+                        if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                            item.style.display = 'block'; // Or 'grid', 'flex' depending on item display type
+                            setTimeout(() => item.classList.remove('hide'), 20); // Remove hide to trigger fade-in
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    }, 300); // Match this timeout with CSS transition duration for opacity
+                });
+            });
+        });
+    }
+});

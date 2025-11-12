@@ -1,0 +1,56 @@
+<% /* views/partials/_task_item_recursive.ejs */ %>
+<% const indentation = level * 25; /* pixels per level */ %>
+
+<div class="list-group-item task-item" style="padding-left: <%= 15 + indentation %>px; border-left: <%= level > 0 ? '3px solid #0d6efd' : 'none' %>; margin-left: <%= level > 0 ? '-1px' : '0' %>;">
+    <div class="d-flex w-100 justify-content-between align-items-center">
+        <div>
+            <h6 class="mb-1 task-name" title="<%= task.description ? task.description.substring(0,100) + (task.description.length > 100 ? '...' : '') : 'No description' %>">
+                <% if (task.task_code) { %>
+                    <span class="text-muted small me-1">[<%= task.task_code %>]</span>
+                <% } %>
+                <%= task.name %>
+                <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/details" class="text-decoration-none text-dark">
+                    <%= task.name %>
+                </a>
+            </h6>
+            </h6>
+            <small class="text-muted">
+                Status: <span class="badge bg-<%= task.status === 'Completed' ? 'success' : (task.status === 'InProgress' ? 'primary' : (task.status === 'ToDo' ? 'info' : (task.status === 'Blocked' ? 'danger' : (task.status === 'Cancelled' ? 'dark' : 'secondary')))) %>"><%= task.status %></span> <!-- Added ToDo status -->
+                <% if (task.priority) { %>
+                    | Priority: <span class="badge bg-<%= task.priority === 'High' ? 'warning' : (task.priority === 'Critical' ? 'danger' : 'info') %> <%= (task.priority === 'High' || task.priority === 'Critical') ? 'text-dark' : '' %>"><%= task.priority %></span>
+                <% } %>
+                <% if (task.assignee_display_name && task.assignee_display_name !== 'Unassigned') { %>
+                    | Assigned to: <%= task.assignee_display_name %>
+                <% } %>
+            </small>
+        </div>
+        <div class="task-actions">
+            <a href="/projects/<%= project.id %>/tasks/create?parent_task_id=<%= task.id %>" class="btn btn-outline-success btn-sm me-1" title="Add Sub-task">
+                <i class="fas fa-sitemap"></i> <span class="d-none d-md-inline">Sub-task</span>
+            </a>
+            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/edit" class="btn btn-outline-primary btn-sm me-1" title="Edit Task">
+                <i class="fas fa-edit"></i> <span class="d-none d-md-inline">Edit</span>
+            </a>
+            <form action="/projects/<%= project.id %>/tasks/<%= task.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this task? This may also delete sub-tasks if ON DELETE CASCADE is set in the database.');">
+                <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Task">
+                    <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline">Delete</span>
+                </button>
+            </form>
+        </div>
+    </div>
+    <% if (task.start_date_formatted || task.end_date_formatted || task.cost) { %> <!-- Combined condition -->
+        <small class="text-muted d-block mt-1">
+            <% if (task.start_date_formatted) { %>Start: <%= task.start_date_formatted %><% } %>
+            <% if (task.end_date_formatted) { %><%= task.start_date_formatted ? ' | ' : '' %>End: <%= task.end_date_formatted %><% } %>
+            <% if (task.cost) { %><%= (task.start_date_formatted || task.end_date_formatted) ? ' | ' : '' %>Cost: ETB <%= parseFloat(task.cost).toFixed(2) %><% } %>
+        </small>
+    <% } %>
+</div>
+
+<%# Recursive call for children %>
+<% if (task.children && task.children.length > 0) { %>
+    <% task.children.forEach(function(childTask) { %>
+        <%- include('_task_item_recursive', { task: childTask, project: project, level: level + 1 }) %>
+    <% }); %>
+<% } %>
+

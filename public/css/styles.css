@@ -1,0 +1,131 @@
+/* public/css/styles.css */
+
+/*--------------------------------------------------------------
+# General
+--------------------------------------------------------------*/
+body {
+  font-family: "Open Sans", sans-serif; /* A common, readable sans-serif font */
+  color: #444444;
+  line-height: 1.6;
+}
+
+a {
+  color: #0d6efd; /* Bootstrap primary blue */
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0a58ca; /* Darker blue on hover */
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Raleway", sans-serif; /* A slightly more stylized font for headings */
+}
+
+/*--------------------------------------------------------------
+# Page Structure & Spacing
+--------------------------------------------------------------*/
+.page-header h1 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #333;
+}
+.page-header .lead {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+/*--------------------------------------------------------------
+# Buttons (Bootstrap overrides or additions)
+--------------------------------------------------------------*/
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+/*--------------------------------------------------------------
+# Forms
+--------------------------------------------------------------*/
+.form-control:focus {
+  border-color: #86b7fe; /* Bootstrap focus color */
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/*--------------------------------------------------------------
+# Alerts (Ensure good contrast and visibility)
+--------------------------------------------------------------*/
+.alert {
+  border-left-width: 4px;
+}
+.alert-success {
+  border-left-color: var(--bs-success);
+}
+.alert-danger {
+  border-left-color: var(--bs-danger);
+}
+.alert-warning {
+  border-left-color: var(--bs-warning);
+}
+.alert-info {
+  border-left-color: var(--bs-info);
+}
+
+/*--------------------------------------------------------------
+# Utility Classes
+--------------------------------------------------------------*/
+.mt-auto {
+  margin-top: auto !important;
+}
+.mb-auto {
+  margin-bottom: auto !important;
+}
+.ms-auto {
+  margin-left: auto !important;
+}
+.me-auto {
+  margin-right: auto !important;
+}
+
+.border-top {
+  border-top: 1px solid #dee2e6 !important; /* Bootstrap default border color */
+}
+.border-bottom {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+
+
+    .gantt .bar-wrapper.gantt-milestone .bar-progress { /* Target progress bar for milestones */
+        fill: #6f42c1 !important; /* Bootstrap purple */
+    }
+    .gantt .bar-wrapper.gantt-milestone .bar { /* Target main bar for milestones */
+        fill: #a98eda !important; /* Lighter purple for background */
+        stroke: #6f42c1;
+    }
+    .gantt .bar-wrapper.gantt-completed .bar-progress {
+        fill: #198754 !important; /* Bootstrap green */
+    }
+    .gantt .bar-wrapper.gantt-inprogress .bar-progress {
+        fill: #0dcaf0 !important; /* Bootstrap info blue */
+    }
+    .gantt-popup-content p { margin-bottom: 5px; }
+    .gantt-chart-svg { /* Ensure SVG takes full container height */
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+    .gantt .grid-header, .gantt .grid-row{
+        fill: #f8f9fa; /* Light background for grid lines */
+    }
+    .gantt .grid-row:nth-child(even){
+        fill: #ffffff;
+    }
+     .gantt .bar-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+    }

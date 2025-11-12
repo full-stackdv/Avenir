@@ -1,0 +1,3001 @@
+<%- contentFor('body') %>
+<div class="container-fluid mt-4 id-card-generator-page">
+    <!-- ... header ... -->
+    <%- include('../../partials/_messages') %>
+
+    <script>
+        // Server-provided data
+        const initialStaffData = <%- JSON.stringify(staffMember) %>;
+        const initialCompanySettings = <%- JSON.stringify(companySettings) %>;
+
+        // Correct image paths for client-side JS
+        initialStaffData.photo_url = initialStaffData.photo_filename ? `/uploads/staff_photos/${initialStaffData.photo_filename}` : '/images/placeholder-photo.png';
+        initialCompanySettings.logo_url = initialCompanySettings.logo_filename ? `/uploads/company_assets/${initialCompanySettings.logo_filename}` : '/images/logo.png';
+        initialCompanySettings.signature_url = initialCompanySettings.signature_filename ? `/uploads/company_assets/${initialCompanySettings.signature_filename}` : '/images/signature.png';
+        initialCompanySettings.stamp_url = initialCompanySettings.stamp_filename ? `/uploads/company_assets/${initialCompanySettings.stamp_filename}` : '/images/stamp.png';
+    </script>
+
+    <div id="id-card-application-wrapper">
+        <div class="container">
+        <header>
+            <h1>AVC ID Card Generator</h1>
+        </header>
+        
+
+        <main>
+            
+         <section id="user-guide-header">
+                <p><b>Need help?</b> Read <a href="user_guide.html">user guides </a>on how to use the ID Card Generator - 
+                    <a href="user_guide.html">access it here!</a></p>
+        
+        </section>
+            <section id="id-card-editor">
+                <details open>
+                    <summary>ID Card Editor</summary>
+
+                    <div class="card-preview">
+                        <!-- Front ID Card -->
+                        <div id="front-id-card" class="id-card front">
+                            <div class="header-section">
+                                <div class="header">
+                                    <div class="header-text">
+                                        <h1 id="companyName">AVENIR CONSTRUCTION</h1>
+                                        <h3 id="companySubtitle">We Build for Future</h3>
+                                    </div>
+                                    <div class="logo">
+                                        <img src="images/logo.png" alt="AVENIR Company Logo" id="companyLogo">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="photo-section">
+                                <div class="photo">
+                                    <img src="images/placeholder-photo.png" alt="Employee Photo" id="employeePhoto">
+                                </div>
+                            </div>
+                            <div class="details-section">
+                                <div class="employee-name-box">
+                                    <p id="employeeName">Full Name</p>
+                                </div>
+                                <div class="employee-position-box">
+                                    <p id="employeePosition">Department</p>
+                                </div>
+                                <div class="barcode-box">
+                                    <svg id="frontBarcode"></svg>
+                                </div>
+                                <div class="employee-id-box">
+                                    <p id="employeeId">ID: 122024</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Back ID Card -->
+                        <div id="back-id-card" class="id-card back">
+                            <div class="logo">
+                                <img src="images/logo.png" alt="Avenir Construction Company Logo" id="logo">
+                            </div>
+
+                            <div class="employee-details">
+                                <p><strong>Name:</strong> <span id="backName">Full Name</span></p>
+                                <p><strong>Position:</strong> <span id="backPosition">Position</span></p>
+                                <p><strong>ID Number:</strong> <span id="backId">12345</span></p>
+                                <p><strong>Date of Issue:</strong> <span id="issueDate">01/01/2025</span></p>
+                                <p><strong>Expiry Date:</strong> <span id="expiryDate">01/01/2028</span></p>
+                            </div>
+
+                            <div class="contact-info">
+                                <p><b>Company Contact:</b></p>
+                                <p>Phone: <span id="companyPhoneDisplay">+251900110200</span></p>
+                                <p>Email: <span id="companyEmailDisplay">admin@avenircon.com</span></p>
+                                <p>Website: <span id="companyWebsiteDisplay">https://www.avenircon.com</span></p>
+                                <p>Address: <span id="companyLocationDisplay">Jimma, Oromia, ETH</span></p>
+                            </div>
+
+                            <img src="images/stamp.png" alt="Avenir Construction Company Stamp" class="stamp">
+                            <p class="authorization">Authorization: <span id="authorizationDisplay">I certify that the bearer of
+                                    this ID Badge is a staff of AVC.</span></p>
+                            <img src="images/signature.png" alt="CEO Signature of Eng. Shemsedin Amme" class="signature">
+
+                            <div class="ceoName">
+                                <p>CEO: <span id="ceoNameDisplay">Eng. Temkin Sheref</span></p>
+                            </div>
+
+                            <div class="footer companyName">
+                                <p id="companyNameDisplay">Avenir Construction</p>
+                            </div>
+                            <div class="barcode-box">
+                                <svg id="backBarcode"></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-settings">
+                        <details>
+                            <summary>Front Card Style Settings</summary>
+                            <!-- Front Card Style Settings (Colors, Fonts, Images) -->
+                            <div class="color-selection-section">
+                                <details>
+                                    <summary>Customize Colors</summary>
+                                    <!-- Color Customization Form Groups -->
+                                     <div class="form-group">
+        <label for="frontIdCardBackgroundColor">ID Card Background Color:</label>
+        <input type="color" id="frontIdCardBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontIdCardBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontIdCardBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontIdCardBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontIdCardBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontHeaderBackgroundColor">Header Background Color:</label>
+        <input type="color" id="frontHeaderBackgroundColor" value="#FF4900">
+        <input type="text" id="frontHeaderBackgroundColorHex" placeholder="#FF4900"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontHeaderBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontHeaderBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontHeaderBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontHeaderFontColor">Header Font Color:</label>
+        <input type="color" id="frontHeaderFontColor" value="#FFFFFF">
+        <input type="text" id="frontHeaderFontColorHex" placeholder="#FFFFFF" class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontHeaderFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontHeaderFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontHeaderFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePhotoBorderColor">Employee Photo Border Color:</label>
+        <input type="color" id="frontEmployeePhotoBorderColor" value="#000000">
+        <input type="text" id="frontEmployeePhotoBorderColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePhotoBorderColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePhotoBorderColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePhotoBorderColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePhotoBackgroundColor">Employee Photo Background Color:</label>
+        <input type="color" id="frontEmployeePhotoBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeePhotoBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePhotoBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePhotoBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePhotoBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeNameBackgroundColor">Employee Name Background Color:</label>
+        <input type="color" id="frontEmployeeNameBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeeNameBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeNameBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeNameBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeNameBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeNameFontColor">Employee Name Font Color:</label>
+        <input type="color" id="frontEmployeeNameFontColor" value="#000000">
+        <input type="text" id="frontEmployeeNameFontColorHex" placeholder="#000000" class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeNameFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeNameFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeNameFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePositionBackgroundColor">Employee Position Background Color:</label>
+        <input type="color" id="frontEmployeePositionBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeePositionBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePositionBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePositionBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePositionBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePositionFontColor">Employee Position Font Color:</label>
+        <input type="color" id="frontEmployeePositionFontColor" value="#000000">
+        <input type="text" id="frontEmployeePositionFontColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePositionFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePositionFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePositionFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeIdBackgroundColor">Employee ID Background Color:</label>
+        <input type="color" id="frontEmployeeIdBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeeIdBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeIdBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeIdBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeIdBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeIdFontColor">Employee ID Font Color:</label>
+        <input type="color" id="frontEmployeeIdFontColor" value="#000000">
+        <input type="text" id="frontEmployeeIdFontColorHex" placeholder="#000000" class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeIdFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeIdFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeIdFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontCompanyLogoBackgroundColor">Company Logo Background Color:</label>
+        <input type="color" id="frontCompanyLogoBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontCompanyLogoBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontCompanyLogoBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontCompanyLogoBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontCompanyLogoBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontCompanyLogoBorderColor">Company Logo Border Color:</label>
+        <input type="color" id="frontCompanyLogoBorderColor" value="#000000">
+        <input type="text" id="frontCompanyLogoBorderColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontCompanyLogoBorderColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontCompanyLogoBorderColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontCompanyLogoBorderColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+                                    <button type="button" id="frontApplyColorsButton">Apply Colors</button>
+                                    <button type="button" id="frontResetColorsButton">Reset Colors</button>
+
+                                </details>
+                            </div>
+                            <div class="font-selection-section">
+                                <details>
+                                    <summary>Customize Font Size, Weight, and Alignment</summary>
+                                     <div class="form-group">
+        <label for="frontEmployeeNameTop">Employee Name Top (mm):</label>
+        <input type="number" id="frontEmployeeNameTop" value="45">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameLeft">Employee Name Left (mm):</label>
+        <input type="number" id="frontEmployeeNameLeft" value="5">
+      </div>
+      <div class="form-group">
+        <label for="frontHeaderFontSize">Header Font Size (mm):</label>
+        <input type="number" id="frontHeaderFontSize" value="4">
+      </div>
+      <div class="form-group">
+        <label for="frontHeaderFontWeight">Header Font Weight:</label>
+        <input type="number" id="frontHeaderFontWeight" value="600">
+      </div>
+      <div class="form-group">
+        <label for="frontHeaderTextAlign">Header Text Alignment:</label>
+        <select id="frontHeaderTextAlign">
+          <option value="right">Right</option>
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameFontSize">Employee Name Font Size (mm):</label>
+        <input type="number" id="frontEmployeeNameFontSize" value="3.5">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameFontWeight">Employee Name Font Weight:</label>
+        <input type="number" id="frontEmployeeNameFontWeight" value="500">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameTextAlign">Employee Name Text Alignment:</label>
+        <select id="frontEmployeeNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePositionFontSize">Employee Position Font Size (mm):</label>
+        <input type="number" id="frontEmployeePositionFontSize" value="3">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePositionFontWeight">Employee Position Font Weight:</label>
+        <input type="number" id="frontEmployeePositionFontWeight" value="500">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePositionTextAlign">Employee Position Text Alignment:</label>
+        <select id="frontEmployeePositionTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeIdFontSize">Employee ID Font Size (mm):</label>
+        <input type="number" id="frontEmployeeIdFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeIdFontWeight">Employee ID Font Weight:</label>
+        <input type="number" id="frontEmployeeIdFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeIdTextAlign">Employee ID Text Alignment:</label>
+        <select id="frontEmployeeIdTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="frontApplyFontButton">Apply Fonts</button>
+                                    <button type="button" id="frontResetFontButton">Reset Fonts</button>
+                                </details>
+                            </div>
+                            <div class="image-selection-section">
+                                <details>
+                                    <summary>Customize Image Size and Alignment</summary>
+                                      <div class="form-group">
+        <label for="frontCompanyLogoTop">Company Logo Top (mm):</label>
+        <input type="number" id="frontCompanyLogoTop" value="2">
+      </div>
+      <div class="form-group">
+        <label for="frontCompanyLogoLeft">Company Logo Left (mm):</label>
+        <input type="number" id="frontCompanyLogoLeft" value="2">
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePhotoTop">Employee Photo Top (mm):</label>
+        <input type="number" id="frontEmployeePhotoTop" value="15">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoLeft">Employee Photo Left (mm):</label>
+        <input type="number" id="frontEmployeePhotoLeft" value="10">
+      </div>
+
+      <div class="form-group">
+        <label for="frontCompanyLogoWidth">Company Logo Width (mm):</label>
+        <input type="number" id="frontCompanyLogoWidth" value="10">
+      </div>
+      <div class="form-group">
+        <label for="frontCompanyLogoHeight">Company Logo Height (mm):</label>
+        <input type="number" id="frontCompanyLogoHeight" value="10">
+      </div>
+      <div class="form-group">
+        <label for="frontCompanyLogoAlign">Company Logo Alignment:</label>
+        <select id="frontCompanyLogoAlign">
+          <option value="right">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoWidth">Employee Photo Width (mm):</label>
+        <input type="number" id="frontEmployeePhotoWidth" value="30">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoHeight">Employee Photo Height (mm):</label>
+        <input type="number" id="frontEmployeePhotoHeight" value="30">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoAlign">Employee Photo Alignment:</label>
+        <select id="frontEmployeePhotoAlign">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <!-- **FRONT: Employee Photo Border Radius** -->
+      <div class="form-group">
+        <label for="frontEmployeePhotoBorderRadius">Employee Photo Border Radius (%):</label>
+        <input type="number" id="frontEmployeePhotoBorderRadius" value="50" min="0" max="50">
+      </div>
+
+      <!-- **FRONT: Company Logo Border Radius** -->
+      <div class="form-group">
+        <label for="frontCompanyLogoBorderRadius">Company Logo Border Radius (%):</label>
+        <input type="number" id="frontCompanyLogoBorderRadius" value="0" min="0" max="50">
+      </div>
+
+
+      <div class="form-group">
+        <label for="frontBarcodeWidth">Barcode Width (mm):</label>
+        <input type="number" id="frontBarcodeWidth" value="40">
+      </div>
+      <div class="form-group">
+        <label for="frontBarcodeHeight">Barcode Height (mm):</label>
+        <input type="number" id="frontBarcodeHeight" value="10">
+      </div>
+      <div class="form-group">
+        <label for="frontBarcodeAlign">Barcode Alignment:</label>
+        <select id="frontBarcodeAlign">
+          <option value="center">Left</option>
+          <option value="left">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="frontApplyImageButton">Apply Image Settings</button>
+                                    <button type="button" id="frontResetImageButton">Reset Image Settings</button>
+                                </details>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>Back Card Style Settings</summary>
+                            <!-- Back Card Style Settings (Colors, Fonts, Images) -->
+                            <div class="color-selection-section">
+                                <details>
+                                    <summary>Customize Colors</summary>
+                                    <!-- Back Card Color Customization Form Groups -->
+                                      <div class="form-group">
+        <label for="backIdCardBackgroundColor">ID Card Background Color:</label>
+        <input type="color" id="backIdCardBackgroundColor" value="#FFFFFF">
+        <input type="text" id="backIdCardBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="backIdCardBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="backIdCardBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="backIdCardBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="backCompanyLogoBackgroundColor">Company Logo Background Color:</label>
+        <input type="color" id="backCompanyLogoBackgroundColor" value="#FFFFFF">
+        <input type="text" id="backCompanyLogoBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="backCompanyLogoBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="backCompanyLogoBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="backCompanyLogoBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="backCompanyLogoBorderColor">Company Logo Border Color:</label>
+        <input type="color" id="backCompanyLogoBorderColor" value="#000000">
+        <input type="text" id="backCompanyLogoBorderColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="backCompanyLogoBorderColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="backCompanyLogoBorderColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="backCompanyLogoBorderColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+                                    <button type="button" id="backApplyColorsButton">Apply Colors</button>
+                                    <button type="button" id="backResetColorsButton">Reset Colors</button>
+
+                                </details>
+                            </div>
+                            <div class="font-selection-section">
+                                <details>
+                                    <summary>Customize Font Size, Weight, and Alignment</summary>
+                                    <!-- Back Card Font Size, Weight, and Alignment Form Groups -->
+                                       <div class="form-group">
+        <label for="backEmployeeNameFontSize">Employee Name Font Size (mm):</label>
+        <input type="number" id="backEmployeeNameFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeNameFontWeight">Employee Name Font Weight:</label>
+        <input type="number" id="backEmployeeNameFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeNameTextAlign">Employee Name Text Alignment:</label>
+        <select id="backEmployeeNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backEmployeePositionFontSize">Employee Position Font Size (mm):</label>
+        <input type="number" id="backEmployeePositionFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeePositionFontWeight">Employee Position Font Weight:</label>
+        <input type="number" id="backEmployeePositionFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeePositionTextAlign">Employee Position Text Alignment:</label>
+        <select id="backEmployeePositionTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backEmployeeIdFontSize">Employee ID Font Size (mm):</label>
+        <input type="number" id="backEmployeeIdFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeIdFontWeight">Employee ID Font Weight:</label>
+        <input type="number" id="backEmployeeIdFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeIdTextAlign">Employee ID Text Alignment:</label>
+        <select id="backEmployeeIdTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backContactInfoFontSize">Contact Info Font Size (mm):</label>
+        <input type="number" id="backContactInfoFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backContactInfoFontWeight">Contact Info Font Weight:</label>
+        <input type="number" id="backContactInfoFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backContactInfoTextAlign">Contact Info Text Alignment:</label>
+        <select id="backContactInfoTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backAuthorizationStatementFontSize">Authorization Statement Font Size (mm):</label>
+        <input type="number" id="backAuthorizationStatementFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backAuthorizationStatementFontWeight">Authorization Statement Font Weight:</label>
+        <input type="number" id="backAuthorizationStatementFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backAuthorizationStatementTextAlign">Authorization Statement Text Alignment:</label>
+        <select id="backAuthorizationStatementTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backCeoNameFontSize">CEO Name Font Size (mm):</label>
+        <input type="number" id="backCeoNameFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backCeoNameFontWeight">CEO Name Font Weight:</label>
+        <input type="number" id="backCeoNameFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backCeoNameTextAlign">CEO Name Text Alignment:</label>
+        <select id="backCeoNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="backFooterCompanyNameFontSize">Footer Company Name Font Size (mm):</label>
+        <input type="number" id="backFooterCompanyNameFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backFooterCompanyNameFontWeight">Footer Company Name Font Weight:</label>
+        <input type="number" id="backFooterCompanyNameFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backFooterCompanyNameTextAlign">Footer Company Name Text Alignment:</label>
+        <select id="backFooterCompanyNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="backAddressLocationFontSize">Address/Location Font Size (mm):</label>
+        <input type="number" id="backAddressLocationFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backAddressLocationFontWeight">Address/Location Font Weight:</label>
+        <input type="number" id="backAddressLocationFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backAddressLocationTextAlign">Address/Location Text Alignment:</label>
+        <select id="backAddressLocationTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="backApplyFontButton">Apply Fonts</button>
+                                    <button type="button" id="backResetFontButton">Reset Fonts</button>
+
+                            </details>
+                        </div>
+                        <div class="image-selection-section">
+                            <details>
+                                <summary>Customize Image Size and Alignment</summary>
+                                  <!-- Back Card Image Customization Form Groups -->
+                                        <div class="form-group">
+        <label for="backCompanyLogoTop">Company Logo Top (mm):</label>
+        <input type="number" id="backCompanyLogoTop" value="2">
+      </div>
+      <div class="form-group">
+        <label for="backCompanyLogoLeft">Company Logo Left (mm):</label>
+        <input type="number" id="backCompanyLogoLeft" value="2">
+      </div>
+      <div class="form-group">
+        <label for="backCompanyLogoWidth">Company Logo Width (mm):</label>
+        <input type="number" id="backCompanyLogoWidth" value="10">
+      </div>
+      <div class="form-group">
+        <label for="backCompanyLogoHeight">Company Logo Height (mm):</label>
+        <input type="number" id="backCompanyLogoHeight" value="10">
+      </div>
+
+      <!-- **BACK: Company Logo Border Radius** -->
+      <div class="form-group">
+        <label for="backCompanyLogoBorderRadius">Company Logo Border Radius (%):</label>
+        <input type="number" id="backCompanyLogoBorderRadius" value="0" min="0" max="50">
+      </div>
+
+      <div class="form-group">
+        <label for="backSignatureWidth">CEO Signature Width (mm):</label>
+        <input type="number" id="backSignatureWidth" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backSignatureHeight">CEO Signature Height (mm):</label>
+        <input type="number" id="backSignatureHeight" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backSignatureAlign">CEO Signature Alignment:</label>
+        <select id="backSignatureAlign">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backStampWidth">Company Stamp Width (mm):</label>
+        <input type="number" id="backStampWidth" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backStampHeight">Company Stamp Height (mm):</label>
+        <input type="number" id="backStampHeight" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backStampAlign">Company Stamp Alignment:</label>
+        <select id="backStampAlign">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backBarcodeWidth">Barcode Width (mm):</label>
+        <input type="number" id="backBarcodeWidth" value="40">
+      </div>
+      <div class="form-group">
+        <label for="backBarcodeHeight">Barcode Height (mm):</label>
+        <input type="number" id="backBarcodeHeight" value="10">
+      </div>
+      <div class="form-group">
+        <label for="backBarcodeAlign">Barcode Alignment:</label>
+        <select id="backBarcodeAlign">
+          <option value="center">Left</option>
+          <option value="left">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="backApplyImageButton">Apply Image Settings</button>
+                                    <button type="button" id="backResetImageButton">Reset Image Settings</button>
+
+                            </details>
+                        </div>
+                    </details>
+                </div>
+
+            </details>
+        </section>
+
+        <section id="id-card-form">
+            <details open>
+                <summary>ID Card Information</summary>
+
+                <form id="idCardForm" class="card-form">
+
+                    <fieldset>
+                        <legend>Company Information</legend>
+                          <div class="form-group">
+        <label for="companyNameInput">Company Name:</label>
+        <input type="text" id="companyNameInput" placeholder="AVENIR CONSTRUCTION">
+      </div>
+      <div class="form-group">
+        <label for="companySubtitleInput">Company Subtitle:</label>
+        <input type="text" id="companySubtitleInput" placeholder="We Build for Future">
+      </div>
+      <div class="form-group">
+        <label for="companyLogoInput">Company Logo:</label>
+        <input type="file" id="companyLogoInput" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label for="ceoSignature">CEO/Director's Signature:</label>
+        <input type="file" id="ceoSignature" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label for="companyStamp">Company Stamp:</label>
+        <input type="file" id="companyStamp" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label for="companyPhone">Phone:</label>
+        <input type="tel" id="companyPhone" placeholder="+251900110200" pattern="^\+\d{1,}(?:\s?\d+)+$">
+        <span id="companyPhoneError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="companyEmail">Email:</label>
+        <input type="email" id="companyEmail" placeholder="admin@avenircon.com">
+        <span id="companyEmailError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="companyWebsite">Website:</label>
+        <input type="url" id="companyWebsite" placeholder="https://www.avenircon.com" required>
+        <span id="companyWebsiteError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="companyLocation">Location:</label>
+        <input type="text" id="companyLocation" placeholder="Jimma, Oromia, ETH" required>
+        <span id="companyLocationError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="ceoNameInput">CEO/Director's Name:</label>
+        <input type="text" id="ceoNameInput" placeholder="Eng. Temkin Sheref" required>
+        <span id="ceoNameInputError" class="error-message"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="companyNameInput">Company Name:</label>
+        <input type="text" id="companyNameInput" placeholder="Avenir Construction" required>
+        <span id="companyNameInputError" class="error-message"></span>
+      </div>
+
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Employee Information</legend>
+
+                             <div class="form-group">
+        <label for="frontNameInput">Full Name (Front):</label>
+        <input type="text" id="frontNameInput" placeholder="Full Name" required list="nameOptions">
+        <datalist id="nameOptions">
+          <option value="Saladin">
+          <option value="Mohammed Aba Rago">
+          <option value="Solomon Getachew">
+          <option value="Shemsedin Amme">
+          <option value="Abdi Seyfu">
+          <option value="Ahmed Mohammed">
+          <option value="Hassan Ahmed">
+          <option value="Temkin Sheref">
+          <option value="Mohammed Jemal">
+        </datalist>
+        <span id="frontNameInputError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="frontPositionInput">Position (Front):</label>
+        <input type="text" id="frontPositionInput" placeholder="Department or Position e.g. Structural Head"
+          required list="positionOptions">
+        <datalist id="positionOptions">
+          <option value="Construction Engineer">
+          <option value="Structural Head">
+          <option value="Human Resource Manager">
+          <option value="Driver">
+          <option value="Project Manager">
+          <option value="Accountant">
+          <option value="Site Supervisor">
+        </datalist>
+        <span id="frontPositionInputError" class="error-message"></span>
+      </div>
+                         <div class="form-group">
+                            <label for="frontPhoto">Photo (Front):</label>
+                            <input type="file" id="frontPhoto" accept="image/*" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="backNameInput">Full Name (Back):</label>
+                            <input type="text" id="backNameInput" list="nameOptions"
+                                placeholder="Full Name e.g. Mohammed Jemal" required>
+                            <datalist id="nameOptions">
+                                <option value="Saladin">
+                                <option value="Mohammed Aba Rago">
+                                <option value="Solomon Getachew">
+                                <option value="Shemsedin Amme">
+                                <option value="Abdi Seyfu">
+                                <option value="Ahmed Mohammed">
+                                <option value="Hassan Ahmed">
+                                <option value="Temkin Sheref">
+                                <option value="Mohammed Jemal">
+                            </datalist>
+                            <span id="backNameInputError" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="backPositionInput">Position (Back):</label>
+                            <input type="text" id="backPositionInput" list="positionOptions"
+                                placeholder="Department or Position e.g. Construction Engineer" required>
+                            <datalist id="positionOptions">
+                                <option value="Construction Engineer">
+                                <option value="Structural Head">
+                                <option value="Human Resource Manager">
+                                <option value="Driver">
+                                <option value="Project Manager">
+                                <option value="Accountant">
+                                <option value="Site Supervisor">
+                            </datalist>
+                            <span id="backPositionInputError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="employeePhone">Phone (optional):</label>
+                            <input type="tel" id="employeePhone" placeholder="+251911288275"
+                                pattern="^\+\d{1,}(?:\s?\d+)+$">
+                            <span id="employeePhoneError" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeEmail">Email (optional):</label>
+                            <input type="email" id="employeeEmail" placeholder="admin@avenircon.com">
+                            <span id="employeeEmailError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="frontIdNumber">ID Number:</label>
+                            <input type="text" id="frontIdNumber" placeholder="ID No e.g. 0122024" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="backIdNumber">ID Number:(same with front Id Number)</label>
+                            <input type="text" id="backIdNumber" placeholder="Enter ID.No the same with front page" required>
+                            <span id="backIdNumberError" class="error-message"></span>
+                        </div>
+                        <div class="dates">
+                            <div class="form-group">
+                                <label for="backIssueDate">Date of Issue:</label>
+                                <input type="date" id="backIssueDate" required>
+                                <span id="backIssueDateError" class="error-message"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="backExpiryDate">Expiry Date:</label>
+                                <input type="date" id="backExpiryDate" required>
+                                <span id="backExpiryDateError" class="error-message"></span>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                     <fieldset>
+                        <legend>Authorization Information</legend>
+                         <div class="form-group">
+                            <label for="authorizationStatement">Authorization:</label>
+                            <textarea id="authorizationStatement"
+                                placeholder="Enter authorization statement here..." required></textarea>
+                            <span id="authorizationStatementError" class="error-message"></span>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-actions">
+                        <button type="button" id="generateButton">Generate ID Card</button>
+                        <!-- Consider separate buttons for front/back if needed -->
+                        <button type="button" id="previewButton">Preview Card</button>
+                        <button type="button" id="exportPdfButton">Export PDF</button>
+                        <button type="button" id="exportPngButton">Export PNG</button>
+                        <button type="button" id="printButton">Print</button>
+                    </div>
+                </form>
+            </details>
+        </section>
+
+        <section id="preview-area">
+            <h2>Card Preview</h2>
+             <!-- Modal Structure -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">×</span>
+            <h2>Card Preview</h2>
+            <div class="preview-container">
+                <div id="front-preview-container">
+                    <h3>Front Preview</h3>
+                    <div id="front-preview-modal"></div>
+                </div>
+                <div id="back-preview-container">
+                    <h3>Back Preview</h3>
+                    <div id="back-preview-modal"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </section>
+
+        <section id="staff-management">
+            <details>
+                <summary>Staff Management</summary>
+                <h3>Staff ID Table</h3>
+                <button id="createStaffButton">Create New Staff</button>
+                <button id="saveStaffButton">Save Staff</button>
+                <div class="table-container">
+                    <table id="staff-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>ID Number</th>
+                                <th>Date Created</th>
+                                <th>Last Edited Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffTableBody">
+                            <!-- Staff data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+
+        <section id="user-guide">
+            <details>
+                <summary>User Guide</summary>
+                <p>Need help? Read user guides on how to use the ID Card Generator application to create,
+                    customize, and export ID cards.
+                    <a href="user_guide.html">Access user guide here</a></p>
+            </details>
+        </section>
+    </main>
+</div> 
+
+        <!-- Example structure from your earlier provided EJS: -->
+        <div class="row">
+            <div class="col-lg-4 col-md-5">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header"><h5><i class="fas fa-edit"></i> Card Information & Styles</h5></div>
+                    <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
+                        <fieldset class="mb-3 p-2 border rounded">
+                            <legend class="w-auto px-2 h6">Company Details</legend>
+                            <div class="mb-2">
+                                <!-- ID MUST MATCH idcard.js selector -->
+                                <label for="idcard-companyName" class="form-label form-label-sm">Company Name:</label>
+                                <input type="text" id="idcard-companyName" class="form-control form-control-sm">
+                                <div class="invalid-feedback"></div> <!-- For JS validation messages -->
+                            </div>
+                            <!-- ... other company inputs, ENSURE IDs MATCH idcard.js selectors ... -->
+                            <!-- e.g., id="idcard-companySubtitle", id="idcard-companyLogoUpload" etc. -->
+                             <div class="mb-2">
+                                <label for="idcard-companyLogoUpload" class="form-label form-label-sm">Company Logo Upload:</label>
+                                <input type="file" id="idcard-companyLogoUpload" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="mb-3 p-2 border rounded">
+                            <legend class="w-auto px-2 h6">Employee Details</legend>
+                            <div class="mb-2">
+                                <label for="idcard-employeeFullNameFront" class="form-label form-label-sm">Full Name (Front):</label>
+                                <input type="text" id="idcard-employeeFullNameFront" class="form-control form-control-sm">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                             <!-- ... other employee inputs, ENSURE IDs MATCH idcard.js ... -->
+                             <!-- e.g., id="idcard-employeePositionFront", id="idcard-employeeIdNumber", id="idcard-employeePhotoUpload" -->
+                             <div class="mb-2">
+                                <label for="idcard-employeeIdNumber" class="form-label form-label-sm">ID Number:</label>
+                                <input type="text" id="idcard-employeeIdNumber" class="form-control form-control-sm" data-barcode-value="">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-employeePhotoUpload" class="form-label form-label-sm">Employee Photo Upload:</label>
+                                <input type="file" id="idcard-employeePhotoUpload" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                             <div class="mb-2">
+                                <label for="idcard-issueDate" class="form-label form-label-sm">Issue Date:</label>
+                                <input type="date" id="idcard-issueDate" class="form-control form-control-sm">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </fieldset>
+
+                        <details class="mb-3" open> <summary class="h6" style="cursor:pointer;">Customize Styles</summary>
+                            <div class="p-2 border rounded">
+                                <!-- All your style control inputs (colors, fonts, image sizes) go here.
+                                     Ensure their IDs match what idcard.js expects.
+                                     e.g., id="frontIdCardBackgroundColor", id="frontHeaderFontSize", id="frontCompanyLogoWidth"
+                                -->
+                                <label for="frontIdCardBackgroundColor" class="form-label form-label-sm">ID Card BG Color:</label>
+                                <input type="color" id="frontIdCardBackgroundColor" class="form-control form-control-color form-control-sm" value="#ffffff">
+                            </div>
+                        </details>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <!-- Button IDs must match idcard.js -->
+                            <button id="idcard-generatePreviewBtn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Generate/Update Preview</button>
+                            <button id="idcard-exportPdfBtn" class="btn btn-success"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                            <!-- ... other buttons ... -->
+                             <button id="idcard-exportPngBtn" class="btn btn-info"><i class="fas fa-file-image"></i> Export PNG</button>
+                            <button id="idcard-printBtn" class="btn btn-warning"><i class="fas fa-print"></i> Print Card</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-md-7">
+                <div class="sticky-top" style="top: 20px;">
+                    <h5 class="text-center">Live Preview</h5>
+                    <div class="row justify-content-center">
+                        <div class="col-xl-6 col-lg-10 mb-3">
+                            <h6 class="text-center text-muted">Front</h6>
+                            <!-- Main preview container for front card. ID "front-id-card" is used by idcard.js -->
+                            <div id="front-id-card" class="id-card-render-area shadow" style="width: 337px; height: 212px; margin:auto; background-color: white; border: 1px solid #ccc; position: relative; overflow: hidden;">
+                                <!-- Elements inside here should have IDs that idcard.js targets for direct manipulation.
+                                     e.g., <img id="companyLogo" ...>, <div id="employeeName">...</div> -->
+                                <img id="companyLogo" src="" style="position:absolute; top:10px; left:10px; max-width:60px; max-height:30px;" alt="Company Logo">
+                                <div id="companyName" style="position:absolute; top:15px; left:80px; font-size:14px; font-weight:bold; color: #000;"></div>
+                                <img id="employeePhoto" src="" style="position:absolute; top:50px; left:15px; width:80px; height:100px; border:1px solid #ddd; object-fit:cover;" alt="Employee Photo">
+                                <div id="employeeName" style="position:absolute; top:60px; left:105px; font-size:16px; font-weight:bold; color: #000;"></div>
+                                <div id="employeePosition" style="position:absolute; top:85px; left:105px; font-size:12px; color: #333;"></div>
+                                <div id="employeeId" style="position:absolute; top:105px; left:105px; font-size:12px; color: #333;"></div>
+                                <svg id="frontBarcode" style="position:absolute; bottom: 10px; right:10px;"></svg>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-10 mb-3">
+                            <h6 class="text-center text-muted">Back</h6>
+                             <!-- Main preview container for back card. ID "back-id-card" is used by idcard.js -->
+                            <div id="back-id-card" class="id-card-render-area shadow" style="width: 337px; height: 212px; margin:auto; background-color: white; border: 1px solid #ccc; position: relative; overflow: hidden;">
+                                <img id="logo" src="" style="position:absolute; top:10px; left:10px; max-width:60px; max-height:30px;" alt="Back Company Logo"> <!-- Note: Original JS used 'logo' for back card logo -->
+                                <div id="authorizationDisplay" style="position:absolute; top:50px; left:10px; right:10px; font-size:9px; line-height:1.2; text-align:center;"></div>
+                                <!-- ... other back card elements with IDs like 'backName', 'backPosition', 'issueDate', 'expiryDate', 'ceoNameDisplay', 'signature' (img), 'stamp' (img) -->
+                                <div id="backName" style="position:absolute; /* define styles */"></div>
+                                <div id="backPosition" style="position:absolute; /* define styles */"></div>
+                                <div id="backId" style="position:absolute; /* define styles */"></div>
+                                <div id="issueDate" style="position:absolute; /* define styles */"></div>
+                                <div id="expiryDate" style="position:absolute; /* define styles */"></div>
+                                <img class="signature" src="" style="position:absolute; bottom:40px; left:10px; max-height:30px;" alt="CEO Signature">
+                                <div id="ceoNameDisplay" style="position:absolute; bottom:25px; left:10px; font-size:10px;"></div>
+                                <img class="stamp" src="" style="position:absolute; bottom:10px; right:10px; max-height:40px;" alt="Company Stamp">
+                                <svg id="backBarcode" style="position:absolute; top: 80px; left:50%; transform: translateX(-50%);"></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal structure (if you are using the modal preview from original idcard.js) -->
+    <div id="previewModal" class="modal" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color:#fefefe; margin:5% auto; padding:20px; border:1px solid #888; width:80%; max-width:900px; border-radius: .3rem; position:relative;">
+            <span class="close-button" style="color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer;">×</span>
+            <h4 class="text-center">ID Card Preview</h4>
+            <div class="row">
+                <div class="col-md-6 text-center">
+                    <h5>Front</h5>
+                    <div id="front-preview-modal" style="border:1px solid #ddd; margin:auto; width: 337px; height: 212px; /* Match card dimensions */">
+                        <!-- Content will be copied here by JS -->
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <h5>Back</h5>
+                    <div id="back-preview-modal" style="border:1px solid #ddd; margin:auto; width: 337px; height: 212px;">
+                        <!-- Content will be copied here by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/js/idcard.js"></script>
+
+<%- contentFor('body') %>
+<div class="container-fluid mt-4 id-card-generator-page">
+    <!-- ... header ... -->
+    <%- include('../../partials/_messages') %>
+
+    <script>
+        // Server-provided data
+        const initialStaffData = <%- JSON.stringify(staffMember) %>;
+        const initialCompanySettings = <%- JSON.stringify(companySettings) %>;
+
+        // Correct image paths for client-side JS
+        initialStaffData.photo_url = initialStaffData.photo_filename ? `/uploads/staff_photos/${initialStaffData.photo_filename}` : '/images/placeholder-photo.png';
+        initialCompanySettings.logo_url = initialCompanySettings.logo_filename ? `/uploads/company_assets/${initialCompanySettings.logo_filename}` : '/images/logo.png';
+        initialCompanySettings.signature_url = initialCompanySettings.signature_filename ? `/uploads/company_assets/${initialCompanySettings.signature_filename}` : '/images/signature.png';
+        initialCompanySettings.stamp_url = initialCompanySettings.stamp_filename ? `/uploads/company_assets/${initialCompanySettings.stamp_filename}` : '/images/stamp.png';
+    </script>
+
+    <div id="id-card-application-wrapper">
+  <div class="container">
+        <header>
+            <h1>AVC ID Card Generator</h1>
+        </header>
+        
+
+        <main>
+            
+         <section id="user-guide-header">
+                <p><b>Need help?</b> Read <a href="user_guide.html">user guides </a>on how to use the ID Card Generator - 
+                    <a href="user_guide.html">access it here!</a></p>
+        
+        </section>
+            <section id="id-card-editor">
+                <details open>
+                    <summary>ID Card Editor</summary>
+
+                    <div class="card-preview">
+                        <!-- Front ID Card -->
+                        <div id="front-id-card" class="id-card front">
+                            <div class="header-section">
+                                <div class="header">
+                                    <div class="header-text">
+                                        <h1 id="companyName">AVENIR CONSTRUCTION</h1>
+                                        <h3 id="companySubtitle">We Build for Future</h3>
+                                    </div>
+                                    <div class="logo">
+                                        <img src="images/logo.png" alt="AVENIR Company Logo" id="companyLogo">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="photo-section">
+                                <div class="photo">
+                                    <img src="images/placeholder-photo.png" alt="Employee Photo" id="employeePhoto">
+                                </div>
+                            </div>
+                            <div class="details-section">
+                                <div class="employee-name-box">
+                                    <p id="employeeName">Full Name</p>
+                                </div>
+                                <div class="employee-position-box">
+                                    <p id="employeePosition">Department</p>
+                                </div>
+                                <div class="barcode-box">
+                                    <svg id="frontBarcode"></svg>
+                                </div>
+                                <div class="employee-id-box">
+                                    <p id="employeeId">ID: 122024</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Back ID Card -->
+                        <div id="back-id-card" class="id-card back">
+                            <div class="logo">
+                                <img src="images/logo.png" alt="Avenir Construction Company Logo" id="logo">
+                            </div>
+
+                            <div class="employee-details">
+                                <p><strong>Name:</strong> <span id="backName">Full Name</span></p>
+                                <p><strong>Position:</strong> <span id="backPosition">Position</span></p>
+                                <p><strong>ID Number:</strong> <span id="backId">12345</span></p>
+                                <p><strong>Date of Issue:</strong> <span id="issueDate">01/01/2025</span></p>
+                                <p><strong>Expiry Date:</strong> <span id="expiryDate">01/01/2028</span></p>
+                            </div>
+
+                            <div class="contact-info">
+                                <p><b>Company Contact:</b></p>
+                                <p>Phone: <span id="companyPhoneDisplay">+251900110200</span></p>
+                                <p>Email: <span id="companyEmailDisplay">admin@avenircon.com</span></p>
+                                <p>Website: <span id="companyWebsiteDisplay">https://www.avenircon.com</span></p>
+                                <p>Address: <span id="companyLocationDisplay">Jimma, Oromia, ETH</span></p>
+                            </div>
+
+                            <img src="images/stamp.png" alt="Avenir Construction Company Stamp" class="stamp">
+                            <p class="authorization">Authorization: <span id="authorizationDisplay">I certify that the bearer of
+                                    this ID Badge is a staff of AVC.</span></p>
+                            <img src="images/signature.png" alt="CEO Signature of Eng. Shemsedin Amme" class="signature">
+
+                            <div class="ceoName">
+                                <p>CEO: <span id="ceoNameDisplay">Eng. Temkin Sheref</span></p>
+                            </div>
+
+                            <div class="footer companyName">
+                                <p id="companyNameDisplay">Avenir Construction</p>
+                            </div>
+                            <div class="barcode-box">
+                                <svg id="backBarcode"></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-settings">
+                        <details>
+                            <summary>Front Card Style Settings</summary>
+                            <!-- Front Card Style Settings (Colors, Fonts, Images) -->
+                            <div class="color-selection-section">
+                                <details>
+                                    <summary>Customize Colors</summary>
+                                    <!-- Color Customization Form Groups -->
+                                     <div class="form-group">
+        <label for="frontIdCardBackgroundColor">ID Card Background Color:</label>
+        <input type="color" id="frontIdCardBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontIdCardBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontIdCardBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontIdCardBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontIdCardBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontHeaderBackgroundColor">Header Background Color:</label>
+        <input type="color" id="frontHeaderBackgroundColor" value="#FF4900">
+        <input type="text" id="frontHeaderBackgroundColorHex" placeholder="#FF4900"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontHeaderBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontHeaderBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontHeaderBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontHeaderFontColor">Header Font Color:</label>
+        <input type="color" id="frontHeaderFontColor" value="#FFFFFF">
+        <input type="text" id="frontHeaderFontColorHex" placeholder="#FFFFFF" class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontHeaderFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontHeaderFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontHeaderFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePhotoBorderColor">Employee Photo Border Color:</label>
+        <input type="color" id="frontEmployeePhotoBorderColor" value="#000000">
+        <input type="text" id="frontEmployeePhotoBorderColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePhotoBorderColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePhotoBorderColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePhotoBorderColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePhotoBackgroundColor">Employee Photo Background Color:</label>
+        <input type="color" id="frontEmployeePhotoBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeePhotoBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePhotoBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePhotoBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePhotoBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeNameBackgroundColor">Employee Name Background Color:</label>
+        <input type="color" id="frontEmployeeNameBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeeNameBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeNameBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeNameBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeNameBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeNameFontColor">Employee Name Font Color:</label>
+        <input type="color" id="frontEmployeeNameFontColor" value="#000000">
+        <input type="text" id="frontEmployeeNameFontColorHex" placeholder="#000000" class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeNameFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeNameFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeNameFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePositionBackgroundColor">Employee Position Background Color:</label>
+        <input type="color" id="frontEmployeePositionBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeePositionBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePositionBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePositionBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePositionBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePositionFontColor">Employee Position Font Color:</label>
+        <input type="color" id="frontEmployeePositionFontColor" value="#000000">
+        <input type="text" id="frontEmployeePositionFontColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeePositionFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeePositionFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeePositionFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeIdBackgroundColor">Employee ID Background Color:</label>
+        <input type="color" id="frontEmployeeIdBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontEmployeeIdBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeIdBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeIdBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeIdBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeeIdFontColor">Employee ID Font Color:</label>
+        <input type="color" id="frontEmployeeIdFontColor" value="#000000">
+        <input type="text" id="frontEmployeeIdFontColorHex" placeholder="#000000" class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontEmployeeIdFontColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontEmployeeIdFontColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontEmployeeIdFontColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontCompanyLogoBackgroundColor">Company Logo Background Color:</label>
+        <input type="color" id="frontCompanyLogoBackgroundColor" value="#FFFFFF">
+        <input type="text" id="frontCompanyLogoBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontCompanyLogoBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontCompanyLogoBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontCompanyLogoBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="frontCompanyLogoBorderColor">Company Logo Border Color:</label>
+        <input type="color" id="frontCompanyLogoBorderColor" value="#000000">
+        <input type="text" id="frontCompanyLogoBorderColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="frontCompanyLogoBorderColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="frontCompanyLogoBorderColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="frontCompanyLogoBorderColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+                                    <button type="button" id="frontApplyColorsButton">Apply Colors</button>
+                                    <button type="button" id="frontResetColorsButton">Reset Colors</button>
+
+                                </details>
+                            </div>
+                            <div class="font-selection-section">
+                                <details>
+                                    <summary>Customize Font Size, Weight, and Alignment</summary>
+                                     <div class="form-group">
+        <label for="frontEmployeeNameTop">Employee Name Top (mm):</label>
+        <input type="number" id="frontEmployeeNameTop" value="45">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameLeft">Employee Name Left (mm):</label>
+        <input type="number" id="frontEmployeeNameLeft" value="5">
+      </div>
+      <div class="form-group">
+        <label for="frontHeaderFontSize">Header Font Size (mm):</label>
+        <input type="number" id="frontHeaderFontSize" value="4">
+      </div>
+      <div class="form-group">
+        <label for="frontHeaderFontWeight">Header Font Weight:</label>
+        <input type="number" id="frontHeaderFontWeight" value="600">
+      </div>
+      <div class="form-group">
+        <label for="frontHeaderTextAlign">Header Text Alignment:</label>
+        <select id="frontHeaderTextAlign">
+          <option value="right">Right</option>
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameFontSize">Employee Name Font Size (mm):</label>
+        <input type="number" id="frontEmployeeNameFontSize" value="3.5">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameFontWeight">Employee Name Font Weight:</label>
+        <input type="number" id="frontEmployeeNameFontWeight" value="500">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeNameTextAlign">Employee Name Text Alignment:</label>
+        <select id="frontEmployeeNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePositionFontSize">Employee Position Font Size (mm):</label>
+        <input type="number" id="frontEmployeePositionFontSize" value="3">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePositionFontWeight">Employee Position Font Weight:</label>
+        <input type="number" id="frontEmployeePositionFontWeight" value="500">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePositionTextAlign">Employee Position Text Alignment:</label>
+        <select id="frontEmployeePositionTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeIdFontSize">Employee ID Font Size (mm):</label>
+        <input type="number" id="frontEmployeeIdFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeIdFontWeight">Employee ID Font Weight:</label>
+        <input type="number" id="frontEmployeeIdFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeeIdTextAlign">Employee ID Text Alignment:</label>
+        <select id="frontEmployeeIdTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="frontApplyFontButton">Apply Fonts</button>
+                                    <button type="button" id="frontResetFontButton">Reset Fonts</button>
+                                </details>
+                            </div>
+                            <div class="image-selection-section">
+                                <details>
+                                    <summary>Customize Image Size and Alignment</summary>
+                                      <div class="form-group">
+        <label for="frontCompanyLogoTop">Company Logo Top (mm):</label>
+        <input type="number" id="frontCompanyLogoTop" value="2">
+      </div>
+      <div class="form-group">
+        <label for="frontCompanyLogoLeft">Company Logo Left (mm):</label>
+        <input type="number" id="frontCompanyLogoLeft" value="2">
+      </div>
+
+      <div class="form-group">
+        <label for="frontEmployeePhotoTop">Employee Photo Top (mm):</label>
+        <input type="number" id="frontEmployeePhotoTop" value="15">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoLeft">Employee Photo Left (mm):</label>
+        <input type="number" id="frontEmployeePhotoLeft" value="10">
+      </div>
+
+      <div class="form-group">
+        <label for="frontCompanyLogoWidth">Company Logo Width (mm):</label>
+        <input type="number" id="frontCompanyLogoWidth" value="10">
+      </div>
+      <div class="form-group">
+        <label for="frontCompanyLogoHeight">Company Logo Height (mm):</label>
+        <input type="number" id="frontCompanyLogoHeight" value="10">
+      </div>
+      <div class="form-group">
+        <label for="frontCompanyLogoAlign">Company Logo Alignment:</label>
+        <select id="frontCompanyLogoAlign">
+          <option value="right">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoWidth">Employee Photo Width (mm):</label>
+        <input type="number" id="frontEmployeePhotoWidth" value="30">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoHeight">Employee Photo Height (mm):</label>
+        <input type="number" id="frontEmployeePhotoHeight" value="30">
+      </div>
+      <div class="form-group">
+        <label for="frontEmployeePhotoAlign">Employee Photo Alignment:</label>
+        <select id="frontEmployeePhotoAlign">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <!-- **FRONT: Employee Photo Border Radius** -->
+      <div class="form-group">
+        <label for="frontEmployeePhotoBorderRadius">Employee Photo Border Radius (%):</label>
+        <input type="number" id="frontEmployeePhotoBorderRadius" value="50" min="0" max="50">
+      </div>
+
+      <!-- **FRONT: Company Logo Border Radius** -->
+      <div class="form-group">
+        <label for="frontCompanyLogoBorderRadius">Company Logo Border Radius (%):</label>
+        <input type="number" id="frontCompanyLogoBorderRadius" value="0" min="0" max="50">
+      </div>
+
+
+      <div class="form-group">
+        <label for="frontBarcodeWidth">Barcode Width (mm):</label>
+        <input type="number" id="frontBarcodeWidth" value="40">
+      </div>
+      <div class="form-group">
+        <label for="frontBarcodeHeight">Barcode Height (mm):</label>
+        <input type="number" id="frontBarcodeHeight" value="10">
+      </div>
+      <div class="form-group">
+        <label for="frontBarcodeAlign">Barcode Alignment:</label>
+        <select id="frontBarcodeAlign">
+          <option value="center">Left</option>
+          <option value="left">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="frontApplyImageButton">Apply Image Settings</button>
+                                    <button type="button" id="frontResetImageButton">Reset Image Settings</button>
+                                </details>
+                            </div>
+                        </details>
+                        
+                        <details>
+                            <summary>Back Card Style Settings</summary>
+                            <!-- Back Card Style Settings (Colors, Fonts, Images) -->
+                            <div class="color-selection-section">
+                                <details>
+                                    <summary>Customize Colors</summary>
+                                    <!-- Back Card Color Customization Form Groups -->
+                                      <div class="form-group">
+        <label for="backIdCardBackgroundColor">ID Card Background Color:</label>
+        <input type="color" id="backIdCardBackgroundColor" value="#FFFFFF">
+        <input type="text" id="backIdCardBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="backIdCardBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="backIdCardBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="backIdCardBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="backCompanyLogoBackgroundColor">Company Logo Background Color:</label>
+        <input type="color" id="backCompanyLogoBackgroundColor" value="#FFFFFF">
+        <input type="text" id="backCompanyLogoBackgroundColorHex" placeholder="#FFFFFF"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="backCompanyLogoBackgroundColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="backCompanyLogoBackgroundColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="backCompanyLogoBackgroundColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="backCompanyLogoBorderColor">Company Logo Border Color:</label>
+        <input type="color" id="backCompanyLogoBorderColor" value="#000000">
+        <input type="text" id="backCompanyLogoBorderColorHex" placeholder="#000000"
+          class="hex-input">
+        <div class="rgb-inputs">
+          <input type="number" id="backCompanyLogoBorderColorR" min="0" max="255" placeholder="R">
+          <input type="number" id="backCompanyLogoBorderColorG" min="0" max="255" placeholder="G">
+          <input type="number" id="backCompanyLogoBorderColorB" min="0" max="255" placeholder="B">
+        </div>
+      </div>
+
+                                    <button type="button" id="backApplyColorsButton">Apply Colors</button>
+                                    <button type="button" id="backResetColorsButton">Reset Colors</button>
+
+                                </details>
+                            </div>
+                            <div class="font-selection-section">
+                                <details>
+                                    <summary>Customize Font Size, Weight, and Alignment</summary>
+                                    <!-- Back Card Font Size, Weight, and Alignment Form Groups -->
+                                       <div class="form-group">
+        <label for="backEmployeeNameFontSize">Employee Name Font Size (mm):</label>
+        <input type="number" id="backEmployeeNameFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeNameFontWeight">Employee Name Font Weight:</label>
+        <input type="number" id="backEmployeeNameFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeNameTextAlign">Employee Name Text Alignment:</label>
+        <select id="backEmployeeNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backEmployeePositionFontSize">Employee Position Font Size (mm):</label>
+        <input type="number" id="backEmployeePositionFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeePositionFontWeight">Employee Position Font Weight:</label>
+        <input type="number" id="backEmployeePositionFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeePositionTextAlign">Employee Position Text Alignment:</label>
+        <select id="backEmployeePositionTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backEmployeeIdFontSize">Employee ID Font Size (mm):</label>
+        <input type="number" id="backEmployeeIdFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeIdFontWeight">Employee ID Font Weight:</label>
+        <input type="number" id="backEmployeeIdFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backEmployeeIdTextAlign">Employee ID Text Alignment:</label>
+        <select id="backEmployeeIdTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backContactInfoFontSize">Contact Info Font Size (mm):</label>
+        <input type="number" id="backContactInfoFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backContactInfoFontWeight">Contact Info Font Weight:</label>
+        <input type="number" id="backContactInfoFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backContactInfoTextAlign">Contact Info Text Alignment:</label>
+        <select id="backContactInfoTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backAuthorizationStatementFontSize">Authorization Statement Font Size (mm):</label>
+        <input type="number" id="backAuthorizationStatementFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backAuthorizationStatementFontWeight">Authorization Statement Font Weight:</label>
+        <input type="number" id="backAuthorizationStatementFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backAuthorizationStatementTextAlign">Authorization Statement Text Alignment:</label>
+        <select id="backAuthorizationStatementTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backCeoNameFontSize">CEO Name Font Size (mm):</label>
+        <input type="number" id="backCeoNameFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backCeoNameFontWeight">CEO Name Font Weight:</label>
+        <input type="number" id="backCeoNameFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backCeoNameTextAlign">CEO Name Text Alignment:</label>
+        <select id="backCeoNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="backFooterCompanyNameFontSize">Footer Company Name Font Size (mm):</label>
+        <input type="number" id="backFooterCompanyNameFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backFooterCompanyNameFontWeight">Footer Company Name Font Weight:</label>
+        <input type="number" id="backFooterCompanyNameFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backFooterCompanyNameTextAlign">Footer Company Name Text Alignment:</label>
+        <select id="backFooterCompanyNameTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="backAddressLocationFontSize">Address/Location Font Size (mm):</label>
+        <input type="number" id="backAddressLocationFontSize" value="2.8">
+      </div>
+      <div class="form-group">
+        <label for="backAddressLocationFontWeight">Address/Location Font Weight:</label>
+        <input type="number" id="backAddressLocationFontWeight" value="300">
+      </div>
+      <div class="form-group">
+        <label for="backAddressLocationTextAlign">Address/Location Text Alignment:</label>
+        <select id="backAddressLocationTextAlign">
+          <option value="center">Center</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="backApplyFontButton">Apply Fonts</button>
+                                    <button type="button" id="backResetFontButton">Reset Fonts</button>
+
+                            </details>
+                        </div>
+                        <div class="image-selection-section">
+                            <details>
+                                <summary>Customize Image Size and Alignment</summary>
+                                  <!-- Back Card Image Customization Form Groups -->
+                                        <div class="form-group">
+        <label for="backCompanyLogoTop">Company Logo Top (mm):</label>
+        <input type="number" id="backCompanyLogoTop" value="2">
+      </div>
+      <div class="form-group">
+        <label for="backCompanyLogoLeft">Company Logo Left (mm):</label>
+        <input type="number" id="backCompanyLogoLeft" value="2">
+      </div>
+      <div class="form-group">
+        <label for="backCompanyLogoWidth">Company Logo Width (mm):</label>
+        <input type="number" id="backCompanyLogoWidth" value="10">
+      </div>
+      <div class="form-group">
+        <label for="backCompanyLogoHeight">Company Logo Height (mm):</label>
+        <input type="number" id="backCompanyLogoHeight" value="10">
+      </div>
+
+      <!-- **BACK: Company Logo Border Radius** -->
+      <div class="form-group">
+        <label for="backCompanyLogoBorderRadius">Company Logo Border Radius (%):</label>
+        <input type="number" id="backCompanyLogoBorderRadius" value="0" min="0" max="50">
+      </div>
+
+      <div class="form-group">
+        <label for="backSignatureWidth">CEO Signature Width (mm):</label>
+        <input type="number" id="backSignatureWidth" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backSignatureHeight">CEO Signature Height (mm):</label>
+        <input type="number" id="backSignatureHeight" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backSignatureAlign">CEO Signature Alignment:</label>
+        <select id="backSignatureAlign">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backStampWidth">Company Stamp Width (mm):</label>
+        <input type="number" id="backStampWidth" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backStampHeight">Company Stamp Height (mm):</label>
+        <input type="number" id="backStampHeight" value="30">
+      </div>
+      <div class="form-group">
+        <label for="backStampAlign">Company Stamp Alignment:</label>
+        <select id="backStampAlign">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="backBarcodeWidth">Barcode Width (mm):</label>
+        <input type="number" id="backBarcodeWidth" value="40">
+      </div>
+      <div class="form-group">
+        <label for="backBarcodeHeight">Barcode Height (mm):</label>
+        <input type="number" id="backBarcodeHeight" value="10">
+      </div>
+      <div class="form-group">
+        <label for="backBarcodeAlign">Barcode Alignment:</label>
+        <select id="backBarcodeAlign">
+          <option value="center">Left</option>
+          <option value="left">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+                                    <button type="button" id="backApplyImageButton">Apply Image Settings</button>
+                                    <button type="button" id="backResetImageButton">Reset Image Settings</button>
+
+                            </details>
+                        </div>
+                    </details>
+                </div>
+
+            </details>
+        </section>
+
+        <section id="id-card-form">
+            <details open>
+                <summary>ID Card Information</summary>
+
+                <form id="idCardForm" class="card-form">
+
+                    <fieldset>
+                        <legend>Company Information</legend>
+                          <div class="form-group">
+        <label for="companyNameInput">Company Name:</label>
+        <input type="text" id="companyNameInput" placeholder="AVENIR CONSTRUCTION">
+      </div>
+      <div class="form-group">
+        <label for="companySubtitleInput">Company Subtitle:</label>
+        <input type="text" id="companySubtitleInput" placeholder="We Build for Future">
+      </div>
+      <div class="form-group">
+        <label for="companyLogoInput">Company Logo:</label>
+        <input type="file" id="companyLogoInput" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label for="ceoSignature">CEO/Director's Signature:</label>
+        <input type="file" id="ceoSignature" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label for="companyStamp">Company Stamp:</label>
+        <input type="file" id="companyStamp" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label for="companyPhone">Phone:</label>
+        <input type="tel" id="companyPhone" placeholder="+251900110200" pattern="^\+\d{1,}(?:\s?\d+)+$">
+        <span id="companyPhoneError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="companyEmail">Email:</label>
+        <input type="email" id="companyEmail" placeholder="admin@avenircon.com">
+        <span id="companyEmailError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="companyWebsite">Website:</label>
+        <input type="url" id="companyWebsite" placeholder="https://www.avenircon.com" required>
+        <span id="companyWebsiteError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="companyLocation">Location:</label>
+        <input type="text" id="companyLocation" placeholder="Jimma, Oromia, ETH" required>
+        <span id="companyLocationError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="ceoNameInput">CEO/Director's Name:</label>
+        <input type="text" id="ceoNameInput" placeholder="Eng. Temkin Sheref" required>
+        <span id="ceoNameInputError" class="error-message"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="companyNameInput">Company Name:</label>
+        <input type="text" id="companyNameInput" placeholder="Avenir Construction" required>
+        <span id="companyNameInputError" class="error-message"></span>
+      </div>
+
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Employee Information</legend>
+
+                             <div class="form-group">
+        <label for="frontNameInput">Full Name (Front):</label>
+        <input type="text" id="frontNameInput" placeholder="Full Name" required list="nameOptions">
+        <datalist id="nameOptions">
+          <option value="Saladin">
+          <option value="Mohammed Aba Rago">
+          <option value="Solomon Getachew">
+          <option value="Shemsedin Amme">
+          <option value="Abdi Seyfu">
+          <option value="Ahmed Mohammed">
+          <option value="Hassan Ahmed">
+          <option value="Temkin Sheref">
+          <option value="Mohammed Jemal">
+        </datalist>
+        <span id="frontNameInputError" class="error-message"></span>
+      </div>
+      <div class="form-group">
+        <label for="frontPositionInput">Position (Front):</label>
+        <input type="text" id="frontPositionInput" placeholder="Department or Position e.g. Structural Head"
+          required list="positionOptions">
+        <datalist id="positionOptions">
+          <option value="Construction Engineer">
+          <option value="Structural Head">
+          <option value="Human Resource Manager">
+          <option value="Driver">
+          <option value="Project Manager">
+          <option value="Accountant">
+          <option value="Site Supervisor">
+        </datalist>
+        <span id="frontPositionInputError" class="error-message"></span>
+      </div>
+                         <div class="form-group">
+                            <label for="frontPhoto">Photo (Front):</label>
+                            <input type="file" id="frontPhoto" accept="image/*" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="backNameInput">Full Name (Back):</label>
+                            <input type="text" id="backNameInput" list="nameOptions"
+                                placeholder="Full Name e.g. Mohammed Jemal" required>
+                            <datalist id="nameOptions">
+                                <option value="Saladin">
+                                <option value="Mohammed Aba Rago">
+                                <option value="Solomon Getachew">
+                                <option value="Shemsedin Amme">
+                                <option value="Abdi Seyfu">
+                                <option value="Ahmed Mohammed">
+                                <option value="Hassan Ahmed">
+                                <option value="Temkin Sheref">
+                                <option value="Mohammed Jemal">
+                            </datalist>
+                            <span id="backNameInputError" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="backPositionInput">Position (Back):</label>
+                            <input type="text" id="backPositionInput" list="positionOptions"
+                                placeholder="Department or Position e.g. Construction Engineer" required>
+                            <datalist id="positionOptions">
+                                <option value="Construction Engineer">
+                                <option value="Structural Head">
+                                <option value="Human Resource Manager">
+                                <option value="Driver">
+                                <option value="Project Manager">
+                                <option value="Accountant">
+                                <option value="Site Supervisor">
+                            </datalist>
+                            <span id="backPositionInputError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="employeePhone">Phone (optional):</label>
+                            <input type="tel" id="employeePhone" placeholder="+251911288275"
+                                pattern="^\+\d{1,}(?:\s?\d+)+$">
+                            <span id="employeePhoneError" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeEmail">Email (optional):</label>
+                            <input type="email" id="employeeEmail" placeholder="admin@avenircon.com">
+                            <span id="employeeEmailError" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="frontIdNumber">ID Number:</label>
+                            <input type="text" id="frontIdNumber" placeholder="ID No e.g. 0122024" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="backIdNumber">ID Number:(same with front Id Number)</label>
+                            <input type="text" id="backIdNumber" placeholder="Enter ID.No the same with front page" required>
+                            <span id="backIdNumberError" class="error-message"></span>
+                        </div>
+                        <div class="dates">
+                            <div class="form-group">
+                                <label for="backIssueDate">Date of Issue:</label>
+                                <input type="date" id="backIssueDate" required>
+                                <span id="backIssueDateError" class="error-message"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="backExpiryDate">Expiry Date:</label>
+                                <input type="date" id="backExpiryDate" required>
+                                <span id="backExpiryDateError" class="error-message"></span>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                     <fieldset>
+                        <legend>Authorization Information</legend>
+                         <div class="form-group">
+                            <label for="authorizationStatement">Authorization:</label>
+                            <textarea id="authorizationStatement"
+                                placeholder="Enter authorization statement here..." required></textarea>
+                            <span id="authorizationStatementError" class="error-message"></span>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-actions">
+                        <button type="button" id="generateButton">Generate ID Card</button>
+                        <!-- Consider separate buttons for front/back if needed -->
+                        <button type="button" id="previewButton">Preview Card</button>
+                        <button type="button" id="exportPdfButton">Export PDF</button>
+                        <button type="button" id="exportPngButton">Export PNG</button>
+                        <button type="button" id="printButton">Print</button>
+                    </div>
+                </form>
+            </details>
+        </section>
+
+        <section id="preview-area">
+            <h2>Card Preview</h2>
+             <!-- Modal Structure -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">×</span>
+            <h2>Card Preview</h2>
+            <div class="preview-container">
+                <div id="front-preview-container">
+                    <h3>Front Preview</h3>
+                    <div id="front-preview-modal"></div>
+                </div>
+                <div id="back-preview-container">
+                    <h3>Back Preview</h3>
+                    <div id="back-preview-modal"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </section>
+
+        <section id="staff-management">
+            <details>
+                <summary>Staff Management</summary>
+                <h3>Staff ID Table</h3>
+                <button id="createStaffButton">Create New Staff</button>
+                <button id="saveStaffButton">Save Staff</button>
+                <div class="table-container">
+                    <table id="staff-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>ID Number</th>
+                                <th>Date Created</th>
+                                <th>Last Edited Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffTableBody">
+                            <!-- Staff data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+
+        <section id="user-guide">
+            <details>
+                <summary>User Guide</summary>
+                <p>Need help? Read user guides on how to use the ID Card Generator application to create,
+                    customize, and export ID cards.
+                    <a href="user_guide.html">Access user guide here</a></p>
+            </details>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Proffessional ID Card Generator</p>
+    </footer>
+</div>
+
+    </div>
+    
+ 
+
+<!-- Include necessary JS libraries like JsBarcode, html2canvas, jsPDF -->
+<!-- Ensure these paths are correct or use CDNs -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Your idcard.js script -->
+<script src="/js/idcard.js"></script> 
+<!-- Ensure /js/idcard.js correctly uses initialStaffData and initialCompanySettings -->
+
+
+    <style>
+
+
+/* frontback.css */
+
+/* --- General Styles (unchanged) --- */
+body {
+  font-family: sans-serif;
+  line-height: 1.6;
+  background-color: #f4f4f4;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+header {
+  background-color: #2c3e50;
+  color: #fff;
+  padding: 1em;
+  text-align: center;
+}
+
+main {
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+section {
+  margin-bottom: 20px;
+  padding: 1em;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+footer {
+  background-color: #2c3e50;
+  color: #fff;
+  text-align: center;
+  padding: 0.5em;
+}
+
+/* --- ID Card Editor Styles (unchanged) --- */
+#id-card-editor {}
+
+#id-card-editor details {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+#id-card-editor summary {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #eee;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+.card-preview {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.id-card {
+  width: 50mm;
+  height: 80mm;
+  border: 1px solid #000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative; /* Required for absolute positioning of stamp */
+}
+
+.front {
+  background-color: #fff;
+}
+
+.back {
+  background-color: #eee;
+}
+
+/* --- Front Card Styles (modified Header section) --- */
+/* --- Front Card Styles (modified Header section) --- */
+.front .header-section {
+    background-color: #FF4900;
+    color: #fff;
+    padding: 0.4em;
+    border-bottom: 2px solid #ddd;
+    position: relative;
+    overflow: hidden;  /* Keep overflow hidden for layout */
+    display: flex; /* Use flexbox for vertical alignment */
+    flex-direction: column; /* Stack header text elements */
+    justify-content: center; /* Vertically center content */
+    min-height: 15mm; /* Minimum height to accommodate content */
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.front .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Ensure header takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.front .header-text {
+    text-align: right;
+    width: 70%; /* Control text area width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.front .header-text h1 {
+    font-size: 3.5mm;
+    margin: 0;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    word-wrap: break-word; /* Enable text wrapping */
+    overflow-wrap: break-word; /* Alternative for older browsers */
+}
+
+.front .header-text h3 {
+    font-size: 2.5mm;
+    margin: 0;
+    word-wrap: break-word; /* Enable text wrapping */
+    overflow-wrap: break-word; /* Alternative for older browsers */
+}
+
+.front .logo {
+    width: 30%; /* Control logo area width */
+    text-align: right;
+}
+
+.front .logo img {
+    width: 9mm;
+    height: 9mm;
+    border: none;
+    background-color: white;
+    border: 1px solid #000;
+    border-radius: 3px;
+    vertical-align: middle; /* Align logo vertically */
+}
+
+.front .photo-section {
+  padding: 0.2em;  /* Adjusted Photo section padding */
+  display: flex;
+  justify-content: center; /* Center the photo */
+}
+
+.front .photo {
+  width: 30mm;
+  height: 30mm;
+  border-radius: 50%;
+  overflow: hidden; /* Clip to circle */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Subtle Shadow */
+}
+
+.front .photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.front .details-section {
+  padding: 0.1em;  /* Adjusted Details section padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 90%;
+}
+
+.front .employee-name-box {
+  background-color: rgba(255,255,255,0.7); /* Semi-transparent */
+  text-align: center;
+  padding: 0.05em; /* Reduced padding */
+  border-radius: 3px; /*Small rounding*/
+}
+
+.front .employee-name-box p {
+  font-size: 3.3mm; /* Slightly smaller */
+  margin: 0;
+  font-weight: 500;
+  color: #2c3e50; /* Darker text color */
+  text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.1); /*Subtle Shadow*/
+  
+}
+
+.front .employee-position-box {
+  background-color: rgba(255,255,255,0.7);  /* Semi-transparent */
+  text-align: center;
+  padding: 0.05em; /* Reduced padding */
+  border-radius: 3px; /*Small rounding*/
+  bottom: 17mm;
+}
+
+.front .employee-position-box p {
+  font-size: 2.7mm; /* Slightly smaller */
+  margin: 0;
+  font-weight: 400;
+  color: #555; /* Adjusted text color */
+  padding-bottom: 2em;
+  bottom: 17mm;
+}
+
+.front .barcode-box {
+  text-align: center;
+  position: absolute; /* Changed to absolute positioning */
+  left: 0;          /* Align to the left edge */
+  right: 0;         /* Align to the right edge */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto;/* Center horizontally */
+  bottom: 8mm;        /* Position from the bottom - Reduced Value */
+  width: 40mm;        /* Set a specific width */
+}
+
+.front .barcode-box svg {
+  width: 100%;  /* Make the SVG fill the container */
+  height: 7mm;   /* Slightly smaller barcode */
+    
+}
+
+.front .employee-id-box {
+  background-color: rgba(255,255,255,0.7);  /* Semi-transparent */
+  text-align: center;
+  padding: 0.05em; /* Reduced padding */
+  border-radius: 3px; /*Small rounding*/
+}
+
+.front .employee-id-box p {
+  font-size: 2.6mm; /* Slightly smaller */
+  margin: 0;
+  margin-bottom: 0.1mm;
+  font-weight: 300;
+  color: #777; /* Adjusted text color */
+}
+
+/* --- Back Card Styles (modified)--- */
+
+.back {
+    padding: 0.2em; /* Further Reduced padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align items to the top */
+    box-sizing: border-box;
+    font-size: 1.8mm; /* Smaller default font size for the whole card */
+    position: relative;
+    background-color: #f0f0f0; /* Lighter background */
+    border: 1px dashed #ccc; /*Dashed border for visual aid */
+}
+
+.back .employee-details {
+    margin-bottom: 0.2em; /* Further Reduced margin */
+    text-align: center;
+    border-bottom: 1px dashed #ccc; /* Added separator */
+    padding-top:0.4em;
+    padding-bottom: 0.2em; /*Added padding*/
+}
+
+.back .employee-details p {
+    margin: 0.05em 0; /* Further Reduced margin */
+    font-size: inherit;
+    color: #444; /* Adjusted color */
+}
+
+.back .logo {
+    position: absolute;
+    top: 0.2em;
+    width: 1em;
+    right: 0.2em;
+    text-align: right;
+    width: auto; /* Reset width */
+    height: auto; /* Reset height */
+    z-index: -2;
+    object-fit: contain;
+}
+
+.back .logo img {
+    width: 4mm;  /* Even Smaller logo size */
+    height: 4mm; /* Even Smaller logo size */
+    border: none;
+    background-color: white;
+    border: 1px solid #000;
+    border-radius: 3px; /* Rounded */
+}
+
+.back .contact-info {
+    margin-bottom: 0.2em;  /* Further Reduced margin */
+    text-align: center;
+    padding: 0.1em; /*Added padding*/
+    background-color: rgba(255,255,255,0.5); /* Semi-transparent */
+    border-radius: 3px; /* Rounded */
+}
+
+.back .contact-info p {
+    margin: 0.05em 0; /* Further Reduced margin */
+    font-size: inherit;
+    color: #666; /* Adjusted color */
+}
+
+.back .authorization {
+    font-size: inherit;
+    text-align: center;
+    margin-bottom: 0.2em; /* Further Reduced margin */
+    color: #555; /*Adjusted text color*/
+}
+
+.back .signature {
+  width: 12mm; /* Slightly bigger signature */
+  height: 12mm; /* Slightly bigger signature */
+  object-fit: contain;
+  margin: 0.1em auto;
+  display: block;
+  border-radius: 50%; /*Rounded */
+  border: 1px dashed #777;
+  background-color: #fff; /*Added Background Color*/
+}
+
+.back .stamp {
+  width: 60%; /* make stamp slightly bigger */
+  height: 60%; /* make stamp slightly bigger */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* center the stamp */
+  object-fit: contain;  /* Scale down the stamp to fit inside the card */
+  opacity: 0.15; /* Slightly increased opacity */
+  z-index: 0; /* just above the background */
+  pointer-events: none;  /* Make sure it doesn't interfere with clicks */
+}
+
+.back .ceoName {
+    font-size: inherit;
+    text-align: center;
+    margin-bottom: 0.1em; /* Further Reduced margin */
+    color: #444; /*Adjusted text color*/
+    font-style: italic; /*Added italic font style*/
+}
+
+.back .footer {
+    font-size: inherit;
+    text-align: center;
+    background: linear-gradient(to right, #FFF2E6, #FF4900); /* Gradient background */
+    padding: 0.3em;  /*Added padding*/
+    color: #fff; /* Added white color*/
+     text-shadow: 1px 1px 2px rgba(0,0,0,0.4); /* Added shadow*/
+}
+
+.back .barcode-box {
+  text-align: center;
+  position: absolute; /* Absolute positioning */
+  left: 0;         /* Stick to the left */
+  right: 0;        /* Stick to the right */
+  margin-left: auto;  /* Center */
+  margin-right: auto; /* Center */
+  bottom: 5mm;      /* Distance from the bottom */
+  width: 40mm;      /* Set width to barcode width */
+}
+
+.back svg {
+    width:  100%; /* Adjusted barcode*/
+    height: 7mm;  /* Adjusted barcode*/
+    /*margin: 0.1em auto;   Adjusted margin */
+    display: block; /* Make it a block element */
+}
+
+/* --- Card Settings Styles (unchanged) --- */
+.card-settings {}
+
+.color-selection-section,
+.font-selection-section,
+.image-selection-section {
+  margin-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="color"],
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.form-group .hex-input {
+    width: 60%;
+    margin-bottom: 5px;
+}
+
+.form-group .rgb-inputs {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-group .rgb-inputs input {
+    width: 30%;
+}
+
+.color-selection-section button,
+.font-selection-section button,
+.image-selection-section button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.color-selection-section button:hover,
+.font-selection-section button:hover,
+.image-selection-section button:hover {
+  background-color: #3e8e41;
+}
+
+/* --- ID Card Form Styles (unchanged) --- */
+#id-card-form {}
+
+#id-card-form details {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+#id-card-form summary {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #eee;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+#idCardForm .card-form {
+  display: flex;
+  flex-direction: column;
+}
+
+#idCardForm fieldset {
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+#idCardForm legend {
+  font-weight: bold;
+  padding: 0 10px;
+}
+
+#idCardForm .form-group {
+  margin-bottom: 10px;
+}
+
+#idCardForm .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+#idCardForm .form-group input[type="text"],
+#idCardForm .form-group input[type="tel"],
+#idCardForm .form-group input[type="email"],
+#idCardForm .form-group input[type="url"],
+#idCardForm .form-group input[type="file"],
+#idCardForm .form-group input[type="date"],
+#idCardForm .form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+#idCardForm .form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+#idCardForm .dates {
+  display: flex;
+  justify-content: space-between;
+}
+
+#idCardForm .dates .form-group {
+  width: 48%;
+}
+
+#idCardForm .form-actions {
+  margin-top: 15px;
+  text-align: center;
+}
+
+#idCardForm .form-actions button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+  display: inline-block;
+}
+
+#idCardForm .form-actions button:hover {
+  background-color: #3e8e41;
+}
+
+#idCardForm .error-message {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 5px;
+  display: block;
+}
+
+/* --- Preview Area Styles (unchanged) --- */
+#preview-area {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#preview-area .preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#preview-area .preview-container > div {
+  margin: 10px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* --- Staff Management Styles (unchanged) --- */
+#staff-management {}
+
+#staff-management details {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+#staff-management summary {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #eee;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+#staff-management h3 {
+  margin-bottom: 10px;
+}
+
+#staff-management button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+#staff-management button:hover {
+  background-color: #3e8e41;
+}
+
+#staff-management .table-container {
+  overflow-x: auto;
+}
+
+#staff-management table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#staff-management th,
+#staff-management td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+#staff-management th {
+  background-color: #f2f2f2;
+}
+
+#staff-management .edit-staff,
+#staff-management .delete-staff {
+  background-color: #008CBA;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+#staff-management .delete-staff {
+  background-color: #f44336;
+}
+
+#staff-management .edit-staff:hover,
+#staff-management .delete-staff:hover {
+  opacity: 0.8;
+}
+
+/* --- User Guide Styles (unchanged) --- */
+#user-guide {}
+
+#user-guide details {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+#user-guide summary {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #eee;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+/* --- Media Queries for Responsiveness (unchanged) --- */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+  }
+
+  main {
+    flex-direction: column;
+  }
+
+  .card-preview {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .id-card {
+    width: 80%;
+    max-width: 300px;
+  }
+
+  #idCardForm .dates {
+    flex-direction: column;
+  }
+
+  #idCardForm .dates .form-group {
+    width: 100%;
+  }
+}
+
+/* --- Print Styles --- */
+@media print {
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .container {
+        box-shadow: none !important;
+        border: none !important;
+        background: #fff !important;
+    }
+
+    /* Hide everything except the ID cards */
+    #preview-area,
+    #idCardForm .form-actions,
+    #staff-management,
+    #user-guide,
+    header,
+    footer,
+    #id-card-editor details {
+        display: none !important;
+    }
+
+    /* Style the ID cards */
+    .id-card {
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+        width: 50mm !important;
+        height: 80mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 2mm !important; /* Scale down font sizes*/
+        page-break-inside: avoid !important; /* Prevent page breaks inside the card */
+    }
+
+    /* Front Card Specific Styles */
+    .front .header-section {
+        background-color: #FF4900 !important;
+        color: #fff !important;
+        padding: 0.3em !important;
+        border-bottom: 1px solid #000 !important;
+        position: relative !important;
+        overflow: visible !important; /* Allow overflow during print */
+         display: flex !important; /* Use flexbox for vertical alignment */
+        flex-direction: column !important; /* Stack header text elements */
+        justify-content: center !important; /* Vertically center content */
+        min-height: 15mm !important; /* Minimum height to accommodate content */
+        box-sizing: border-box !important; /* Include padding in height calculation */
+    }
+
+    .front .header-text {
+        width: 70% !important; /* Ensure correct text area width */
+    }
+
+    .front .header-text h1 {
+        font-size: 3mm !important;
+        word-wrap: break-word !important; /*Keep text wrapping*/
+        overflow-wrap: break-word !important; /*Keep text wrapping*/
+    }
+
+    .front .header-text h3 {
+        font-size: 2mm !important; /* Scale down */
+        word-wrap: break-word !important; /* Keep text wrapping */
+        overflow-wrap: break-word !important; /* Keep text wrapping */
+    }
+
+    .front .logo {
+        width: 30% !important;  /* Ensure correct logo area width */
+        text-align: right !important;
+          position: static !important; /*Remove Positioning*/
+    }
+
+    .front .logo img {
+        width: 9mm !important;
+        height: 9mm !important;
+        vertical-align: middle !important; /* Keep logo aligned */
+    }
+    .front .barcode-box {
+  text-align: center;
+  position: absolute !important; /* Changed to absolute positioning */
+  left: 0 !important;          /* Align to the left edge */
+  right: 0 !important;         /* Align to the right edge */
+  margin-left: auto !important; /* Center horizontally */
+  margin-right: auto !important;/* Center horizontally */
+  bottom: 9mm !important;        /* Position from the bottom */
+  width: 40mm !important;        /* Set a specific width */
+}
+
+.front .barcode-box svg {
+  width: 100% !important;  /* Make the SVG fill the container */
+  height: 7mm !important;   /* Slightly smaller barcode */
+}
+
+
+
+  /* Back Card Specific Styles */
+ .back {
+      background-color: #eee !important;
+      border: 1px solid #000 !important; /* Solid border for print */
+  }
+
+  .back .logo img {
+      border: 1px solid #000 !important; /*Solid border for print */
+  }
+
+  .back .stamp {
+      opacity: 0.2 !important; /* Slightly increase stamp visibility */
+      width: 60% !important;  /*Ensure it fills */
+      height: 60% !important; /*Ensure it fills */
+  }
+
+  .back .footer {
+      background: #ccc !important; /* Solid background for footer */
+      color: #000 !important; /* Black text on footer */
+  }
+
+  .back .barcode-box {
+  text-align: center;
+  position: absolute !important; /* Absolute positioning */
+  left: 0 !important;         /* Stick to the left */
+  right: 0 !important;        /* Stick to the right */
+  margin-left: auto !important;  /* Center */
+  margin-right: auto !important; /* Center */
+  bottom: 5mm !important;      /* Distance from the bottom */
+  width: 40mm !important;      /* Set width to barcode width */
+}
+   /* Force barcode to be visible */
+  .back .barcode-box svg,
+  .back svg {
+      display: block !important;
+      width: 100% !important; /* Slightly smaller barcode */
+      height: 7mm !important;   /* Slightly smaller barcode */
+  }
+  
+}
+    
+
+.front .employee-name-box{
+  position: relative;
+}
+
+
+/* Basic Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    position: relative; /* Required for absolute positioning of the close button */
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.preview-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+#front-preview-container,
+#back-preview-container {
+    width: 45%; /* Adjust as needed */
+    text-align: center;
+}
+
+#front-preview-modal,
+#back-preview-modal {
+    /* Adjust as needed to fit the card preview within the modal */
+    max-width: 400px; /* Example */
+    margin: 0 auto; /* Center horizontally */
+}
+    </style>

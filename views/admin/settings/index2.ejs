@@ -1,0 +1,158 @@
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0"><i class="fas fa-cogs mr-2"></i>System Settings</h3>
+        </div>
+        <form action="/admin/settings/update" method="POST">
+            <div class="card-body">
+                <% if (settingGroups && settingGroups.length > 0) { %>
+                    <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                        <% settingGroups.forEach((group, index) => { %>
+                            <li class="nav-item">
+                                <a class="nav-link <%= index === 0 ? 'active' : '' %>" 
+                                   id="<%= group.toLowerCase().replace(/\s+/g, '-') %>-tab" 
+                                   data-toggle="tab" 
+                                   href="#<%= group.toLowerCase().replace(/\s+/g, '-') %>" 
+                                   role="tab" 
+                                   aria-controls="<%= group.toLowerCase().replace(/\s+/g, '-') %>" 
+                                   aria-selected="<%= index === 0 ? 'true' : 'false' %>">
+                                    <%= group.charAt(0).toUpperCase() + group.slice(1) %>
+                                </a>
+                            </li>
+                        <% }); %>
+                    </ul>
+
+                    <div class="tab-content pt-3" id="settingsTabsContent">
+                        <% settingGroups.forEach((group, index) => { %>
+                            <div class="tab-pane fade <%= index === 0 ? 'show active' : '' %>" 
+                                 id="<%= group.toLowerCase().replace(/\s+/g, '-') %>" 
+                                 role="tabpanel" 
+                                 aria-labelledby="<%= group.toLowerCase().replace(/\s+/g, '-') %>-tab">
+                                
+                                <% if (groupedSettings[group] && groupedSettings[group].length > 0) { %>
+                                    <% groupedSettings[group].forEach(setting => { %>
+                                        <div class="form-group row">
+                                            <label for="<%= setting.setting_key %>" class="col-sm-3 col-form-label">
+                                                <%= setting.label %>
+                                                <% if (setting.description) { %>
+                                                    <i class="fas fa-info-circle text-muted ml-1" 
+                                                       data-toggle="tooltip" 
+                                                       data-placement="top" 
+                                                       title="<%= setting.description %>"></i>
+                                                <% } %>
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <% if (setting.input_type === 'text') { %>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           name="<%= setting.setting_key %>" 
+                                                           id="<%= setting.setting_key %>" 
+                                                           value="<%= setting.setting_value %>">
+                                                <% } else if (setting.input_type === 'password') { %>
+                                                    <input type="password" class="form-control form-control-sm"
+                                                           name="<%= setting.setting_key %>"
+                                                           id="<%= setting.setting_key %>"
+                                                           value="********" <%# Placeholder for sensitive fields %>
+                                                           autocomplete="new-password">
+                                                    <small class="form-text text-muted">Leave blank or as '********' to keep current password.</small>
+                                                <% } else if (setting.input_type === 'number') { %>
+                                                    <input type="number" class="form-control form-control-sm" 
+                                                           name="<%= setting.setting_key %>" 
+                                                           id="<%= setting.setting_key %>" 
+                                                           value="<%= setting.setting_value %>">
+                                                <% } else if (setting.input_type === 'textarea') { %>
+                                                    <textarea class="form-control form-control-sm" 
+                                                              name="<%= setting.setting_key %>" 
+                                                              id="<%= setting.setting_key %>" 
+                                                              rows="3"><%= setting.setting_value %></textarea>
+                                                <% } else if (setting.input_type === 'boolean') { %>
+                                                    <div class="form-check mt-2">
+                                                        <input class="form-check-input" type="checkbox" 
+                                                               name="<%= setting.setting_key %>" 
+                                                               id="<%= setting.setting_key %>" 
+                                                               value="true" <%# Value is true when checked %>
+                                                               <%= (setting.setting_value === 'true' || setting.setting_value === true) ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="<%= setting.setting_key %>">
+                                                            Enable
+                                                        </label>
+                                                    </div>
+                                                <% } else if (setting.input_type === 'select' && setting.parsed_options) { %>
+                                                    <select class="form-control form-control-sm" 
+                                                            name="<%= setting.setting_key %>" 
+                                                            id="<%= setting.setting_key %>">
+                                                        <% setting.parsed_options.forEach(option => { %>
+                                                            <option value="<%= option.value %>" <%= setting.setting_value == option.value ? 'selected' : '' %>>
+                                                                <%= option.label %>
+                                                            </option>
+                                                        <% }); %>
+                                                    </select>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        <hr class="my-3">
+                                    <% }); %>
+
+                                    <%# Special button for SMTP test in Email group %>
+                                    <% if (group === 'email') { %>
+                                        <div class="form-group row">
+                                            <div class="col-sm-9 offset-sm-3">
+                                                <button type="button" class="btn btn-info btn-sm" id="testSmtpButton">
+                                                    <i class="fas fa-paper-plane"></i> Test SMTP Settings
+                                                </button>
+                                                <small class="form-text text-muted">Save current settings before testing if you made changes.</small>
+                                            </div>
+                                        </div>
+                                    <% } %>
+
+                                <% } else { %>
+                                    <p class="text-muted">No settings in this group.</p>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-danger">No system settings found or defined.</p>
+                <% } %>
+            </div>
+            <div class="card-footer text-right">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div> 
+
+<%- contentFor('pageScripts') %>
+<script>
+$(function () {
+  // Enable Bootstrap tooltips
+  $('[data-toggle="tooltip"]').tooltip();
+
+  // Handle tab persistence on page reload (after form submission)
+  var hash = window.location.hash;
+  if (hash) {
+    $('#settingsTabs a[href="' + hash + '"]').tab('show');
+  }
+  // Update hash on tab click
+  $('#settingsTabs a').on('shown.bs.tab', function (e) {
+    window.location.hash = e.target.hash;
+    // Optional: scroll to top of tab content if it's long
+    // $(window).scrollTop(0); 
+  });
+
+  // SMTP Test Button
+  $('#testSmtpButton').on('click', function() {
+    // Create a temporary form to submit a POST request to the test-smtp endpoint
+    var $form = $('<form>', {
+        action: '/admin/settings/test-smtp',
+        method: 'POST'
+    }).appendTo('body');
+    // Add CSRF token if you use it globally
+    // $form.append($('<input>', { type: 'hidden', name: '_csrf', value: 'your_csrf_token_value' }));
+    $form.submit();
+  });
+
+});
+</script>

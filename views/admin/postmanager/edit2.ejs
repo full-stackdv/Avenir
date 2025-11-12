@@ -1,0 +1,229 @@
+<% /* views/admin/postmanager/edit.ejs */ %>
+<%
+  // Determine the source for form data: session on error, or original post data
+  const currentFormData = typeof formData !== 'undefined' && Object.keys(formData).length > 0 ? formData : post;
+  const currentErrors = typeof errors !== 'undefined' ? errors : [];
+  const currentDocErrors = typeof documentUploadErrors !== 'undefined' ? documentUploadErrors : [];
+%>
+
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/admin/posts">Post Management</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit: <%= post.title %></li>
+        </ol>
+    </nav>
+
+ 
+    <%- include('../../partials/_messages') %> <%# For general flash messages %>
+
+    <% if (currentErrors.length > 0 && !currentErrors.find(e => e.param)) { %> <%# General errors not tied to a param %>
+        <div class="alert alert-danger">
+            <% currentErrors.forEach(err => { %> <p class="mb-0"><%= err.msg %></p> <% }); %>
+        </div>
+    <% } %>
+
+
+    <form action="/admin/posts/<%= post.id %>/edit" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+            <input type="text" 
+                   class="form-control <%= currentErrors.find(e => e.param === 'title') ? 'is-invalid' : '' %>" 
+                   id="title" name="title" 
+                   value="<%= currentFormData.title || '' %>" required>
+            <% if (currentErrors.find(e => e.param === 'title')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'title').msg %></div>
+            <% } %>
+        </div>
+        
+        <div class="mb-3">
+            <label for="slug" class="form-label">Slug <span class="text-danger">*</span> <small class="text-muted">(Auto-generated if left blank, or customize)</small></label>
+            <input type="text" 
+                   class="form-control <%= currentErrors.find(e => e.param === 'slug') ? 'is-invalid' : '' %>" 
+                   id="slug" name="slug" 
+                   value="<%= currentFormData.slug || '' %>" required>
+            <% if (currentErrors.find(e => e.param === 'slug')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'slug').msg %></div>
+            <% } %>
+        </div>
+
+        <div class="mb-3">
+            <label for="summary" class="form-label">Summary <span class="text-muted">(Optional, for listings)</span></label>
+            <textarea class="form-control <%= currentErrors.find(e => e.param === 'summary') ? 'is-invalid' : '' %>" 
+                      id="summary" name="summary" rows="3"><%= currentFormData.summary || '' %></textarea>
+            <% if (currentErrors.find(e => e.param === 'summary')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'summary').msg %></div>
+            <% } %>
+        </div>
+        
+        <div class="mb-3">
+            <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+            <textarea class="form-control <%= currentErrors.find(e => e.param === 'content') ? 'is-invalid' : '' %>" 
+                      id="content" name="content" rows="10" required><%= currentFormData.content || '' %></textarea>
+            <small class="form-text text-muted">Plain text for now. Rich Text Editor can be added later.</small>
+            <% if (currentErrors.find(e => e.param === 'content')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'content').msg %></div>
+            <% } %>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label d-block">Feature Image</label>
+            <% if (currentFormData.feature_image_path) { %>
+                <div class="mb-2">
+                    <img src="/uploads/feature_images/<%= currentFormData.feature_image_path %>" alt="Current Feature Image" style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; padding: 2px;">
+                    <div class="form-check mt-1">
+                        <input class="form-check-input" type="checkbox" value="true" id="remove_feature_image" name="remove_feature_image">
+                        <label class="form-check-label" for="remove_feature_image">
+                            Remove current feature image
+                        </label>
+                    </div>
+                </div>
+            <% } else { %>
+                <p class="text-muted small">No current feature image.</p>
+            <% } %>
+            <label for="feature_image" class="form-label"><%= currentFormData.feature_image_path ? 'Upload new to replace:' : 'Upload new:' %></label>
+            <input class="form-control <%= currentErrors.find(e => e.param === 'feature_image') ? 'is-invalid' : '' %>" 
+                   type="file" id="feature_image" name="feature_image" accept="image/png, image/jpeg, image/gif, image/webp">
+            <small class="form-text text-muted">Recommended: 1200x630px. Max 2MB. (Types: PNG, JPG, GIF, WEBP)</small>
+            <% if (currentErrors.find(e => e.param === 'feature_image')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'feature_image').msg %></div>
+            <% } %>
+        </div>
+            
+        <div class="mb-3">
+            <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+            <select class="form-select <%= currentErrors.find(e => e.param === 'status') ? 'is-invalid' : '' %>" 
+                    id="status" name="status" required>
+                <option value="draft" <%= (currentFormData.status === 'draft') ? 'selected' : '' %>>Draft</option>
+                <option value="published" <%= (currentFormData.status === 'published') ? 'selected' : '' %>>Published</option>
+                <option value="archived" <%= (currentFormData.status === 'archived') ? 'selected' : '' %>>Archived</option>
+            </select>
+             <% if (currentErrors.find(e => e.param === 'status')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'status').msg %></div>
+            <% } %>
+        </div>
+        
+        <hr>
+        <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-1"></i> Save Post Changes</button>
+        <a href="/admin/posts/<%= post.id %>/preview" class="btn btn-outline-info ms-2" target="_blank" title="Preview how this post will look on the public site">
+            <i class="fas fa-eye me-1"></i> Preview Post
+        </a>
+        <a href="/admin/posts/<%= post.id %>/statistics" class="btn btn-outline-secondary ms-2" title="View statistics for this post">
+            <i class="fas fa-chart-line me-1"></i> View Statistics
+        </a>
+        <a href="/admin/posts/<%= post.id %>/comments" class="btn btn-outline-success ms-2" title="Moderate comments for this post">
+            <i class="fas fa-comments me-1"></i> Manage Comments
+        </a>
+        <a href="/admin/posts" class="btn btn-light ms-2 border">Cancel</a>
+    </form>
+
+    <hr class="my-4"> 
+
+    <%# --- Associated Documents Section --- %>
+    <div class="mb-4" id="post-documents-section">
+        <h4 class="mb-3">Associated Documents</h4>
+
+        <% if (currentDocErrors && currentDocErrors.length > 0) { %>
+            <div class="alert alert-danger">
+                <p class="fw-bold">Document Upload Errors:</p>
+                <ul>
+                    <% currentDocErrors.forEach(err => { %>
+                        <li><%= typeof err === 'string' ? err : err.msg || JSON.stringify(err) %></li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Upload New Document(s)</h5>
+                <form action="/admin/posts/<%= post.id %>/documents/upload" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="post_documents" class="form-label">Select Document(s) <span class="text-danger">*</span></label>
+                        <input class="form-control" type="file" id="post_documents" name="post_documents" multiple required>
+                        <small class="form-text text-muted">You can upload multiple files. Max 5 files, 10MB per file. (Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, PNG, GIF)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="document_titles" class="form-label">Document Title(s) <span class="text-muted">(Optional, comma-separated for multiple files)</span></label>
+                        <input type="text" class="form-control" id="document_titles" name="document_titles" placeholder="Title for file 1, Title for file 2, ...">
+                    </div>
+                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-upload me-1"></i> Upload Selected Document(s)</button>
+                </form>
+            </div>
+        </div>
+
+        <h5>Current Documents (<%= post_documents ? post_documents.length : 0 %>):</h5>
+        <% if (typeof post_documents !== 'undefined' && post_documents.length > 0) { %>
+            <div class="list-group">
+                <% post_documents.forEach(function(doc) { %>
+                    <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <div>
+                            <i class="fas <%= 
+                                doc.mimetype.includes('pdf') ? 'fa-file-pdf text-danger' : 
+                                doc.mimetype.includes('word') ? 'fa-file-word text-primary' : 
+                                doc.mimetype.includes('excel') || doc.mimetype.includes('spreadsheet') ? 'fa-file-excel text-success' :
+                                doc.mimetype.includes('powerpoint') ? 'fa-file-powerpoint text-warning' :
+                                doc.mimetype.startsWith('image/') ? 'fa-file-image text-info' :
+                                'fa-file-alt text-secondary' 
+                            %> fa-fw me-2"></i>
+                            <a href="/uploads/documents/<%= doc.stored_filename %>" target="_blank" title="Download/View: <%= doc.original_filename %>">
+                                <%= doc.title || doc.original_filename %>
+                            </a>
+                            <small class="d-block text-muted">
+                                Size: <%= (doc.filesize / (1024*1024)).toFixed(2) %> MB | 
+                                Uploaded: <%= new Date(doc.created_at).toLocaleDateString() %>
+                            </small>
+                        </div>
+                        <div class="mt-2 mt-md-0">
+                            <form action="/admin/posts/<%= post.id %>/documents/<%= doc.id %>/delete" method="POST" class="d-inline delete-document-form" onsubmit="return confirm('Are you sure you want to delete this document: <%= doc.title || doc.original_filename %>?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Document">
+                                    <i class="fas fa-trash-alt"></i> <span class="d-none d-sm-inline">Delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p class="text-muted">No documents associated with this post yet.</p>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    // Simple slug generation helper (optional client-side convenience)
+    const titleInput = document.getElementById('title');
+    const slugInput = document.getElementById('slug');
+    let slugManuallyEdited = false;
+
+    if (slugInput) {
+        slugInput.addEventListener('input', () => {
+            slugManuallyEdited = true;
+        });
+    }
+
+    if (titleInput && slugInput) {
+        titleInput.addEventListener('input', () => {
+            if (!slugManuallyEdited) {
+                // Basic slugify - for a more robust one, consider a library or more complex regex
+                const slug = titleInput.value
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, '-')           // Replace spaces with -
+                    .replace(/[^\w-]+/g, '')       // Remove all non-word chars
+                    .replace(/--+/g, '-');          // Replace multiple - with single -
+                slugInput.value = slug;
+            }
+        });
+    }
+
+    // Confirmation for document deletion (already in onsubmit, but this is for good measure if needed)
+    // document.querySelectorAll('.delete-document-form').forEach(form => {
+    //     form.addEventListener('submit', function(event) {
+    //         if (!confirm('Are you sure you want to delete this document?')) {
+    //             event.preventDefault();
+    //         }
+    //     });
+    // });
+</script>

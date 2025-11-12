@@ -1,0 +1,60 @@
+<%# views/login.ejs - Content for public_layout.ejs #%>
+<% /* 'title' and 'pageTitle' are passed from authController */ %>
+<% /* public_layout.ejs includes Bootstrap, _messages.ejs, navbar, footer */ %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5 col-xl-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <% /* Global messages (success_msg, info_msg, general error_msg) are handled by _messages in layout */ %>
+                <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                    <% errors.forEach(function(error) { %>
+                        <div class="alert alert-danger alert-sm p-2 mb-3" role="alert">
+                            <%= error.msg %>
+                        </div>
+                    <% }); %>
+                <% } %>
+                
+                <form action="/login" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="email_or_username" class="form-label">Email or Username</label>
+                        <input type="text" class="form-control" id="email_or_username" name="email_or_username" 
+                               value="<%= (formData && formData.email_or_username) ? formData.email_or_username : '' %>" required>
+                        <div class="invalid-feedback">Please enter your email or username.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="invalid-feedback">Please enter your password.</div>
+                    </div>
+                    <div class="mb-3 text-end">
+                        <a href="/forgot-password" class="form-text">Forgot Password?</a>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3 bg-light">
+                <p class="mb-0">Don't have an account? <a href="/register">Register here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Example: Bootstrap form validation for login form
+    (function () {
+      'use strict'
+      var forms = document.querySelectorAll('.needs-validation')
+      Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+              event.preventDefault()
+              event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+          }, false)
+        })
+    })()
+</script>

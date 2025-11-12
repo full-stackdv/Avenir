@@ -1,0 +1,274 @@
+
+
+<header class="blog-header text-center">
+    <div class="container py-4">
+        <h1 class="display-4"><%= pageTitle %></h1> <%# Use pageTitle from controller %>
+        <p class="lead"><%= typeof pageSubtitle !== 'undefined' ? pageSubtitle : 'Insights, news, and updates from the world of construction and project management.' %></p> <%# Use pageSubtitle or fallback %>
+    </div>
+</header>
+
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <!-- Main Blog Content Area -->
+        <div class="col-lg-9 col-md-8">
+            <form action="/blog" method="GET" class="mb-4">
+                <div class="input-group input-group-lg">
+                    <input type="text" name="search" class="form-control" placeholder="Search articles..." aria-label="Search articles" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+
+            <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+            <div class="row row-cols-1 <% if (posts.length > 1) { %>row-cols-md-2<% } %> g-4">
+                <% posts.forEach(function(post) { %>
+                <div class="col">
+                    <div class="card h-100 shadow-sm hover-shadow blog-post-card-item">
+                        <% if (post.feature_image_path) { %>
+                            <a href="/blog/<%= post.slug %>">
+                                <img src="<%= post.feature_image_path.startsWith('http') ? post.feature_image_path : ('/uploads/feature_images/' + post.feature_image_path.split('/').pop()) %>" class="card-img-top" alt="<%= post.title %>" style="height: 220px; object-fit: cover;">
+                            </a>
+                        <% } else { %>
+                            <a href="/blog/<%= post.slug %>">
+                                 <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
+                                    <i class="fas fa-image fa-4x text-light-emphasis"></i>
+                                </div>
+                            </a>
+                        <% } %>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-1"><a href="/blog/<%= post.slug %>" class="text-decoration-none text-dark stretched-link"><%= post.title %></a></h5>
+                            <p class="card-text text-muted small mb-2">
+                                <i class="fas fa-user-edit fa-xs me-1"></i> By <%= post.author_name || getSetting('default_author_name', 'ConstructPro Team') %>
+                                <% if(post.published_at_formatted) { %>
+                                    <span class="mx-1">•</span><i class="fas fa-calendar-alt fa-xs me-1"></i> <%= post.published_at_formatted %>
+                                <% } else if (post.published_at) { %>
+                                    <span class="mx-1">•</span><i class="fas fa-calendar-alt fa-xs me-1"></i> <%= new Date(post.published_at).toLocaleDateString(getSetting('locale', 'en-US'), { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                <% } %>
+                            </p>
+                            <% if (post.summary) { %>
+                                <p class="card-text flex-grow-1 small"><%= post.summary.length > 150 ? post.summary.substring(0, 150) + '...' : post.summary %></p>
+                            <% } else if (post.content) { %>
+                                 <p class="card-text flex-grow-1 small"><%= post.content.replace(/<[^>]+>/g, '').length > 150 ? post.content.replace(/<[^>]+>/g, '').substring(0, 150) + '...' : post.content.replace(/<[^>]+>/g, '') %></p>
+                            <% } %>
+                        </div>
+                         <div class="card-footer bg-transparent border-top-0 pt-0">
+                            <a href="/blog/<%= post.slug %>" class="btn btn-sm btn-outline-primary">Read More <i class="fas fa-arrow-right fa-xs ms-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+
+            <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                <nav aria-label="Blog navigation" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <% if (currentPage > 1) { %>
+                            <li class="page-item"><a class="page-link" href="/blog?page=<%= currentPage - 1 %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>">Previous</a></li>
+                        <% } else { %>
+                            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                        <% } %>
+                
+                        <% 
+                        const delta = 2;
+                        const left = currentPage - delta;
+                        const right = currentPage + delta + 1;
+                        const range = [];
+                        const rangeWithDots = [];
+                        let l;
+
+                        for (let i = 1; i <= totalPages; i++) {
+                            if (i == 1 || i == totalPages || (i >= left && i < right)) {
+                                range.push(i);
+                            }
+                        }
+
+                        for (let i of range) {
+                            if (l) {
+                                if (i - l === 2) {
+                                    rangeWithDots.push(l + 1);
+                                } else if (i - l !== 1) {
+                                    rangeWithDots.push('...');
+                                }
+                            }
+                            rangeWithDots.push(i);
+                            l = i;
+                        }
+                        %>
+
+                        <% rangeWithDots.forEach(i => { %>
+                            <% if (i === '...') { %>
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            <% } else if (i === currentPage) { %>
+                                <li class="page-item active" aria-current="page"><span class="page-link"><%= i %></span></li>
+                            <% } else { %>
+                                <li class="page-item"><a class="page-link" href="/blog?page=<%= i %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>"><%= i %></a></li>
+                            <% } %>
+                        <% }); %>
+                
+                        <% if (currentPage < totalPages) { %>
+                            <li class="page-item"><a class="page-link" href="/blog?page=<%= parseInt(currentPage) + 1 %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>">Next</a></li>
+                        <% } else { %>
+                            <li class="page-item disabled"><span class="page-link">Next</span></li>
+                        <% } %>
+                    </ul>
+                </nav>
+            <% } %>
+
+            <% } else { %>
+            <div class="alert alert-info text-center" role="alert">
+                <h4 class="alert-heading">No Blog Posts Found!</h4>
+                <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+                    <p>Your search for "<%= searchQuery %>" did not match any articles. Try different keywords or <a href="/blog" class="alert-link">view all posts</a>.</p>
+                <% } else { %>
+                    <p>We're working on bringing you insightful content. Please check back soon.</p>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Sidebar Area -->
+        <div class="col-lg-3 col-md-4">
+            <%# Ensure recentPosts and categories are passed to the partial from controller %>
+            <%- include('../partials/_aside_sidebar', { 
+                recentPosts: (typeof recentPosts !== 'undefined' ? recentPosts : []), 
+                categories: (typeof categories !== 'undefined' ? categories : []),
+                getSetting: getSetting 
+            }) %>
+        </div>
+    </div>
+</div>
+
+ 
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Placeholder for any blog-specific client-side interactions.
+    // For example, if you had client-side search filtering (not server-side search)
+    // or dynamic loading of more posts (infinite scroll).
+
+    // If you had a client-side search for the blog list:
+    const searchInput = document.getElementById('blogSearchInput'); // Assuming <input id="blogSearchInput">
+    const postCards = document.querySelectorAll('.blog-post-card-item'); // Assuming each post has this class
+
+    if (searchInput && postCards.length > 0) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = searchInput.value.toLowerCase();
+            postCards.forEach(card => {
+                const title = card.querySelector('.card-title a').textContent.toLowerCase();
+                const summary = card.querySelector('.card-text').textContent.toLowerCase();
+                if (title.includes(searchTerm) || summary.includes(searchTerm)) {
+                    card.style.display = ''; // Or 'block', 'flex' etc.
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+
+
+<style>
+    
+
+/* styles.css or blog_styles.css */
+
+/* --- Public Aside Sidebar Styling --- */
+.public-aside-sidebar {
+    /* No specific styling needed for the container itself unless you want a background or border */
+}
+
+.public-aside-sidebar .card {
+    border: 1px solid #e0e0e0; /* Softer border for cards */
+    border-radius: 0.375rem; /* Standard Bootstrap card radius */
+}
+
+.public-aside-sidebar .card-header {
+    background-color: #f8f9fa; /* Bootstrap light background */
+    border-bottom: 1px solid #e0e0e0; /* Softer border */
+    padding: 0.85rem 1.15rem; /* Adjust padding */
+}
+
+.public-aside-sidebar .card-header h5 {
+    font-size: 1.1rem; /* Slightly smaller heading for widgets */
+    font-weight: 500; /* Medium weight */
+    color: #333; /* Darker text color */
+}
+
+.public-aside-sidebar .card-header h5 .fas,
+.public-aside-sidebar .card-header h5 .far,
+.public-aside-sidebar .card-header h5 .fab {
+    color: #007bff; /* Primary color for icons in headers, or a neutral one */
+    margin-right: 0.5rem;
+    font-size: 0.9em; /* Icons slightly smaller than text */
+}
+
+.public-aside-sidebar .card-body {
+    padding: 1.15rem; /* Consistent padding */
+}
+
+/* Search Widget */
+.public-aside-sidebar .input-group .form-control {
+    border-right: 0; /* Remove right border if button is adjacent */
+}
+.public-aside-sidebar .input-group .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Bootstrap focus shadow */
+    border-color: #80bdff;
+}
+.public-aside-sidebar .input-group .btn-outline-primary {
+    border-color: #ced4da; /* Match form control border initially */
+}
+.public-aside-sidebar .input-group .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+
+/* Recent Posts Widget */
+.public-aside-sidebar .list-group-flush .list-group-item {
+    padding: 0.85rem 1.15rem;
+    border-color: #e9ecef; /* Lighter border for list items */
+    background-color: #fff; /* Ensure white background */
+}
+.public-aside-sidebar .list-group-flush .list-group-item:last-child {
+    border-bottom: 0; /* Remove bottom border for the last item if card has no footer */
+}
+
+.public-aside-sidebar .list-group-item a {
+    color: #212529; /* Default dark text color */
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+.public-aside-sidebar .list-group-item a:hover {
+    color: #0056b3; /* Primary hover color */
+    text-decoration: none; /* Or underline, if preferred */
+}
+
+.public-aside-sidebar .list-group-item small.text-muted {
+    font-size: 0.8em;
+    margin-top: 0.2rem;
+}
+
+/* Categories/Tags Widget */
+.public-aside-sidebar .card-body .btn-outline-secondary {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.25rem; /* Slightly less rounded for a modern feel */
+    color: #5a6268;
+    border-color: #ced4da;
+    transition: all 0.2s ease-in-out;
+}
+.public-aside-sidebar .card-body .btn-outline-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+    border-color: #5a6268;
+}
+
+/* Optional: If you add other widgets */
+.public-aside-sidebar .widget-title { /* A generic class you could use for widget titles */
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+
+</style>

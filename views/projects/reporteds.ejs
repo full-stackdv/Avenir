@@ -1,0 +1,292 @@
+<div class="container-fluid mt-4 mb-5 report-page">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Status Report</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><%= pageTitle %></h2>
+        <div>
+            <button onclick="window.print();" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="fas fa-print"></i> Print Report
+            </button>
+             <a href="/projects/<%= project.id %>/report/download/pdf" class="btn btn-outline-danger btn-sm" id="downloadPdfBtn" disabled>
+                <i class="fas fa-file-pdf"></i> Download PDF (Soon)
+            </a>
+            <a href="/projects/<%= projectId %>/report/download/excel" class="btn btn-outline-success me-2">
+    <i class="fas fa-file-excel"></i> Download Excel
+</a>
+<a href="/projects/<%= projectId %>/report/download/csv" class="btn btn-outline-secondary me-2">
+    <i class="fas fa-file-csv"></i> Download CSV (Tasks)
+</a>
+        </div>
+    </div>
+
+    <%- include('../partials/_messages') %>
+
+    <% if (reportData && reportData.project) { %>
+        <% const p = reportData.project; %>
+        <% const stats = reportData.overallStats; %>
+        <% const fin = reportData.financialSummary; %>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Project Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Project Name:</strong> <%= p.name %></p>
+                        <p><strong>Project Code:</strong> <%= p.project_code || 'N/A' %></p>
+                        <p><strong>Client:</strong> <%= p.client_name || 'N/A' %></p>
+                        <p><strong>Description:</strong> <%= p.description || 'N/A' %></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> <span class="badge bg-<%= p.status === 'Completed' ? 'success' : (p.status === 'Active' || p.status === 'Planning' || p.status === 'InProgress' ? 'primary' : (p.status === 'On Hold' ? 'warning' : 'secondary')) %>"><%= p.status %></span></p>
+                        <p><strong>Start Date:</strong> <%= p.formatted_start_date || 'N/A' %></p>
+                        <p><strong>End Date:</strong> <%= p.formatted_end_date || 'N/A' %></p>
+                        <p><strong>Project Manager:</strong> <%= p.manager_username || 'N/A' %></p>
+                        <p><strong>Created By:</strong> <%= p.creator_username || 'N/A' %></p>
+                        <p id="dueReportDate"><strong>Report Generated On:<span id="myBtn" class="links btn highlight"> ?<%# reportGeneratedDate %></span></strong></p>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Progress Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <strong>Overall Progress:</strong>
+                        <div class="progress mt-1" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated fs-6" role="progressbar" style="width: <%= stats.overallProgress || 0 %>%;"
+                                 aria-valuenow="<%= stats.overallProgress || 0 %>" aria-valuemin="0" aria-valuemax="100">
+                                 <%= stats.overallProgress || 0 %>%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <p class="mb-1"><strong>Total Tasks:</strong> <%= stats.totalTasks %></p>
+                        <p class="mb-1"><strong>Completed Tasks:</strong> <%= stats.completedTasksCount %></p>
+                        <p class="mb-0"><strong>Overdue Tasks:</strong>
+                            <span class="<%= stats.overdueTasksCount > 0 ? 'text-danger fw-bold' : 'text-success' %>">
+                                <%= stats.overdueTasksCount %>
+                                <% if (stats.overdueTasksCount > 0) { %><i class="fas fa-exclamation-triangle ms-1"></i><% } %>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Financial Summary</h5>
+            </div>
+            <div class="card-body">
+                <% if (fin && (fin.plannedBudget > 0 || fin.actualCost > 0)) { %>
+                    <div class="row">
+                        <div class="col-md-4"><strong>Planned Budget:</strong> $<%= fin.plannedBudget.toFixed(2) %></div>
+                        <div class="col-md-4"><strong>Actual Cost:</strong> $<%= fin.actualCost.toFixed(2) %></div>
+                        <div class="col-md-4"><strong>Variance:</strong>
+                            <span class="<%= fin.variance >= 0 ? 'text-success' : 'text-danger' %>">
+                                $<%= Math.abs(fin.variance).toFixed(2) %> <%= fin.variance >= 0 ? '(Under Budget)' : '(Over Budget)' %>
+                            </span>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <p class="text-muted">No budget information available for this project.</p>
+                <% } %>
+            </div>
+            
+        </div>
+        
+        <%# Section 3: Financial Summary (Enhanced) %>
+        <div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Financial Summary</h5>
+    </div>
+    <div class="card-body">
+        <h6>Project Level</h6>
+        <% if (fin && (fin.projectPlannedBudget > 0 || fin.projectActualCost > 0)) { %>
+            <div class="row mb-2">
+                <div class="col-md-4"><strong>Project Planned Budget:</strong> $<%= fin.projectPlannedBudget.toFixed(2) %></div>
+                <div class="col-md-4"><strong>Project Actual Cost:</strong> $<%= fin.projectActualCost.toFixed(2) %></div>
+                <div class="col-md-4"><strong>Project Variance:</strong>
+                    <span class="<%= fin.projectVariance >= 0 ? 'text-success' : 'text-danger' %>">
+                        $<%= Math.abs(fin.projectVariance).toFixed(2) %> <%= fin.projectVariance >= 0 ? '(Under)' : '(Over)' %>
+                    </span>
+                </div>
+            </div>
+        <% } else { %>
+            <p class="text-muted">No overall project budget information available.</p>
+        <% } %>
+        <hr>
+        <h6>Aggregated Task Finances</h6>
+         <% if (fin && (fin.totalTaskPlannedBudget > 0 || fin.totalTaskActualCost > 0)) { %>
+            <div class="row">
+                <div class="col-md-4"><strong>Total Task Planned Budget:</strong> $<%= fin.totalTaskPlannedBudget.toFixed(2) %></div>
+                <div class="col-md-4"><strong>Total Task Actual Cost:</strong> $<%= fin.totalTaskActualCost.toFixed(2) %></div>
+                <div class="col-md-4"><strong>Total Task Variance:</strong>
+                    <span class="<%= fin.totalTaskVariance >= 0 ? 'text-success' : 'text-danger' %>">
+                         $<%= Math.abs(fin.totalTaskVariance).toFixed(2) %> <%= fin.totalTaskVariance >= 0 ? '(Under)' : '(Over)' %>
+                    </span>
+                </div>
+            </div>
+        <% } else { %>
+            <p class="text-muted">No aggregated task financial data available.</p>
+        <% } %>
+    </div>
+</div>
+
+<% /*NEW Section: Task Financial Details Table*/ %>
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Task Financial Details</h5>
+    </div>
+    <div class="card-body table-responsive">
+        <% if (reportData.tasks && reportData.tasks.length > 0 && reportData.tasks.some(t => t.task_budget_num > 0 || t.actual_cost_num > 0)) { %>
+            <table class="table table-hover table-sm report-financials-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Task</th>
+                        <th>Planned Budget</th>
+                        <th>Actual Cost</th>
+                        <th>Variance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% reportData.tasks.forEach(task => { %>
+                        <% const taskVariance = (task.task_budget_num || 0) - (task.actual_cost_num || 0); %>
+                        <tr>
+                            <td><%= task.task_code || 'N/A' %></td>
+                            <td><%= task.name %></td>
+                            <td>$<%= (task.task_budget_num || 0).toFixed(2) %></td>
+                            <td>$<%= (task.actual_cost_num || 0).toFixed(2) %></td>
+                            <td>
+                                <span class="<%= taskVariance >= 0 ? 'text-success' : 'text-danger' %>">
+                                    $<%= Math.abs(taskVariance).toFixed(2) %>
+                                </span>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+                <tfoot class="table-group-divider fw-bold">
+                    <tr>
+                        <td colspan="2" class="text-end">Totals:</td>
+                        <td>$<%= fin.totalTaskPlannedBudget.toFixed(2) %></td>
+                        <td>$<%= fin.totalTaskActualCost.toFixed(2) %></td>
+                        <td>
+                            <span class="<%= fin.totalTaskVariance >= 0 ? 'text-success' : 'text-danger' %>">
+                                $<%= Math.abs(fin.totalTaskVariance).toFixed(2) %>
+                            </span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        <% } else { %>
+            <p class="text-muted">No detailed task financial data available for this project.</p>
+        <% } %>
+    </div>
+</div>
+
+<div class="col-md-6">
+    <h4><i class="fas fa-coins me-1"></i>Financial Summary</h4>
+    <p><strong>Planned Budget:</strong>
+        $<%= reportData.project.planned_budget ? reportData.project.planned_budget.toFixed(2) : 'N/A' %>
+    </p>
+    <p><strong>Actual Cost:</strong>
+        $<%= reportData.project.actual_cost ? reportData.project.actual_cost.toFixed(2) : '0.00' %>
+    </p>
+    <p><strong>Variance:</strong>
+        <%
+            const planned = reportData.project.planned_budget || 0;
+            const actual = reportData.project.actual_cost || 0;
+            const varianceVal = planned - actual;
+        %>
+        <span class="fw-bold text-<%= varianceVal >= 0 ? 'success' : 'danger' %>">
+            $<%= varianceVal.toFixed(2) %>
+            <% if (planned > 0) { %>
+                <%= varianceVal >= 0 ? '(Under Budget)' : '(Over Budget)' %>
+            <% } else { %>
+                (No budget planned)
+            <% } %>
+        </span>
+    </p>
+</div>
+
+
+        <!-- Task Details Table -->
+<table class="table table-hover table-sm report-tasks-table">
+    <thead class="table-light">
+        <tr>
+            <th>Code</th>
+            <th>Task/Sub-tasks</th>
+
+            <th>Assignee</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th style="min-width: 150px;">Progress</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% reportData.tasks.forEach(task => { %>
+            <tr class="<%= task.parent_task_id ? 'task-child' : 'task-parent-level' %>" style="font-weight: 400;">  
+                <td><%= task.task_code || 'N/A' %></td>
+                <td>
+                    <% if (task.tasks) { %>
+                        <span style="font-weight: 600;"></span>  
+                    <% } %>
+
+                    <% if (task.parent_task_id) { %>
+                        <span style="padding-left: 20px; font-weight: 600;">↳</span>  
+                    <% } %>
+                    <%= task.name %>
+                    <% if (task.is_milestone) { %><span class="badge bg-purple ms-1">Milestone</span><% } %>
+                </td>
+                <td><%= task.assignee_display_name %></td>
+                <td><%= task.formatted_start_date || 'N/A' %></td>
+                <td><%= task.formatted_end_date || 'N/A' %></td>
+                <td><span class="badge bg-<%= task.status === 'Completed' ? 'success' : (task.status === 'InProgress' ? 'info' : (task.status === 'ToDo' || task.status === 'Planning' ? 'secondary' : 'warning')) %>"><%= task.status %></span></td>
+                <td>
+                    <div class="progress" style="height: 18px;">
+                        <div class="progress-bar fs-xs" role="progressbar" style="width: <%= task.progress_percentage || 0 %>%;" 
+                             aria-valuenow="<%= task.progress_percentage || 0 %>" aria-valuemin="0" aria-valuemax="100">
+                             <%= task.progress_percentage || 0 %>%
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+
+
+    <% } else { %>
+        <div class="alert alert-warning">Could not load report data.</div>
+    <% } %>
+</div>
+
+
+    
+                    <script>
+                    //document.getElementById("myBtn").onclick = displayDate;
+                       document.getElementById("myBtn").onclick = displayDate;
+                      function displayDate() {
+                      document.getElementById("dueReportDate").innerHTML = '<b>Due Report Date:</b> ' + Date();
+                     }
+                     </script>
+  
+ 

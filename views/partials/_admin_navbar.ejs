@@ -1,0 +1,39 @@
+<!-- views/partials/_admin_navbar.ejs -->
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top admin-navbar-main" id="adminNavbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/admin"><i class="fas fa-shield-alt me-2"></i>AvenirCon Admin</a>
+        
+        <!-- Sidebar Toggle Button (visible on smaller screens) -->
+        <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#adminSidebar" aria-controls="adminSidebar" aria-expanded="false" aria-label="Toggle Admin sidebar">
+            <i class="fas fa-bars"></i> <span class="ms-1 d-none d-sm-inline">Menu</span>
+        </button>
+
+        <!-- Navbar Main Links Toggle (for links that might be in the navbar itself) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavContent" aria-controls="adminNavContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNavContent">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="/" target="_blank" title="View Public Site">
+                        <i class="fas fa-home"></i> <span class="d-none d-lg-inline">Public Site</span>
+                    </a>
+                </li>
+                <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && typeof currentUser !== 'undefined' && currentUser) { %>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user fa-fw"></i> <%= currentUser.username %>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminUserDropdown">
+                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-circle me-2"></i>My Profile</a></li>
+                        <li><a class="dropdown-item" href="/admin/settings"><i class="fas fa-cog me-2"></i>System Settings</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>

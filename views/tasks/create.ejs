@@ -1,0 +1,164 @@
+<!-- constructpro/views/tasks/create.ejs -->
+<% /* This view should be rendered by main_layout.ejs if you have one */ %>
+<% /* Variables like title, pageTitle, subTitle, project, potentialParentTasks, assignableUsers, formData, errors, layout should be passed from controller */ %>
+
+<div class="container mt-4 mb-4"> <%# Adjusted margins %>
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add New Task</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8"> <%# Wider column for better form layout %>
+            <div class="card shadow-sm">
+                 
+
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><%= pageTitle || 'Add New Task' %></h4>
+                    <% if (subTitle) { %><p class="mb-0 small"><%= subTitle %></p><% } %>
+                    
+                </div>
+ 
+                <div class="card-body p-4">
+                    <%- include('../partials/_messages', { errors: errors }) %>
+
+                    <form action="/projects/<%= project.id %>/tasks/create<%= parent_task_id_query ? '?parent_task_id=' + parent_task_id_query : '' %>" method="POST">
+                        
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label for="name" class="form-label">Task Name<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'name')) ? 'is-invalid' : '' %>" 
+                                       id="name" name="name" value="<%= formData.name || '' %>" required>
+                                <% if (errors && errors.find(e => e.param === 'name')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'name').msg %></div>
+                                <% } %>
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <label for="task_code" class="form-label">Task Code (Optional)</label>
+                                <input type="text" class="form-control" id="task_code" name="task_code" value="<%= formData.task_code || '' %>">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"><%= formData.description || '' %></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="parent_task_id" class="form-label">Parent Task (Optional)</label>
+                                <select class="form-select <%= (errors && errors.find(e => e.param === 'parent_task_id')) ? 'is-invalid' : '' %>" id="parent_task_id" name="parent_task_id">
+                                    <option value="">-- None (Root Task) --</option>
+                                    <% if (typeof potentialParentTasks !== 'undefined' && potentialParentTasks.length > 0) { %>
+                                        <% potentialParentTasks.forEach(function(pTask) { %>
+                                            <option value="<%= pTask.id %>" 
+                                                <%= (formData.parent_task_id == pTask.id || (parent_task_id_query && parent_task_id_query == pTask.id && !formData.parent_task_id)) ? 'selected' : '' %>>
+                                                <%= pTask.name %>
+                                            </option>
+                                        <% }); %>
+                                    <% } %>
+                                </select>
+                                <% if (errors && errors.find(e => e.param === 'parent_task_id')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'parent_task_id').msg %></div>
+                                <% } %>
+                                <div class="form-text">Select a task under which this new task will be nested.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="assigned_to_id" class="form-label">Assign To (Optional)</label>
+                                <select class="form-select <%= (errors && errors.find(e => e.param === 'assigned_to_id')) ? 'is-invalid' : '' %>" id="assigned_to_id" name="assigned_to_id">
+                                    <option value="">-- Unassigned --</option>
+                                    <% if (typeof assignableUsers !== 'undefined' && assignableUsers.length > 0) { %>
+                                        <% assignableUsers.forEach(function(user) { %>
+                                            <option value="<%= user.id %>" <%= formData.assigned_to_id == user.id ? 'selected' : '' %>>
+                                                <%= user.display_name %>
+                                            </option>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <option value="" disabled>No users available for assignment</option>
+                                    <% } %>
+                                </select>
+                                <% if (errors && errors.find(e => e.param === 'assigned_to_id')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'assigned_to_id').msg %></div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control <%= (errors && errors.find(e => e.param === 'start_date')) ? 'is-invalid' : '' %>" 
+                                       id="start_date" name="start_date" value="<%= formData.start_date || '' %>">
+                                <% if (errors && errors.find(e => e.param === 'start_date')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'start_date').msg %></div>
+                                <% } %>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" value="<%= formData.end_date || '' %>">
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                 <input type="checkbox" class="form-check-input" id="is_milestone" name="is_milestone" value="true" <%= (typeof formData !== 'undefined' && (formData.is_milestone === true || formData.is_milestone === 'true')) ? 'checked' : '' %>>
+                                 <label class="form-check-label" for="is_milestone">Mark as Milestone</label>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="task_budget" class="form-label">Estimated Cost (ETB)</label>
+                                <input type="number" step="0.01" class="form-control <%= errors.find(e => e.param === 'task_budget') ? 'is-invalid' : '' %>" 
+                                id="task_budget" name="task_budget" 
+                                value="<%= formData.task_budget || '' %>" placeholder="e.g., 1500.00">
+                                <% errors.forEach(function(error) { %> 
+                                    <% if (error.param === 'task_budget') { %>
+                                        <div class="invalid-feedback"><%= error.msg %></div>
+                                        <% } %>
+                                        <% }); %>
+                                        <div class="form-text">Optional: Estimated cost for this task.</div>
+                                    </div>
+
+
+                             <div class="col-md-4 mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="ToDo" <%= (formData.status === 'ToDo' || !formData.status) ? 'selected' : '' %>>To Do</option>
+                                    <option value="InProgress" <%= formData.status === 'InProgress' ? 'selected' : '' %>>In Progress</option>
+                                    <option value="Completed" <%= formData.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                                    <option value="Blocked" <%= formData.status === 'Blocked' ? 'selected' : '' %>>Blocked</option>
+                                    <option value="Cancelled" <%= formData.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="priority" class="form-label">Priority</label>
+                                <select class="form-select" id="priority" name="priority">
+                                    <option value="Low" <%= formData.priority === 'Low' ? 'selected' : '' %>>Low</option>
+                                    <option value="Medium" <%= (formData.priority === 'Medium' || !formData.priority) ? 'selected' : '' %>>Medium</option>
+                                    <option value="High" <%= formData.priority === 'High' ? 'selected' : '' %>>High</option>
+                                    <option value="Critical" <%= formData.priority === 'Critical' ? 'selected' : '' %>>Critical</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/projects/<%= project.id %>/details#tasks-section" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success"><i class="fas fa-plus-circle me-1"></i> Create Task</button>
+                        </div>
+                    </form>
+
+                 </div>
+
+                 <div>
+                <%# Link to bulk upload tasks CSV form FOR THIS PROJECT %>
+                <a href="/projects/<%= project.id %>/tasks/upload-csv" class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-file-csv me-1"></i> Upload Tasks via CSV for this Project
+                </a>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>

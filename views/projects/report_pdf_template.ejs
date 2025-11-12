@@ -1,0 +1,81 @@
+<% /* views/projects/report_pdf_template.ejs */ %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Project Report: <%= reportData.project.name %></title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 10pt; margin: 0; }
+        .report-container { padding: 10mm; }
+        h1, h2, h3, h4, h5 { margin-top: 0.5em; margin-bottom: 0.2em; color: #333; }
+        h1 { font-size: 18pt; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        h2 { font-size: 14pt; }
+        h3 { font-size: 12pt; margin-top: 1em; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1em; font-size: 9pt; }
+        th, td { border: 1px solid #ddd; padding: 4px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        .text-success { color: green; }
+        .text-danger { color: red; }
+        .badge { /* Basic badge styling if used */ }
+        .progress { /* Basic progress bar styling if used */ }
+        /* Add more critical styles, or link to a CSS file accessible by Puppeteer via baseUrl */
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <h1>Project Status Report: <%= reportData.project.name %></h1>
+        <p><em>Generated: <%= reportData.reportGeneratedDate %></em></p>
+
+        <h2>Project Overview</h2>
+        <p><strong>Status:</strong> <%= reportData.project.status %></p>
+        <p><strong>Start:</strong> <%= reportData.project.start_date_formatted %> | <strong>End:</strong> <%= reportData.project.end_date_formatted %></p>
+        <% if (reportData.project.description) { %><p><strong>Description:</strong> <%- reportData.project.description.replace(/\n/g, '<br>') %></p><% } %>
+
+        <h2>Progress Summary</h2>
+        <p><strong>Overall Progress:</strong> <%= reportData.overallStats.overallProgress %>%</p>
+        <p>Total Tasks: <%= reportData.overallStats.totalTasks %> | Completed: <%= reportData.overallStats.completedTasksCount %> | Overdue: <%= reportData.overallStats.overdueTasksCount %></p>
+
+        <h2>Financial Summary</h2>
+        <p><strong>Project Planned Budget:</strong> ETB<%= reportData.financialSummary.projectPlannedBudget.toFixed(2) %></p>
+        <p><strong>Project Actual Cost:</strong> ETB<%= reportData.financialSummary.projectActualCost.toFixed(2) %></p>
+        <p><strong>Project Variance:</strong> ETB<%= reportData.financialSummary.projectVariance.toFixed(2) %></p>
+        <hr>
+        <p><strong>Agg. Task Planned Budget:</strong> ETB<%= reportData.financialSummary.totalTaskPlannedBudget.toFixed(2) %></p>
+        <p><strong>Agg. Task Actual Cost:</strong> ETB<%= reportData.financialSummary.totalTaskActualCost.toFixed(2) %></p>
+        <p><strong>Agg. Task Variance:</strong> ETB<%= reportData.financialSummary.totalTaskVariance.toFixed(2) %></p>
+
+        <% if (reportData.tasks && reportData.tasks.length > 0) { %>
+            <h3>Task Details</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th><th>Task</th><th>Assignee</th><th>Start</th><th>End</th><th>Status</th><th>Prog.</th><th>Planned</th><th>Actual</th>
+                    </tr>
+                </thead>
+<tbody>
+    <% reportData.tasks.forEach(task => { %>
+    <tr>
+        <td><%= task.task_code || 'N/A' %></td>
+        <td style="<%= task.parent_task_id ? 'padding-left: 15px;' : '' %>"><%= task.parent_task_id ? '↳ ' : '' %><%= task.name %></td>
+        <td><%= task.assignee_display_name %></td>
+        <td><%= task.formatted_start_date || 'N/A' %></td> <%# Use correct property %>
+        <td><%= task.formatted_end_date || 'N/A' %></td>   <%# Use correct property %>
+        <td><%= task.status %></td>
+        <td><%= task.progress_percentage || 0 %>%</td>
+        <td>ETB<%= (parseFloat(task.task_budget_num) || 0).toFixed(2) %></td>
+        <td>ETB<%= (parseFloat(task.actual_cost_num) || 0).toFixed(2) %></td>
+    </tr>
+    <% }); %>
+</tbody>
+</table>
+
+
+                
+        <% } %>
+    </div>
+</body>
+</html>
+
+
+    

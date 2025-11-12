@@ -1,0 +1,14 @@
+
+
+/* Table styling */
+.table th {
+    font-weight: 600;
+        background-color: #3e6ed7;
+
+}
+.table td, .table th {
+    vertical-align: middle;
+}
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+}

@@ -1,0 +1,532 @@
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Manage Tasks for Template: <strong><%= template.name %></strong></h3>
+                    <div class="card-tools">
+                        <a href="/admin/project-templates" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Templates List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <% if (template.description) { %>
+                        <p class="text-muted"><em><%= template.description %></em></p>
+                        <hr>
+                    <% } %>
+
+                    <h4>Work Breakdown Structure</h4>
+                    <p class="text-muted small">
+                        Define the tasks, sub-tasks, and milestones for this project template.
+                        This structure will be used when new projects are created from this template.
+                    </p>
+
+                       <ul id="template-task-list-ul" class="list-unstyled mt-3" style="padding-left: 0;">
+                        <% if (tasks && tasks.length > 0) { %>
+                            <%- include('../../partials/_template_task_item_recursive', { tasks: tasks, templateId: template.id, level: 0 }) %>
+                        <% } else { %>
+                            <li class="text-muted">No tasks defined for this template yet. Start by adding a top-level task below.</li>
+                        <% } %>
+                    </ul>
+
+                      <ul id="template-task-list-ul" class="list-unstyled mt-3" style="padding-left: 0;">
+                        <% if (tasks && tasks.length > 0) { %>
+                                     <%- include('_template_task_item_recursive', { task: templateId, template: template, level: 0 }) %>
+                        <% } else { %>
+                            <li class="text-muted">No tasks defined for this template yet. Start by adding a top-level task below.</li>
+                        <% } %>
+                    </ul>
+
+
+                    <!-- MODIFIED/ADDED SECTION: Form for adding top-level tasks -->
+                    <div id="add-task-form-container" class="mt-5 pt-3 border-top">
+                        <h5 class="mb-3">Add New Top-Level Task</h5>
+                        <form action="/admin/project-templates/<%= template.id %>/tasks/add" method="POST" id="addTopLevelTaskForm">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="taskName">Task Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="taskName" name="name" required>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="plannedDuration">Planned Duration (days)</label>
+                                    <input type="number" class="form-control form-control-sm" id="plannedDuration" name="planned_duration_days" value="1" min="0">
+                                </div>
+                                <div class="form-group col-md-3 d-flex align-items-end">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="isMilestone" name="is_milestone" value="true">
+                                        <label class="form-check-label" for="isMilestone">Is Milestone</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskDescription">Description</label>
+                                <textarea class="form-control form-control-sm" id="taskDescription" name="description" rows="2"></textarea>
+                            </div>
+                            
+                            <!-- Hidden field for parent_template_task_id - not used for this top-level form, but good for consistency if we adapt it -->
+                            <input type="hidden" name="parent_template_task_id" value=""> 
+
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Add Top-Level Task
+                            </button>
+                        </form>
+                    </div>
+                    <!-- END MODIFIED/ADDED SECTION -->
+
+                    <!-- Add Sub Task Modal -->
+<div class="modal fade" id="addSubTaskModal" tabindex="-1" role="dialog" aria-labelledby="addSubTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="addSubTaskForm" method="POST"> <!-- Action will be set by JS -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSubTaskModalLabel">Add Sub-task for <strong id="parentTaskNameDisplay"></strong></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="parent_template_task_id_modal" name="parent_template_task_id">
+                    <input type="hidden" name="templateId" value="<%= template.id %>"> <!-- Or pass template.id via JS if preferred -->
+
+                    <div class="form-group">
+                        <label for="subTaskNameModal">Sub-task Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" id="subTaskNameModal" name="name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-7">
+                            <label for="subTaskPlannedDurationModal">Planned Duration (days)</label>
+                            <input type="number" class="form-control form-control-sm" id="subTaskPlannedDurationModal" name="planned_duration_days" value="1" min="0">
+                        </div>
+                        <div class="form-group col-md-5 d-flex align-items-end">
+                             <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="subTaskIsMilestoneModal" name="is_milestone" value="true">
+                                <label class="form-check-label" for="subTaskIsMilestoneModal">Is Milestone</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="subTaskDescriptionModal">Description</label>
+                        <textarea class="form-control form-control-sm" id="subTaskDescriptionModal" name="description" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Add Sub-task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- END Add Sub Task Modal -->
+
+
+
+                     
+
+                </div>
+                <div class="card-footer">
+                    <small>Template ID: <%= template.id %></small>
+                </div>
+            </div>
+        </div>
+    </div> 
+    
+</div>
+ <!-- ... (rest of the edit_structure.ejs content, including addSubTaskModal) ... -->
+
+<!-- Edit Task Modal -->
+<div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="editTaskForm" method="POST"> <!-- Action and method will be set by JS -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit_template_task_id_modal" name="template_task_id">
+                    <!-- templateId is already part of the action URL -->
+
+                    <div class="form-group">
+                        <label for="editTaskNameModal">Task Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" id="editTaskNameModal" name="name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-7">
+                            <label for="editTaskPlannedDurationModal">Planned Duration (days)</label>
+                            <input type="number" class="form-control form-control-sm" id="editTaskPlannedDurationModal" name="planned_duration_days" value="1" min="0">
+                        </div>
+                        <div class="form-group col-md-5 d-flex align-items-end">
+                             <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="editTaskIsMilestoneModal" name="is_milestone" value="true">
+                                <label class="form-check-label" for="editTaskIsMilestoneModal">Is Milestone</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTaskDescriptionModal">Description</label>
+                        <textarea class="form-control form-control-sm" id="editTaskDescriptionModal" name="description" rows="2"></textarea>
+                    </div>
+                    <!-- Note: Editing parent_id or task_order is a more complex "move" operation, handled separately -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- END Edit Task Modal -->
+
+<%- contentFor('pageScripts') %>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script> <!-- If not already global -->
+<%- contentFor('pageScripts') %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const templateId = '<%= template.id %>';
+    console.log('Template structure page loaded for template ID:', templateId);
+
+    // -------------------------------------------------------------------------
+    // 0. HELPER: Saving Indicator
+    // -------------------------------------------------------------------------
+    function showSavingIndicator(show, message = 'Saving...') {
+        let indicator = document.getElementById('savingIndicatorGlobal'); // Use a more specific ID
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'savingIndicatorGlobal';
+            Object.assign(indicator.style, {
+                position: 'fixed',
+                bottom: '20px',
+                right: '20px',
+                padding: '10px 20px',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                color: 'white',
+                borderRadius: '5px',
+                zIndex: '10000',
+                display: 'none',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+            });
+            document.body.appendChild(indicator);
+        }
+        if (show) {
+            indicator.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${message}`;
+            indicator.style.display = 'block';
+        } else {
+            // Hide with a slight delay to allow user to see success briefly if desired
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, show === 'success' ? 1500 : 100); // Keep longer for success
+        }
+    }
+    
+    // Helper for simple JS-based flash messages (if not using full page reload for all actions)
+    function showJsFlash(type, message, duration = 3000) {
+        const container = document.querySelector('#js-flash-messages-container'); // You'd need to add this div in your layout or page
+        if (!container) {
+            console.warn("JS Flash container not found. Message:", message);
+            if (type === 'danger' || type === 'error') alert(`Error: ${message}`);
+            else if (type === 'success') console.log(`Success: ${message}`); // Fallback
+            return;
+        }
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show m-2`;
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = `${message}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>`;
+        container.appendChild(alertDiv);
+
+        setTimeout(() => {
+            $(alertDiv).alert('close'); // Use jQuery to close Bootstrap alert
+        }, duration);
+    }
+
+
+    // -------------------------------------------------------------------------
+    // 1. ADD TOP-LEVEL TASK FORM
+    // -------------------------------------------------------------------------
+    const addTopLevelTaskForm = document.getElementById('addTopLevelTaskForm');
+    if (addTopLevelTaskForm) {
+        addTopLevelTaskForm.addEventListener('submit', function() {
+            const submitButton = addTopLevelTaskForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            }
+            // Form will submit and page will reload via backend redirect
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. ADD SUB-TASK MODAL & FORM
+    // -------------------------------------------------------------------------
+    $('#addSubTaskModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var parentTaskId = button.data('parent-task-id');
+        var parentTaskName = button.data('parent-task-name');
+        
+        var modal = $(this);
+        modal.find('.modal-title #parentTaskNameDisplay').text(parentTaskName);
+        modal.find('.modal-body #parent_template_task_id_modal').val(parentTaskId);
+        
+        var form = modal.find('#addSubTaskForm');
+        form.attr('action', `/admin/project-templates/${templateId}/tasks/add`);
+        
+        form.find('#subTaskNameModal').val('');
+        form.find('#subTaskDescriptionModal').val('');
+        form.find('#subTaskPlannedDurationModal').val('1');
+        form.find('#subTaskIsMilestoneModal').prop('checked', false);
+        
+        // Re-enable submit button if it was disabled
+        const submitButton = form.find('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.html('Add Sub-task');
+    });
+
+    const addSubTaskForm = document.getElementById('addSubTaskForm');
+    if (addSubTaskForm) {
+        addSubTaskForm.addEventListener('submit', function() {
+            const submitButton = addSubTaskForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            }
+            // Form will submit and page will reload
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. EDIT TASK MODAL & FORM
+    // -------------------------------------------------------------------------
+    $('#editTaskModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var taskId = button.data('task-id');
+        // templateId is already global in this script or can be taken from button.data('template-id')
+        var modal = $(this);
+        var form = modal.find('#editTaskForm');
+
+        modal.find('.modal-title').text('Edit Task'); // Reset title
+        modal.find('.modal-body').html('<p class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading task details...</p>');
+        
+        form.attr('action', `/admin/project-templates/${templateId}/tasks/${taskId}/update`);
+        // The hidden input for task ID is part of the dynamic content loaded below
+
+        $.ajax({
+            url: `/admin/project-templates/${templateId}/tasks/${taskId}/details`,
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.task) {
+                    var task = response.task;
+                    var modalBodyContent = `
+                        <input type="hidden" id="edit_template_task_id_modal" name="template_task_id" value="${task.id}">
+                        <div class="form-group">
+                            <label for="editTaskNameModal">Task Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="editTaskNameModal" name="name" value="${task.name || ''}" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-7">
+                                <label for="editTaskPlannedDurationModal">Planned Duration (days)</label>
+                                <input type="number" class="form-control form-control-sm" id="editTaskPlannedDurationModal" name="planned_duration_days" value="${task.planned_duration_days || 1}" min="0">
+                            </div>
+                            <div class="form-group col-md-5 d-flex align-items-end">
+                                 <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="editTaskIsMilestoneModal" name="is_milestone" value="true" ${task.is_milestone ? 'checked' : ''}>
+                                    <label class="form-check-label" for="editTaskIsMilestoneModal">Is Milestone</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTaskDescriptionModal">Description</label>
+                            <textarea class="form-control form-control-sm" id="editTaskDescriptionModal" name="description" rows="2">${task.description || ''}</textarea>
+                        </div>
+                    `;
+                    modal.find('.modal-body').html(modalBodyContent);
+                    modal.find('.modal-title').text('Edit Task: ' + task.name);
+                } else {
+                    modal.find('.modal-body').html('<p class="text-danger">Error: Could not load task details. ' + (response.message || '') + '</p>');
+                }
+            },
+            error: function(xhr) {
+                modal.find('.modal-body').html('<p class="text-danger">Error: Failed to fetch task details. (' + xhr.status + ' ' + xhr.statusText + ')</p>');
+            },
+            complete: function() {
+                // Re-enable submit button if it was disabled
+                const submitButton = form.find('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.html('Save Changes');
+            }
+        });
+    });
+
+    const editTaskForm = document.getElementById('editTaskForm');
+    if (editTaskForm) {
+        editTaskForm.addEventListener('submit', function() {
+            const submitButton = editTaskForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            }
+            // Form will submit and page will reload
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. DELETE TASK (AJAX for smooth UI removal)
+    // -------------------------------------------------------------------------
+    const mainTaskListUlForDelete = document.getElementById('template-task-list-ul');
+    if (mainTaskListUlForDelete) {
+        mainTaskListUlForDelete.addEventListener('click', function(event) {
+            let targetButton = event.target.closest('.delete-task-btn');
+            if (!targetButton) return;
+
+            const taskId = targetButton.dataset.taskId;
+            const taskTemplateId = targetButton.dataset.templateId; // Ensure this matches global `templateId`
+            const taskName = targetButton.dataset.taskName;
+
+            if (!taskId || !taskTemplateId) {
+                console.error('Missing data attributes for delete action.');
+                showJsFlash('danger', 'Cannot delete task: missing identifiers.');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete the task "${taskName}"? This will also delete all its sub-tasks and cannot be undone.`)) {
+                targetButton.disabled = true;
+                targetButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                fetch(`/admin/project-templates/${taskTemplateId}/tasks/${taskId}/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' /*, 'X-CSRF-Token': 'your_csrf_token_here'*/ }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const taskListItem = targetButton.closest('li.template-task-item');
+                        if (taskListItem) {
+                            taskListItem.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                            taskListItem.style.opacity = '0';
+                            taskListItem.style.transform = 'scale(0.95)';
+                            setTimeout(() => {
+                                taskListItem.remove();
+                                if (mainTaskListUlForDelete.children.length === 0) {
+                                    mainTaskListUlForDelete.innerHTML = '<li class="text-muted px-2">No tasks defined for this template yet. Start by adding a top-level task below.</li>';
+                                }
+                                showJsFlash('success', data.message || 'Task deleted successfully.');
+                            }, 400);
+                        }
+                    } else {
+                        showJsFlash('danger', data.message || 'Failed to delete task.');
+                        targetButton.disabled = false;
+                        targetButton.innerHTML = '<i class="fas fa-trash"></i>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch Error deleting task:', error);
+                    showJsFlash('danger', 'An error occurred while deleting the task.');
+                    targetButton.disabled = false;
+                    targetButton.innerHTML = '<i class="fas fa-trash"></i>';
+                });
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. SORTABLEJS TASK REORDERING
+    // -------------------------------------------------------------------------
+    if (typeof Sortable !== 'undefined') {
+        const mainSortableList = document.getElementById('template-task-list-ul');
+
+        function initializeSortable(element) {
+            if (!element) return;
+            new Sortable(element, {
+                group: 'templateTasksShared', // Critical: Same group name for all sortable lists
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',  // Class for the drop placeholder
+                chosenClass: 'sortable-chosen', // Class for the chosen item
+                dragClass: 'sortable-drag',   // Class for the dragging item
+                fallbackOnBody: true,
+                swapThreshold: 0.50,
+                onEnd: function (evt) {
+                    const taskId = evt.item.dataset.taskId;
+                    let newParentId = evt.to.dataset.parentIdForList || null;
+                    if (evt.to.id === 'template-task-list-ul') {
+                        newParentId = null;
+                    }
+
+                    const siblingsInNewList = Array.from(evt.to.children);
+                    const orderedTaskIds = siblingsInNewList.map(child => child.dataset.taskId);
+                    
+                    // Update data-parent-id on the moved item visually for immediate consistency (before reload)
+                    evt.item.dataset.parentId = newParentId || '';
+
+                    showSavingIndicator(true, 'Saving new task order...');
+
+                    fetch(`/admin/project-templates/${templateId}/tasks/reorder`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' /*, 'X-CSRF-Token': 'your_csrf_token_here'*/ },
+                        body: JSON.stringify({
+                            movedTaskId: taskId,
+                            newParentId: newParentId,
+                            orderedTaskIds: orderedTaskIds
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showSavingIndicator('success', data.message || 'Order saved!');
+                            // For full consistency of levels and data attributes, a reload is safest for now.
+                            // More advanced: selectively update DOM and re-initialize sortable on new child lists.
+                            setTimeout(() => window.location.reload(), 1000); // Reload after a short delay
+                        } else {
+                            showSavingIndicator(false);
+                            showJsFlash('danger', `Error reordering: ${data.message || 'Unknown error'}`);
+                            // Revert UI is complex, so reload to show last saved state
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    })
+                    .catch(error => {
+                        showSavingIndicator(false);
+                        console.error('Fetch Error reordering tasks:', error);
+                        showJsFlash('danger', 'Network error during reorder. Please try again.');
+                        setTimeout(() => window.location.reload(), 1500);
+                    });
+                },
+                // Add onAdd to re-initialize sortable on newly created child lists if a task is dropped into an empty one
+                onAdd: function(evt) {
+                    const listElement = evt.to;
+                    if (listElement.classList.contains('droppable-empty-list') && listElement.children.length > 0) {
+                        // It's no longer empty, remove the class and ensure it's sortable if it wasn't fully initialized
+                        listElement.classList.remove('droppable-empty-list');
+                        listElement.style.minHeight = ''; // Reset min-height
+                        // Check if it already has a sortable instance, if not, initialize
+                        if (!Sortable.get(listElement)) {
+                            initializeSortable(listElement);
+                        }
+                    }
+                    // If item is moved from one list to another, the evt.from list might become empty
+                    const fromList = evt.from;
+                    if (fromList && fromList.classList.contains('template-task-children-list') && fromList.children.length === 0) {
+                        fromList.classList.add('droppable-empty-list');
+                        fromList.style.minHeight = '20px'; // or your placeholder height
+                    }
+                }
+            });
+        }
+
+        if (mainSortableList) {
+            initializeSortable(mainSortableList);
+        }
+        document.querySelectorAll('.template-task-children-list').forEach(listElement => {
+            initializeSortable(listElement);
+        });
+    } else {
+        console.warn('SortableJS library not found.');
+    }
+
+});
+</script>

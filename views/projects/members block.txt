@@ -1,0 +1,111 @@
+  <%# ----- Project Members Section ----- %>
+        <div class="mt-4" id="project-members-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Project Members (<%= (typeof projectMembers !== 'undefined' ? projectMembers.length : 0) %>)</h4>
+                <% if (typeof canManageProjectMembers !== 'undefined' && canManageProjectMembers) { %>
+                    <a href="/projects/<%= project.id %>/members/add" class="btn btn-success btn-sm">
+                        <i class="fas fa-user-plus me-1"></i> Add Member
+                    </a>
+                <% } %>
+            </div>
+
+            <% if (typeof projectMembers !== 'undefined' && projectMembers.length > 0) { %>
+                <div class="list-group shadow-sm">
+                    <% projectMembers.forEach(function(member) { %>
+                        <%# views/projects/details.ejs - inside the projectMembers.forEach loop %>
+<div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+    <div class="me-auto">
+        <h6 class="mb-0">
+            <%= member.display_name %>
+            <small class="text-muted">(<%= member.username %>)</small>
+        </h6>
+        <span class="badge bg-info text-dark"><%= member.role_in_project %></span>
+        <br>
+        <small class="text-muted">Added: <%= new Date(member.added_at).toLocaleDateString() %></small>
+    </div>
+    <div class="ms-2 mt-2 mt-md-0">
+        <% if (typeof canManageProjectMembers !== 'undefined' && canManageProjectMembers) { %>
+            <%# Edit Role Button - New %>
+            <a href="/projects/<%= project.id %>/members/<%= member.project_member_id %>/edit-role" class="btn btn-outline-info btn-sm py-1 px-2 me-1" title="Edit Member Role">
+                <i class="fas fa-user-tag"></i>
+            </a>
+
+            <%# Remove Member Button - Existing logic %>
+            <% if (member.user_id !== project.project_manager_id || projectMembers.filter(pm => pm.role_in_project === 'Project Manager').length > 1) { %>
+                <% if (currentUser && currentUser.role === 'Admin' && member.user_id === currentUser.id ) { %>
+                    <% if (projectMembers.filter(pm => pm.user_id === currentUser.id && (pm.role_in_project === 'Admin' || pm.role_in_project === 'Project Manager')).length === 1 && projectMembers.filter(pm => pm.role_in_project === 'Project Manager' && pm.user_id !== currentUser.id).length === 0) { %>
+                        <!-- Admin is sole PM/Admin, cannot remove self -->
+                         <small class="text-muted fst-italic d-inline-block align-middle">Cannot remove self</small>
+                    <% } else if (member.user_id !== currentUser.id) { %>
+                         <form action="/projects/<%= project.id %>/members/<%= member.project_member_id %>/remove" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to remove <%= member.display_name %> from this project?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" title="Remove Member">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                        </form>
+                    <% } %>
+                <% } else if (currentUser && member.user_id !== currentUser.id) { %>
+                     <form action="/projects/<%= project.id %>/members/<%= member.project_member_id %>/remove" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to remove <%= member.display_name %> from this project?');">
+                        <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" title="Remove Member">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                    </form>
+                <% } %>
+            <% } else if (member.user_id === project.project_manager_id) { %>
+                <small class="text-muted fst-italic d-inline-block align-middle">Designated PM</small>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+                    <!-- 
+                        <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="me-auto">
+                                <h6 class="mb-0">
+                                    <%= member.display_name %>
+                                    <small class="text-muted">(<%= member.username %>)</small>
+                                </h6>
+                                <span class="badge bg-info text-dark"><%= member.role_in_project %></span>
+                                <br>
+                                <small class="text-muted">Added: <%= new Date(member.added_at).toLocaleDateString() %></small>
+                            </div>
+                            <div class="ms-2 mt-2 mt-md-0">
+                                <% if (typeof canManageProjectMembers !== 'undefined' && canManageProjectMembers) { %>
+                                    <%# More complex logic for not removing self or designated PM %>
+                                    <% if (member.user_id !== project.project_manager_id || projectMembers.filter(pm => pm.role_in_project === 'Project Manager').length > 1) { %>
+                                        <% if (currentUser && currentUser.role === 'Admin' && member.user_id === currentUser.id ) { %>
+                                            <% if (projectMembers.filter(pm => pm.user_id === currentUser.id && (pm.role_in_project === 'Admin' || pm.role_in_project === 'Project Manager')).length === 1 && projectMembers.filter(pm => pm.role_in_project === 'Project Manager' && pm.user_id !== currentUser.id).length === 0) { %>
+                            --> <!-- Admin is sole PM/Admin, cannot remove self --><!-- 
+                                                 <small class="text-muted fst-italic">Cannot remove self (sole Admin/PM)</small>
+                                            <% } else if (member.user_id !== currentUser.id) { %>
+                                                 <form action="/projects/<%= project.id %>/members/<%= member.project_member_id %>/remove" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to remove <%= member.display_name %> from this project?');">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" title="Remove Member">
+                                                        <i class="fas fa-user-minus"></i>
+                                                    </button>
+                                                </form>
+                                            <% } %>
+                                        <% } else if (currentUser && member.user_id !== currentUser.id) { %>
+                                             <form action="/projects/<%= project.id %>/members/<%= member.project_member_id %>/remove" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to remove <%= member.display_name %> from this project?');">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" title="Remove Member">
+                                                    <i class="fas fa-user-minus"></i>
+                                                </button>
+                                            </form>
+                                        <% } %>
+                                    <% } else if (member.user_id === project.project_manager_id) { %>
+                                        <small class="text-muted fst-italic">Designated PM</small>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                        </div>
+-->
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-light text-center py-3">
+                    No members have been formally added to this project yet.
+                    <% if (typeof canManageProjectMembers !== 'undefined' && canManageProjectMembers) { %>
+                        <a href="/projects/<%= project.id %>/members/add" class="alert-link d-block mt-2">Add members now!</a>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+        
+

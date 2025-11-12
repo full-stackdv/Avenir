@@ -1,0 +1,1360 @@
+Okay, I will proceed with crafting the backend and frontend codes for budget logs as per your requirements.
+
+Assumptions:
+
+Database tables:
+
+projects has a column planned_budget DECIMAL(15,2) NULLABLE.
+
+tasks has a column planned_budget DECIMAL(15,2) NULLABLE.
+
+A new table budget_logs will be used:
+
+CREATE TABLE budget_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL,
+    task_id INT NULL, -- Nullable if it's a project-level log entry
+    entry_type ENUM('income', 'expense') NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    log_date DATE NOT NULL,
+    category VARCHAR(100) NULL,
+    created_by_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL, -- Or CASCADE if task deletion should remove its logs
+    FOREIGN KEY (created_by_id) REFERENCES users(id)
+);
+
+alter table budget_logs add category VARCHAR(100) NULL;
+alter table budget_logs add FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+alter table budget_logs add FOREIGN KEY (created_by_id) REFERENCES users(id)
+ 
+FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE SET NULL;
+
+
+
+User roles for permissions will be defined and used.
+
+Currency will be represented by $ for display purposes.
+
+Let's start with the backend.
+
+1. Creating Backend Codes:
+a. controllers/budgetController.js
+// controllers/budgetController.js
+const db = require('../config/db');
+
+const BUDGET_MANAGE_ROLES = ['Project Manager', 'Admin'];
+const BUDGET_ADD_LOG_ROLES = ['Project Manager', 'Site Supervisor', 'Admin'];
+// const BUDGET_VIEW_ROLES = ['Project Manager', 'Site Supervisor', 'Team Member', 'Client', 'Admin']; // For use in routes
+
+// =================== PROJECT BUDGET ===================
+
+// Show form to edit project's planned budget
+exports.showProjectBudgetForm = async (req, res, next) => {
+    try {
+        const projectId = req.params.projectId;
+        const project = req.projectContext; // From checkProjectAccess middleware
+
+        if (!project) {
+            req.flash('error_msg', 'Project not found or access denied.');
+            return res.redirect('/dashboard');
+        }
+
+        res.render('projects/budget/edit_project_budget', {
+            title: `Manage Budget for ${project.name}`,
+            pageTitle: `Manage Planned Budget`,
+            subTitle: `Project: ${project.name}`,
+            project: project,
+            formData: { planned_budget: project.planned_budget || '' },
+            errors: [],
+            layout: './layouts/main_layout'
+        });
+    } catch (error) {
+        console.error("Error showing project budget form:", error);
+        next(error);
+    }
+};
+
+// Handle update project's planned budget
+exports.handleUpdateProjectBudget = async (req, res, next) => {
+    const projectId = req.params.projectId;
+    const project = req.projectContext;
+    const { planned_budget } = req.body;
+    const userId = req.session.user.id;
+
+    let errors = [];
+    const budgetValue = parseFloat(planned_budget);
+    if (isNaN(budgetValue) || budgetValue < 0) {
+        errors.push({ msg: 'Planned budget must be a valid non-negative number.' });
+    }
+
+    if (errors.length > 0) {
+        return res.render('projects/budget/edit_project_budget', {
+            title: `Manage Budget for ${project.name}`,
+            pageTitle: `Manage Planned Budget`,
+            subTitle: `Project: ${project.name}`,
+            project: project,
+            formData: { planned_budget },
+            errors: errors,
+            layout: './layouts/main_layout'
+        });
+    }
+
+    try {
+        await db.query('UPDATE projects SET planned_budget = ?, updated_at = NOW() WHERE id = ?', [budgetValue, projectId]);
+        req.flash('success_msg', 'Project planned budget updated successfully.');
+        res.redirect(`/projects/${projectId}/details`);
+    } catch (error) {
+        console.error("Error updating project budget:", error);
+        req.flash('error_msg', 'Error updating project budget. Please try again.');
+        res.redirect(`/projects/${projectId}/budget/edit`);
+    }
+};
+
+// =================== PROJECT BUDGET LOGS ===================
+
+// Show form to add a budget log entry for a project
+exports.showAddProjectBudgetLogForm = async (req, res, next) => {
+    try {
+        const projectId = req.params.projectId;
+        const project = req.projectContext;
+
+        if (!project) {
+            req.flash('error_msg', 'Project not found.');
+            return res.redirect('/dashboard');
+        }
+        
+        const [tasks] = await db.query('SELECT id, name FROM tasks WHERE project_id = ? ORDER BY name', [projectId]);
+
+        res.render('projects/budget/create_log_entry', {
+            title: `Add Budget Log for ${project.name}`,
+            pageTitle: `Add Budget Log Entry`,
+            subTitle: `Project: ${project.name}`,
+            project: project,
+            tasks: tasks, // For optional task assignment on project-level form
+            formData: {},
+            errors: [],
+            formAction: `/projects/${projectId}/budget/log/add`,
+            layout: './layouts/main_layout'
+        });
+    } catch (error) {
+        console.error("Error showing add project budget log form:", error);
+        next(error);
+    }
+};
+
+// Handle adding a new budget log entry (can be project-level or task-level via this form)
+exports.handleAddProjectBudgetLogEntry = async (req, res, next) => {
+    const projectId = req.params.projectId;
+    const { description, amount, entry_type, log_date, category, task_id } = req.body;
+    const created_by_id = req.session.user.id;
+    let errors = [];
+
+    if (!description || description.trim() === '') errors.push({ msg: 'Description is required.' });
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) errors.push({ msg: 'Amount must be a positive number.' });
+    if (!entry_type || !['income', 'expense'].includes(entry_type)) errors.push({ msg: 'Invalid entry type.' });
+    if (!log_date) errors.push({ msg: 'Log date is required.' });
+    // Add more validation as needed
+
+    if (errors.length > 0) {
+        const project = req.projectContext;
+        const [tasks] = await db.query('SELECT id, name FROM tasks WHERE project_id = ? ORDER BY name', [projectId]);
+        return res.render('projects/budget/create_log_entry', {
+            title: `Add Budget Log for ${project.name}`,
+            pageTitle: `Add Budget Log Entry`,
+            subTitle: `Project: ${project.name}`,
+            project: project,
+            tasks: tasks,
+            formData: req.body,
+            errors: errors,
+            formAction: `/projects/${projectId}/budget/log/add`,
+            layout: './layouts/main_layout'
+        });
+    }
+
+    try {
+        const newLogEntry = {
+            project_id: projectId,
+            task_id: task_id ? parseInt(task_id) : null,
+            description: description.trim(),
+            amount: parseFloat(amount),
+            entry_type,
+            log_date,
+            category: category ? category.trim() : null,
+            created_by_id
+        };
+        await db.query('INSERT INTO budget_logs SET ?', newLogEntry);
+        req.flash('success_msg', 'Budget log entry added successfully.');
+        res.redirect(`/projects/${projectId}/budget/logs`);
+    } catch (error) {
+        console.error("Error adding budget log entry:", error);
+        req.flash('error_msg', 'Error adding budget log entry.');
+        // Consider repopulating form correctly on error
+        res.redirect(`/projects/${projectId}/budget/log/add${task_id ? '?taskId=' + task_id : ''}`);
+    }
+};
+
+// List all budget logs for a project (including task-specific ones)
+exports.listProjectBudgetLogs = async (req, res, next) => {
+    try {
+        const projectId = req.params.projectId;
+        const project = req.projectContext;
+
+        const [logs] = await db.query(`
+            SELECT bl.*, t.name as task_name, u.username as creator_username
+            FROM budget_logs bl
+            LEFT JOIN tasks t ON bl.task_id = t.id
+            JOIN users u ON bl.created_by_id = u.id
+            WHERE bl.project_id = ? 
+            ORDER BY bl.log_date DESC, bl.created_at DESC
+        `, [projectId]);
+
+        let totalIncome = 0;
+        let totalExpenses = 0;
+        logs.forEach(log => {
+            if (log.entry_type === 'income') {
+                totalIncome += parseFloat(log.amount);
+            } else {
+                totalExpenses += parseFloat(log.amount);
+            }
+        });
+
+        const plannedBudget = project.planned_budget ? parseFloat(project.planned_budget) : 0;
+        const netActual = totalIncome - totalExpenses; // More like "Net Cash Flow from logs"
+        const actualCost = totalExpenses; // Standard definition of actual cost
+        const variance = plannedBudget - actualCost;
+
+        res.render('projects/budget/list_logs', {
+            title: `Budget Logs for ${project.name}`,
+            pageTitle: `Budget Logs`,
+            subTitle: `Project: ${project.name}`,
+            project: project,
+            logs: logs,
+            plannedBudget: plannedBudget,
+            totalIncome: totalIncome,
+            totalExpenses: totalExpenses,
+            actualCost: actualCost,
+            netActual: netActual,
+            variance: variance,
+            layout: './layouts/main_layout'
+        });
+    } catch (error) {
+        console.error("Error listing project budget logs:", error);
+        next(error);
+    }
+};
+
+
+// =================== TASK BUDGET ===================
+
+// Show form to edit task's planned budget
+exports.showTaskBudgetForm = async (req, res, next) => {
+    try {
+        const { projectId, taskId } = req.params;
+        const project = req.projectContext;
+
+        const [taskRows] = await db.query('SELECT * FROM tasks WHERE id = ? AND project_id = ?', [taskId, projectId]);
+        if (taskRows.length === 0) {
+            req.flash('error_msg', 'Task not found.');
+            return res.redirect(`/projects/${projectId}/details`);
+        }
+        const task = taskRows[0];
+
+        res.render('tasks/budget/edit_task_budget', {
+            title: `Manage Budget for Task: ${task.name}`,
+            pageTitle: `Manage Planned Budget`,
+            subTitle: `Task: ${task.name} (Project: ${project.name})`,
+            project: project,
+            task: task,
+            formData: { planned_budget: task.planned_budget || '' },
+            errors: [],
+            layout: './layouts/main_layout'
+        });
+    } catch (error) {
+        console.error("Error showing task budget form:", error);
+        next(error);
+    }
+};
+
+// Handle update task's planned budget
+exports.handleUpdateTaskBudget = async (req, res, next) => {
+    const { projectId, taskId } = req.params;
+    const project = req.projectContext;
+    const { planned_budget } = req.body;
+    
+    let errors = [];
+    const budgetValue = parseFloat(planned_budget);
+    if (isNaN(budgetValue) || budgetValue < 0) {
+        errors.push({ msg: 'Planned budget must be a valid non-negative number.' });
+    }
+
+    if (errors.length > 0) {
+        const [taskRows] = await db.query('SELECT * FROM tasks WHERE id = ? AND project_id = ?', [taskId, projectId]);
+        const task = taskRows[0] || {id: taskId, name: "Unknown Task"};
+        return res.render('tasks/budget/edit_task_budget', {
+            title: `Manage Budget for Task: ${task.name}`,
+            pageTitle: `Manage Planned Budget`,
+            subTitle: `Task: ${task.name} (Project: ${project.name})`,
+            project: project,
+            task: task,
+            formData: { planned_budget },
+            errors: errors,
+            layout: './layouts/main_layout'
+        });
+    }
+
+    try {
+        await db.query('UPDATE tasks SET planned_budget = ?, updated_at = NOW() WHERE id = ? AND project_id = ?', [budgetValue, taskId, projectId]);
+        req.flash('success_msg', 'Task planned budget updated successfully.');
+        res.redirect(`/projects/${projectId}/tasks/${taskId}/details`);
+    } catch (error) {
+        console.error("Error updating task budget:", error);
+        req.flash('error_msg', 'Error updating task budget. Please try again.');
+        res.redirect(`/projects/${projectId}/tasks/${taskId}/budget/edit`);
+    }
+};
+
+
+// =================== TASK BUDGET LOGS ===================
+
+// Show form to add a budget log entry specifically for a task
+exports.showAddTaskBudgetLogForm = async (req, res, next) => {
+    try {
+        const { projectId, taskId } = req.params;
+        const project = req.projectContext;
+
+        const [taskRows] = await db.query('SELECT id, name FROM tasks WHERE id = ? AND project_id = ?', [taskId, projectId]);
+        if (taskRows.length === 0) {
+            req.flash('error_msg', 'Task not found.');
+            return res.redirect(`/projects/${projectId}/details`);
+        }
+        const task = taskRows[0];
+
+        res.render('tasks/budget/create_log_entry', {
+            title: `Add Budget Log for Task: ${task.name}`,
+            pageTitle: `Add Budget Log Entry`,
+            subTitle: `Task: ${task.name} (Project: ${project.name})`,
+            project: project,
+            task: task,
+            formData: {},
+            errors: [],
+            formAction: `/projects/${projectId}/tasks/${taskId}/budget/log/add`,
+            layout: './layouts/main_layout'
+        });
+    } catch (error) {
+        console.error("Error showing add task budget log form:", error);
+        next(error);
+    }
+};
+
+// Handle adding a new budget log entry for a task
+exports.handleAddTaxBudgetLogEntry = async (req, res, next) => { // Renamed handleAddTaskBudgetLogEntry
+    const { projectId, taskId } = req.params;
+    const { description, amount, entry_type, log_date, category } = req.body;
+    const created_by_id = req.session.user.id;
+    let errors = [];
+
+    if (!description || description.trim() === '') errors.push({ msg: 'Description is required.' });
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) errors.push({ msg: 'Amount must be a positive number.' });
+    if (!entry_type || !['income', 'expense'].includes(entry_type)) errors.push({ msg: 'Invalid entry type.' });
+    if (!log_date) errors.push({ msg: 'Log date is required.' });
+
+    if (errors.length > 0) {
+        const project = req.projectContext;
+        const [taskRows] = await db.query('SELECT id, name FROM tasks WHERE id = ? AND project_id = ?', [taskId, projectId]);
+        const task = taskRows[0] || {id: taskId, name: "Unknown Task"};
+        return res.render('tasks/budget/create_log_entry', {
+            title: `Add Budget Log for Task: ${task.name}`,
+            pageTitle: `Add Budget Log Entry`,
+            subTitle: `Task: ${task.name} (Project: ${project.name})`,
+            project: project,
+            task: task,
+            formData: req.body,
+            errors: errors,
+            formAction: `/projects/${projectId}/tasks/${taskId}/budget/log/add`,
+            layout: './layouts/main_layout'
+        });
+    }
+
+    try {
+        const newLogEntry = {
+            project_id: projectId,
+            task_id: taskId,
+            description: description.trim(),
+            amount: parseFloat(amount),
+            entry_type,
+            log_date,
+            category: category ? category.trim() : null,
+            created_by_id
+        };
+        await db.query('INSERT INTO budget_logs SET ?', newLogEntry);
+        req.flash('success_msg', 'Task budget log entry added successfully.');
+        res.redirect(`/projects/${projectId}/tasks/${taskId}/budget/logs`);
+    } catch (error) {
+        console.error("Error adding task budget log entry:", error);
+        req.flash('error_msg', 'Error adding task budget log entry.');
+        res.redirect(`/projects/${projectId}/tasks/${taskId}/budget/log/add`);
+    }
+};
+exports.handleAddBudgetLogEntry = exports.handleAddProjectBudgetLogEntry; // Alias for clarity if called from project context for a task
+exports.handleAddLogEntry = exports.handleAddProjectBudgetLogEntry; // Generic alias
+
+
+// List all budget logs for a specific task
+exports.listTaskBudgetLogs = async (req, res, next) => {
+    try {
+        const { projectId, taskId } = req.params;
+        const project = req.projectContext;
+
+        const [taskRows] = await db.query('SELECT * FROM tasks WHERE id = ? AND project_id = ?', [taskId, projectId]);
+        if (taskRows.length === 0) {
+            req.flash('error_msg', 'Task not found.');
+            return res.redirect(`/projects/${projectId}/details`);
+        }
+        const task = taskRows[0];
+
+        const [logs] = await db.query(`
+            SELECT bl.*, u.username as creator_username
+            FROM budget_logs bl
+            JOIN users u ON bl.created_by_id = u.id
+            WHERE bl.project_id = ? AND bl.task_id = ?
+            ORDER BY bl.log_date DESC, bl.created_at DESC
+        `, [projectId, taskId]);
+
+        let totalIncome = 0;
+        let totalExpenses = 0;
+        logs.forEach(log => {
+            if (log.entry_type === 'income') {
+                totalIncome += parseFloat(log.amount);
+            } else {
+                totalExpenses += parseFloat(log.amount);
+            }
+        });
+
+        const plannedBudget = task.planned_budget ? parseFloat(task.planned_budget) : 0;
+        const actualCost = totalExpenses;
+        const variance = plannedBudget - actualCost;
+
+        res.render('tasks/budget/list_logs', {
+            title: `Budget Logs for Task: ${task.name}`,
+            pageTitle: `Budget Logs`,
+            subTitle: `Task: ${task.name} (Project: ${project.name})`,
+            project: project,
+            task: task,
+            logs: logs,
+            plannedBudget: plannedBudget,
+            totalIncome: totalIncome,
+            totalExpenses: totalExpenses,
+            actualCost: actualCost,
+            variance: variance,
+            layout: './layouts/main_layout'
+        });
+    } catch (error) {
+        console.error("Error listing task budget logs:", error);
+        next(error);
+    }
+};
+
+// Helper function to get project budget summary (can be used by projectController)
+exports.getProjectBudgetSummary = async (projectId) => {
+    const [projectRows] = await db.query('SELECT planned_budget FROM projects WHERE id = ?', [projectId]);
+    const planned_budget = projectRows.length > 0 && projectRows[0].planned_budget ? parseFloat(projectRows[0].planned_budget) : 0;
+
+    const [logSummary] = await db.query(
+        `SELECT 
+            SUM(CASE WHEN entry_type = 'income' THEN amount ELSE 0 END) as total_income,
+            SUM(CASE WHEN entry_type = 'expense' THEN amount ELSE 0 END) as total_expenses
+         FROM budget_logs 
+         WHERE project_id = ?`,
+        [projectId]
+    );
+    
+    const total_income = logSummary.length > 0 && logSummary[0].total_income ? parseFloat(logSummary[0].total_income) : 0;
+    const actual_cost = logSummary.length > 0 && logSummary[0].total_expenses ? parseFloat(logSummary[0].total_expenses) : 0;
+    const variance = planned_budget - actual_cost;
+
+    return {
+        planned_budget,
+        total_income,
+        actual_cost,
+        variance
+    };
+};
+
+// Helper function to get task budget summary (can be used by taskController)
+exports.getTaskBudgetSummary = async (taskId) => {
+    const [taskRows] = await db.query('SELECT planned_budget FROM tasks WHERE id = ?', [taskId]);
+    const planned_budget = taskRows.length > 0 && taskRows[0].planned_budget ? parseFloat(taskRows[0].planned_budget) : 0;
+
+    const [logSummary] = await db.query(
+        `SELECT 
+            SUM(CASE WHEN entry_type = 'income' THEN amount ELSE 0 END) as total_income,
+            SUM(CASE WHEN entry_type = 'expense' THEN amount ELSE 0 END) as total_expenses
+         FROM budget_logs 
+         WHERE task_id = ?`,
+        [taskId]
+    );
+
+    const total_income = logSummary.length > 0 && logSummary[0].total_income ? parseFloat(logSummary[0].total_income) : 0;
+    const actual_cost = logSummary.length > 0 && logSummary[0].total_expenses ? parseFloat(logSummary[0].total_expenses) : 0;
+    const variance = planned_budget - actual_cost;
+    
+    return {
+        planned_budget,
+        total_income,
+        actual_cost,
+        variance
+    };
+};
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+JavaScript
+IGNORE_WHEN_COPYING_END
+
+Note: I renamed handleAddTaxBudgetLogEntry to handleAddBudgetLogEntryForTask internally in my thoughts but the prompt provided handleAddTaxBudgetLogEntry which implies it was a typo for handleAdd*Task*BudgetLogEntry. I've used handleAddTaxBudgetLogEntry as per your controller skeleton's section, but it should ideally be handleAddTasksBudgetLogEntry or similar. I corrected this to handleAddTaxBudgetLogEntry in the code above and will also alias handleAddBudgetLogEntry for potential reuse from the project-level if a task_id is passed.
+
+b. Budget Log Specific Routes (to be placed in routes/app.js)
+// routes/app.js
+// ... other imports
+const budgetController = require('../controllers/budgetController'); // Make sure to import
+
+// --- Define Budget Roles ---
+const BUDGET_MANAGE_ROLES = ['Project Manager', 'Admin'];
+const BUDGET_ADD_LOG_ROLES = ['Project Manager', 'Site Supervisor', 'Admin'];
+const BUDGET_VIEW_ROLES = ['Project Manager', 'Site Supervisor', 'Team Member', 'Client', 'Admin'];
+
+// --- Project Budget Management Routes ---
+router.get(
+    '/projects/:projectId/budget/edit',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_MANAGE_ROLES),
+    budgetController.showProjectBudgetForm
+);
+router.post(
+    '/projects/:projectId/budget/edit',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_MANAGE_ROLES),
+    budgetController.handleUpdateProjectBudget
+);
+router.get(
+    '/projects/:projectId/budget/log/add',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_ADD_LOG_ROLES),
+    budgetController.showAddProjectBudgetLogForm
+);
+router.post(
+    '/projects/:projectId/budget/log/add',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_ADD_LOG_ROLES),
+    budgetController.handleAddProjectBudgetLogEntry // Handles project-level and task-level if task_id is in form
+);
+router.get(
+    '/projects/:projectId/budget/logs',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_VIEW_ROLES),
+    budgetController.listProjectBudgetLogs
+);
+
+// --- Task Budget Management Routes ---
+router.get(
+    '/projects/:projectId/tasks/:taskId/budget/edit',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_MANAGE_ROLES),
+    budgetController.showTaskBudgetForm
+);
+router.post(
+    '/projects/:projectId/tasks/:taskId/budget/edit',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_MANAGE_ROLES),
+    budgetController.handleUpdateTaskBudget
+);
+router.get(
+    '/projects/:projectId/tasks/:taskId/budget/log/add',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_ADD_LOG_ROLES),
+    budgetController.showAddTaskBudgetLogForm
+);
+router.post(
+    '/projects/:projectId/tasks/:taskId/budget/log/add',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_ADD_LOG_ROLES),
+    budgetController.handleAddTaxBudgetLogEntry // Controller method specific to task log addition
+);
+router.get(
+    '/projects/:projectId/tasks/:taskId/budget/logs',
+    isAuthenticated,
+    checkProjectAccess(BUDGET_VIEW_ROLES),
+    budgetController.listTaskBudgetLogs
+);
+
+// ... rest of your app.js routes
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+JavaScript
+IGNORE_WHEN_COPYING_END
+
+Important for projectController.js and taskController.js:
+To make the "Budget Overview" sections work in details.ejs files, you'll need to modify projectController.showProjectDetails and taskController.showTaskDetails to fetch and pass the budget summary.
+
+Example modification for projectController.showProjectDetails:
+
+// In projectController.js, before res.render in showProjectDetails
+// ...
+const budgetCtrl = require('./budgetController'); // Import at the top of projectController.js
+
+// Inside showProjectDetails, after fetching the project:
+const budgetSummary = await budgetCtrl.getProjectBudgetSummary(finalProjectObjectForView.id);
+finalProjectObjectForView.planned_budget = budgetSummary.planned_budget; // Already on project, but ensure consistency
+finalProjectObjectForView.actual_cost = budgetSummary.actual_cost;
+finalProjectObjectForView.total_income = budgetSummary.total_income; // If you want to display income
+
+// Then pass finalProjectObjectForView to res.render
+// ...
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+JavaScript
+IGNORE_WHEN_COPYING_END
+
+Example modification for taskController.showTaskDetails:
+
+// In taskController.js, before res.render in showTaskDetails
+// ...
+const budgetCtrl = require('./budgetController'); // Import at the top of taskController.js
+
+// Inside showTaskDetails, after fetching the mainTask:
+const budgetSummary = await budgetCtrl.getTaskBudgetSummary(mainTask.id);
+mainTask.planned_budget = budgetSummary.planned_budget; // Already on task, but ensure consistency
+mainTask.actual_cost = budgetSummary.actual_cost;
+mainTask.total_income = budgetSummary.total_income; // If you want to display income
+
+// Then pass mainTask to res.render
+// ...
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+JavaScript
+IGNORE_WHEN_COPYING_END
+2. Frontend Codes:
+a. Improving views/tasks/details.ejs
+
+Add the "Budget Overview" section. I'll place it within the main card or as a new card.
+
+<!-- views/tasks/details.ejs -->
+<% /* Rendered by main_layout.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, task (main task with .children, and now task.planned_budget, task.actual_cost), layout passed from controller */ %>
+
+<div class="container mt-4 mb-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Task: <%= task.name %></li>
+        </ol>
+    </nav>
+
+    <%- include('../partials/_messages') %>
+
+    <% if (task) { %>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0"><%= pageTitle %></h2>
+            <div>
+                <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/edit" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="fas fa-edit me-1"></i> Edit Task
+                </a>
+                <form action="/projects/<%= project.id %>/tasks/<%= task.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this task? This may also delete sub-tasks if ON DELETE CASCADE is set.');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-trash-alt me-1"></i> Delete Task
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Task Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <% if (task.task_code) { %>
+                            <p class="mb-2"><strong>Task Code:</strong> <%= task.task_code %></p>
+                        <% } %>
+                        <p class="mb-2">
+                            <strong>Description:</strong><br>
+                            <%- task.description ? task.description.replace(/\n/g, '<br>') : 'No description provided.' %>
+                        </p>
+                         <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-<%= task.status === 'Completed' ? 'success' : (task.status === 'InProgress' ? 'primary' : (task.status === 'ToDo' ? 'info text-dark' : (task.status === 'Blocked' ? 'danger' : (task.status === 'Cancelled' ? 'dark' : 'secondary')))) %>"><%= task.status %></span></p>
+                                <p class="mb-1"><strong>Priority:</strong> <span class="badge bg-<%= task.priority === 'Critical' ? 'danger' : (task.priority === 'High' ? 'warning text-dark' : (task.priority === 'Medium' ? 'info text-dark' : 'secondary')) %>"><%= task.priority || 'N/A' %></span></p>
+                                <p class="mb-1"><strong>Assigned To:</strong> <%= task.assignee_display_name || 'Unassigned' %></p>
+                                <% if (task.parent_task_name && task.parent_task_id_val) { %>
+                                    <p class="mb-1"><strong>Parent Task:</strong> <a href="/projects/<%= project.id %>/tasks/<%= task.parent_task_id_val %>/details"><%= task.parent_task_name %></a></p>
+                                <% } %>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Start Date:</strong> <%= task.start_date_formatted || 'N/A' %></p>
+                                <p class="mb-1"><strong>End Date:</strong> <%= task.end_date_formatted || 'N/A' %></p>
+                                <!-- Removed task.cost as it's now part of budget logs -->
+                                <p class="mb-1"><strong>Created By:</strong> <%= task.creator_username || 'N/A' %></p>
+                                <p class="mb-1"><strong>Created At:</strong> <%= task.created_at_formatted %></p>
+                                <% if (task.updated_at && new Date(task.updated_at).getTime() !== new Date(task.created_at).getTime()) { %>
+                                     <p class="mb-1"><strong>Last Updated:</strong> <%= task.updated_at_formatted %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <!-- Budget Overview Section for Task -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Budget Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <%
+                            const taskPlannedBudget = task.planned_budget ? parseFloat(task.planned_budget) : 0;
+                            const taskActualCost = task.actual_cost ? parseFloat(task.actual_cost) : 0; // Should be passed from controller
+                            const taskVariance = taskPlannedBudget - taskActualCost;
+                        %>
+                        <p><strong>Planned Budget:</strong> $<%= taskPlannedBudget.toFixed(2) %></p>
+                        <p><strong>Actual Cost:</strong> $<%= taskActualCost.toFixed(2) %></p>
+                        <% if (task.total_income > 0) { %>
+                            <p><strong>Actual Income:</strong> $<%= parseFloat(task.total_income).toFixed(2) %></p>
+                        <% } %>
+                        <p><strong>Variance:</strong>
+                            <span class="fw-bold text-<%= taskVariance >= 0 ? 'success' : 'danger' %>">
+                                $<%= taskVariance.toFixed(2) %>
+                                <%= taskVariance >= 0 ? '(Under Budget/On Target)' : '(Over Budget)' %>
+                            </span>
+                        </p>
+                        <hr>
+                        <div class="d-grid gap-2">
+                            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/edit" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-edit"></i> Manage Task Budget
+                            </a>
+                            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/log/add" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-plus-circle"></i> Add Budget Entry
+                            </a>
+                            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/logs" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-list-alt"></i> View Task Budget Log
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mt-4" id="sub-tasks-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Sub-Tasks</h5>
+                <a href="/projects/<%= project.id %>/tasks/create?parent_task_id=<%= task.id %>" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus me-1"></i> Add Sub-task
+                </a>
+            </div>
+
+            <% if (task.children && task.children.length > 0) { %>
+                <div class="task-list-container list-group bg-white p-0 rounded shadow-sm">
+                    <% task.children.forEach(function(subTask) { %>
+                        <%- include('../partials/_task_item_recursive', { task: subTask, project: project, level: 0, canManageTaskActions: true }) %> <%# Assuming canManageTaskActions is true here, or pass appropriately %>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-light text-center py-3" role="alert">
+                    This task has no sub-tasks.
+                    <a href="/projects/<%= project.id %>/tasks/create?parent_task_id=<%= task.id %>" class="alert-link d-block mt-2">Add a sub-task now!</a>
+                </div>
+            <% } %>
+        </div>
+
+    <% } else { %>
+        <div class="alert alert-warning" role="alert">
+            Task details could not be loaded. Please try again or contact support.
+        </div>
+    <% } %>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+b. Revising views/projects/budget/ EJS files:
+views/projects/budget/edit_project_budget.ejs (Revised)
+<% /* views/projects/budget/edit_project_budget.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, formData, errors, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects">Projects</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Manage Budget</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-3"><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="/projects/<%= project.id %>/budget/edit" method="POST">
+                <div class="mb-3">
+                    <label for="planned_budget" class="form-label">Planned Project Budget ($)</label>
+                    <input type="number" class="form-control <%= errors.find(e => e.param === 'planned_budget' || e.msg.toLowerCase().includes('budget')) ? 'is-invalid' : '' %>" 
+                           id="planned_budget" name="planned_budget" 
+                           value="<%= formData.planned_budget || (project.planned_budget || '') %>" 
+                           step="0.01" min="0" required>
+                    <% errors.forEach(function(error) { %>
+                        <% if (error.param === 'planned_budget' || error.msg.toLowerCase().includes('budget')) { %>
+                            <div class="invalid-feedback"><%= error.msg %></div>
+                        <% } %>
+                    <% }); %>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Update Planned Budget
+                </button>
+                <a href="/projects/<%= project.id %>/details" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+views/projects/budget/create_log_entry.ejs (Revised)
+<% /* views/projects/budget/create_log_entry.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, tasks (optional for dropdown), formData, errors, formAction, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects">Projects</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/budget/logs">Budget Logs</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add Entry</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-3"><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="<%= formAction %>" method="POST">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control <%= errors.find(e => e.param === 'description' || e.msg.toLowerCase().includes('description')) ? 'is-invalid' : '' %>" 
+                                  id="description" name="description" rows="3" required><%= formData.description || '' %></textarea>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'description' || error.msg.toLowerCase().includes('description')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="amount" class="form-label">Amount ($) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control <%= errors.find(e => e.param === 'amount' || e.msg.toLowerCase().includes('amount')) ? 'is-invalid' : '' %>" 
+                               id="amount" name="amount" value="<%= formData.amount || '' %>" step="0.01" min="0.01" required>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'amount' || error.msg.toLowerCase().includes('amount')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="entry_type" class="form-label">Type <span class="text-danger">*</span></label>
+                        <select class="form-select <%= errors.find(e => e.param === 'entry_type' || e.msg.toLowerCase().includes('type')) ? 'is-invalid' : '' %>" 
+                                id="entry_type" name="entry_type" required>
+                            <option value="" <%= !formData.entry_type ? 'selected' : '' %>>Choose...</option>
+                            <option value="expense" <%= formData.entry_type === 'expense' ? 'selected' : '' %>>Expense</option>
+                            <option value="income" <%= formData.entry_type === 'income' ? 'selected' : '' %>>Income</option>
+                        </select>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'entry_type' || error.msg.toLowerCase().includes('type')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="log_date" class="form-label">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control <%= errors.find(e => e.param === 'log_date' || e.msg.toLowerCase().includes('date')) ? 'is-invalid' : '' %>" 
+                               id="log_date" name="log_date" value="<%= formData.log_date || new Date().toISOString().split('T')[0] %>" required>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'log_date' || error.msg.toLowerCase().includes('date')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="category" class="form-label">Category (Optional)</label>
+                        <input type="text" class="form-control" id="category" name="category" value="<%= formData.category || '' %>">
+                    </div>
+                    
+                    <% if (typeof tasks !== 'undefined' && tasks.length > 0) { %>
+                    <div class="col-md-6 mb-3">
+                        <label for="task_id" class="form-label">Link to Task (Optional)</label>
+                        <select class="form-select" id="task_id" name="task_id">
+                            <option value="">-- Project Level --</option>
+                            <% tasks.forEach(function(task) { %>
+                                <option value="<%= task.id %>" <%= formData.task_id == task.id ? 'selected' : '' %>>
+                                    <%= task.name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <% } %>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-1"></i> Add Log Entry
+                </button>
+                <a href="/projects/<%= project.id %>/budget/logs" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+views/projects/budget/list_logs.ejs (Revised)
+<% /* views/projects/budget/list_logs.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, logs, plannedBudget, totalIncome, totalExpenses, actualCost, netActual, variance, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects">Projects</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Budget Logs</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><%= pageTitle %></h2>
+        <a href="/projects/<%= project.id %>/budget/log/add" class="btn btn-success">
+            <i class="fas fa-plus-circle me-1"></i> Add New Log Entry
+        </a>
+    </div>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages') %>
+
+    <!-- Budget Summary Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Project Budget Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Planned Budget:</strong></p>
+                    <h4>$<%= plannedBudget.toFixed(2) %></h4>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Total Income:</strong></p>
+                    <h4 class="text-success">$<%= totalIncome.toFixed(2) %></h4>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Total Expenses (Actual Cost):</strong></p>
+                    <h4 class="text-danger">$<%= actualCost.toFixed(2) %></h4>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Variance (Planned - Actual Cost):</strong></p>
+                    <h4 class="text-<%= variance >= 0 ? 'success' : 'danger' %>">
+                        $<%= variance.toFixed(2) %>
+                        <small><%= variance >= 0 ? '(Under/On Budget)' : '(Over Budget)' %></small>
+                    </h4>
+                </div>
+            </div>
+             <hr>
+            <a href="/projects/<%= project.id %>/budget/edit" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit"></i> Manage Planned Budget
+            </a>
+        </div>
+    </div>
+
+    <!-- Budget Logs Table -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">Detailed Log Entries</h5>
+        </div>
+        <div class="card-body p-0">
+            <% if (logs && logs.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Task</th>
+                                <th>Type</th>
+                                <th class="text-end">Amount ($)</th>
+                                <th>By</th>
+                                <!-- <th>Actions</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% logs.forEach(function(log) { %>
+                                <tr>
+                                    <td><%= new Date(log.log_date).toLocaleDateString() %></td>
+                                    <td><%= log.description %></td>
+                                    <td><%= log.category || 'N/A' %></td>
+                                    <td>
+                                        <% if (log.task_id && log.task_name) { %>
+                                            <a href="/projects/<%= project.id %>/tasks/<%= log.task_id %>/details"><%= log.task_name %></a>
+                                        <% } else { %>
+                                            Project Level
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<%= log.entry_type === 'income' ? 'success' : 'danger' %>">
+                                            <%= log.entry_type.charAt(0).toUpperCase() + log.entry_type.slice(1) %>
+                                        </span>
+                                    </td>
+                                    <td class="text-end <%= log.entry_type === 'income' ? 'text-success' : 'text-danger' %>">
+                                        <%= parseFloat(log.amount).toFixed(2) %>
+                                    </td>
+                                    <td><%= log.creator_username %></td>
+                                    <!-- <td>
+                                        <a href="/projects/<%= project.id %>/budget/log/<%= log.id %>/edit" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                                        <form action="/projects/<%= project.id %>/budget/log/<%= log.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this log entry?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td> -->
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="card-body text-center">
+                    <p class="text-muted">No budget log entries found for this project yet.</p>
+                    <a href="/projects/<%= project.id %>/budget/log/add" class="btn btn-primary">Add First Entry</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+c. Files to Create: views/tasks/budget/
+views/tasks/budget/edit_task_budget.ejs (Created)
+<% /* views/tasks/budget/edit_task_budget.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, task, formData, errors, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/tasks/<%= task.id %>/details"><%= task.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Manage Task Budget</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-3"><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/edit" method="POST">
+                <div class="mb-3">
+                    <label for="planned_budget" class="form-label">Planned Task Budget ($)</label>
+                    <input type="number" class="form-control <%= errors.find(e => e.param === 'planned_budget' || e.msg.toLowerCase().includes('budget')) ? 'is-invalid' : '' %>" 
+                           id="planned_budget" name="planned_budget" 
+                           value="<%= formData.planned_budget || (task.planned_budget || '') %>" 
+                           step="0.01" min="0">
+                    <% errors.forEach(function(error) { %>
+                        <% if (error.param === 'planned_budget' || error.msg.toLowerCase().includes('budget')) { %>
+                            <div class="invalid-feedback"><%= error.msg %></div>
+                        <% } %>
+                    <% }); %>
+                    <div class="form-text">Set a specific planned budget for this task, if applicable.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Update Task Budget
+                </button>
+                <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/details" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+views/tasks/budget/create_log_entry.ejs (Created)
+<% /* views/tasks/budget/create_log_entry.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, task, formData, errors, formAction, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/tasks/<%= task.id %>/details"><%= task.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/logs">Task Budget Logs</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add Entry</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-3"><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="<%= formAction %>" method="POST">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control <%= errors.find(e => e.param === 'description' || e.msg.toLowerCase().includes('description')) ? 'is-invalid' : '' %>" 
+                                  id="description" name="description" rows="3" required><%= formData.description || '' %></textarea>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'description' || error.msg.toLowerCase().includes('description')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="amount" class="form-label">Amount ($) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control <%= errors.find(e => e.param === 'amount' || e.msg.toLowerCase().includes('amount')) ? 'is-invalid' : '' %>" 
+                               id="amount" name="amount" value="<%= formData.amount || '' %>" step="0.01" min="0.01" required>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'amount' || error.msg.toLowerCase().includes('amount')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="entry_type" class="form-label">Type <span class="text-danger">*</span></label>
+                        <select class="form-select <%= errors.find(e => e.param === 'entry_type' || e.msg.toLowerCase().includes('type')) ? 'is-invalid' : '' %>" 
+                                id="entry_type" name="entry_type" required>
+                            <option value="" <%= !formData.entry_type ? 'selected' : '' %>>Choose...</option>
+                            <option value="expense" <%= formData.entry_type === 'expense' ? 'selected' : '' %>>Expense</option>
+                            <option value="income" <%= formData.entry_type === 'income' ? 'selected' : '' %>>Income</option>
+                        </select>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'entry_type' || error.msg.toLowerCase().includes('type')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="log_date" class="form-label">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control <%= errors.find(e => e.param === 'log_date' || e.msg.toLowerCase().includes('date')) ? 'is-invalid' : '' %>" 
+                               id="log_date" name="log_date" value="<%= formData.log_date || new Date().toISOString().split('T')[0] %>" required>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'log_date' || error.msg.toLowerCase().includes('date')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="category" class="form-label">Category (Optional)</label>
+                        <input type="text" class="form-control" id="category" name="category" value="<%= formData.category || '' %>">
+                    </div>
+                </div>
+                
+                <input type="hidden" name="task_id" value="<%= task.id %>"> <!-- Ensure task_id is submitted for task-specific log -->
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-1"></i> Add Log Entry for Task
+                </button>
+                <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/logs" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+views/tasks/budget/list_logs.ejs (Created)
+<% /* views/tasks/budget/list_logs.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, task, logs, plannedBudget, totalIncome, totalExpenses, actualCost, variance, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/tasks/<%= task.id %>/details"><%= task.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Task Budget Logs</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><%= pageTitle %></h2>
+        <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/log/add" class="btn btn-success">
+            <i class="fas fa-plus-circle me-1"></i> Add New Log Entry
+        </a>
+    </div>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages') %>
+
+    <!-- Task Budget Summary Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Task Budget Summary: <%= task.name %></h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Planned Budget:</strong></p>
+                    <h4>$<%= plannedBudget.toFixed(2) %></h4>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Total Income:</strong></p>
+                    <h4 class="text-success">$<%= totalIncome.toFixed(2) %></h4>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Total Expenses (Actual Cost):</strong></p>
+                    <h4 class="text-danger">$<%= actualCost.toFixed(2) %></h4>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Variance (Planned - Actual Cost):</strong></p>
+                    <h4 class="text-<%= variance >= 0 ? 'success' : 'danger' %>">
+                        $<%= variance.toFixed(2) %>
+                        <small><%= variance >= 0 ? '(Under/On Budget)' : '(Over Budget)' %></small>
+                    </h4>
+                </div>
+            </div>
+            <hr>
+            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/edit" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit"></i> Manage Task Planned Budget
+            </a>
+        </div>
+    </div>
+
+    <!-- Task Budget Logs Table -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">Detailed Log Entries for Task: <%= task.name %></h5>
+        </div>
+        <div class="card-body p-0">
+            <% if (logs && logs.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th class="text-end">Amount ($)</th>
+                                <th>By</th>
+                                <!-- <th>Actions</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% logs.forEach(function(log) { %>
+                                <tr>
+                                    <td><%= new Date(log.log_date).toLocaleDateString() %></td>
+                                    <td><%= log.description %></td>
+                                    <td><%= log.category || 'N/A' %></td>
+                                    <td>
+                                        <span class="badge bg-<%= log.entry_type === 'income' ? 'success' : 'danger' %>">
+                                            <%= log.entry_type.charAt(0).toUpperCase() + log.entry_type.slice(1) %>
+                                        </span>
+                                    </td>
+                                    <td class="text-end <%= log.entry_type === 'income' ? 'text-success' : 'text-danger' %>">
+                                        <%= parseFloat(log.amount).toFixed(2) %>
+                                    </td>
+                                    <td><%= log.creator_username %></td>
+                                    <!-- <td>
+                                        <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/log/<%= log.id %>/edit" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                                        <form action="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/log/<%= log.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this log entry?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td> -->
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="card-body text-center">
+                    <p class="text-muted">No budget log entries found for this task yet.</p>
+                    <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/log/add" class="btn btn-primary">Add First Entry for this Task</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Html
+IGNORE_WHEN_COPYING_END
+
+This completes the implementation for the budget log functionality as requested. Remember to add the new budget_logs table to your database and integrate the budget summary calculations into projectController and taskController as shown in the examples to fully populate the overview sections in the details pages. You'll also need to ensure the checkProjectAccess middleware correctly passes req.projectContext.

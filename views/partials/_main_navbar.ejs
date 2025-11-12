@@ -1,0 +1,53 @@
+<!-- views/partials/_main_navbar.ejs -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom app-navbar-main">
+  <div class="container-fluid"> <!-- Changed to fluid for potentially wider app interfaces -->
+    <a class="navbar-brand" href="/dashboard"><i class="fas fa-cogs me-2"></i>AvenirCon</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainAppNavbar" aria-controls="mainAppNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainAppNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath === '/dashboard') ? 'active' : '' %>" href="/dashboard">
+            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/projects')) ? 'active' : '' %>" href="/projects">
+            <i class="fas fa-project-diagram me-1"></i> Projects
+          </a>
+        </li>
+        <!-- Add other main app navigation links here -->
+        <!-- Example:
+        <li class="nav-item">
+          <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/reports')) ? 'active' : '' %>" href="/reports">
+            <i class="fas fa-chart-line me-1"></i> Reports
+          </a>
+        </li>
+        -->
+      </ul>
+      <ul class="navbar-nav ms-auto align-items-center">
+         <li class="nav-item me-2">
+            <a class="nav-link" href="/" target="_blank" title="View Public Site">
+                <i class="fas fa-globe"></i> <span class="d-none d-lg-inline">Public Site</span>
+            </a>
+        </li>
+        <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated && typeof currentUser !== 'undefined' && currentUser) { %>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdownMain" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-user-circle fa-fw"></i> <%= currentUser.username %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownMain">
+              <li><a class="dropdown-item <%= (typeof currentPath !== 'undefined' && currentPath === '/profile') ? 'active' : '' %>" href="/profile"><i class="fas fa-id-card me-2"></i>My Profile</a></li>
+              <% if (currentUser.role === 'Admin') { %>
+                <li><a class="dropdown-item" href="/admin"><i class="fas fa-user-shield me-2"></i>Admin Panel</a></li>
+              <% } %>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+            </ul>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>

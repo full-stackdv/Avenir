@@ -1,0 +1,27 @@
+<%# views/admin/pages/list.ejs %>
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 mb-0">Manage Page Content</h2>
+        <%# No "Create New Page" button as pages are predefined by seed data %>
+    </div>
+
+    <% if (pages && pages.length > 0) { %>
+    <div class="list-group shadow-sm">
+        <% pages.forEach(function(page) { %>
+            <a href="/admin/pages/<%= page.key %>/edit" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1"><%= page.label %></h5>
+                    <small class="text-muted">Key: <code><%= page.key %></code></small>
+                </div>
+                <i class="fas fa-chevron-right text-muted"></i>
+            </a>
+        <% }); %>
+    </div>
+    <% } else { %>
+        <div class="alert alert-info">
+            No editable pages found. Please ensure seed data for 'page_content' table is correctly inserted.
+        </div>
+    <% } %>
+</div>

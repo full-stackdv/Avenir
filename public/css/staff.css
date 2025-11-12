@@ -1,0 +1,447 @@
+/* 
+I planned the following css for public/css/public_styles.css and you can add further or basic styling if needed. Now before proceding to implementing the comment submission, post creation/editing (postmanager), and admin view for contact messages and manage post comments, we will ctrate/refine the followings: 
+
+- Refine Partials: Create _public_navbar.ejs and _public_footer.ejs.  
+
+- Create javascript: Create public/js/script.js to handle delete actions for task deletion. 
+
+*/
+/* ================ PUBLIC LAYOUT public_styles ================ */
+.public-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header */
+.public-header {
+  background-color: var(--primary);
+  color: white;
+  padding: 1rem 0;
+  box-shadow: var(--box-shadow);
+}
+
+.public-header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.main-nav ul {
+  display: flex;
+  list-style: none;
+}
+
+.main-nav li {
+  margin-left: 1.5rem;
+}
+
+.main-nav a {
+  color: white;
+  font-weight: 500;
+}
+
+.main-nav a:hover {
+  color: var(--secondary);
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.9)),
+              url('/images/construction-hero.jpg') center/cover;
+  color: white;
+  padding: 5rem 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+}
+
+/* Content Sections */
+.section {
+  padding: 4rem 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.section-title h2 {
+  font-size: 2rem;
+  color: var(--primary);
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
+}
+
+.section-title h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--secondary);
+}
+
+/* Features Grid */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: var(--secondary);
+  margin-bottom: 1rem;
+}
+
+/* Contact Form */
+.contact-form {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+/* Footer */
+.public-footer {
+  background-color: var(--primary);
+  color: white;
+  padding: 2rem 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.footer-column h3 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.footer-links {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+  color: var(--light);
+}
+
+.footer-links a:hover {
+  color: var(--secondary);
+}
+
+.copyright {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+}
+
+/* Blog Styles */
+.blog-post {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.blog-post__image {
+  height: 300px;
+  overflow: hidden;
+}
+
+.blog-post__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.blog-post:hover .blog-post__image img {
+  transform: scale(1.05);
+}
+
+.blog-post__content {
+  padding: 1.5rem;
+}
+
+.blog-post__meta {
+  color: var(--gray);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.blog-post__title {
+  margin-bottom: 1rem;
+}
+
+.blog-post__excerpt {
+  margin-bottom: 1rem;
+}
+
+.feature-icon { /* For feature lists */
+  font-size: 2.5rem;
+  color: #0d6efd;
+  margin-bottom: 1rem;
+}
+
+/* Blog specific styles (can be expanded) */
+.blog-post-item {
+  margin-bottom: 30px;
+}
+.blog-post-item .card-title a {
+  color: #333;
+  font-weight: 600;
+}
+.blog-post-item .card-title a:hover {
+  color: #0d6efd;
+}
+.blog-post-meta {
+  font-size: 0.85rem;
+  color: #777;
+}
+.feature-image-preview {
+  max-height: 200px;
+  width: 100%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+/* Single Post Page */
+.single-post-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 15px 0;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.comments-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+.comment-item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.comment-item:last-child {
+  border-bottom: none;
+}
+.comment-author {
+  font-weight: bold;
+  margin-right: 10px;
+}
+.comment-date {
+  font-size: 0.85em;
+  color: #777;
+}
+
+/* Contact Form enhancements */
+#contact-form label {
+  font-weight: 500;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 992px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    display: none; /* Consider mobile menu alternative */
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hero h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .main-nav ul {
+    flex-direction: column;
+  }
+}
+
+
+
+/* public/css/staff_styles.css */
+
+/* General Styles for Staff Module / Custom Layout *//*
+body.bg-light { /* If custom_layout uses bg-light */
+    /* font-family: 'Roboto', sans-serif; */ /* Example *//*
+}
+
+/* Re-use admin sidebar/navbar styles for consistency if needed */
+/* @import url('admin_styles.css'); (if not already linked in layout) */
+
+
+/* --- ID Card Generator Specific Styles --- */
+/* (Styles from your original idcard.css or equivalent) *//*
+.id-card-generator-page h3 {
+    color: #333;
+}
+
+#id-card-application-wrapper {
+    /* Styles for the main container of the ID card app *//*
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.id-card-render-area {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    background-size: cover;
+    background-position: center;
+}
+.id-card-render-area:hover {
+    transform: scale(1.02);
+}
+
+/* Styles for form controls within the ID card generator *//*
+.id-card-generator-page .form-label-sm {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+}
+.id-card-generator-page .form-control-sm {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+.id-card-generator-page .form-control-color {
+    min-height: calc(1.5em + .5rem + 2px); /* BS5 default height for form-control-sm *//*
+    width: 100%; /* Make color picker full width *//*
+}
+
+.id-card-generator-page fieldset {
+    border: 1px solid #dee2e6 !important; /* Important to override BS if needed *//*
+}
+.id-card-generator-page fieldset legend {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.id-card-generator-page details summary {
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0.5rem;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+.id-card-generator-page details summary:hover {
+    background-color: #dde2e6;
+}
+
+
+/* Preview Modal (if using the one from idcard.js example) *//*
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1070; /* Higher than Bootstrap's default navbar *//*
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); 
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 900px; /* Adjust as needed *//*
+    border-radius: .3rem;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+}
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+
+/* --- Staff Listing/Form Page Styles --- */
+/* (Styles from your original staff.css or equivalent) *//*
+.staff-management-page .table th {
+    background-color: #e9ecef;
+}
+.staff-management-page .img-thumbnail {
+    border: 2px solid #dee2e6;
+}
+
+/* Responsive adjustments *//*
+@media (max-width: 768px) {
+    .id-card-generator-page .sticky-top {
+        position: static !important; /* Disable sticky on smaller screens *//*
+    }
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+}

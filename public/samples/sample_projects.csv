@@ -1,0 +1,20 @@
+name,task_code,start_date,end_date,progress_percentage,task_budget,status ,priority,parent_task_code,assigned_to_username,is_milestone
+Mancho Woreda Corridor Recreation area,MW013,2025-05-20,2025-06-04,30,,Cancelled,Low,,shamsuamme,TRUE
+T00 Trial Task Project ptooooo1,l006,2025-07-22,2025-09-22,35,,ToDo,,,,
+Mole Town Corridor Construction Works,MW001,2025-08-14,2026-01-31,45,,ToDo,,,,
+Mancho project: Offic construction,MW002,2025-09-10,2026-03-06,50,,ToDo,,,,
+Mole town corridor development project,MW0011,2025-08-16,2025-10-09,0,,ToDo,Medium,,,
+Mole town road sife light project,MW0012,2025-09-10,2026-01-31,50,,ToDo,,,,
+Mole town street sidwalk project,MW00112,2025-05-04,2025-05-07,60,,ToDo,,,,TRUE
+Mole town adminstration office construction,MW0021,2025-05-10,2025-05-27,0,,ToDo,,,,
+Mancho Wored Office construction  Project,MW0022,2025-05-12,2025-05-29,80,,Cancelled,Medium,,,
+Bloc 1 administration office construction,MW00211,2025-05-26,2026-09-23,0,,Completed,,,,
+ Mancho Wored Office construction Project SUB 1,MW00212,,,0,,Blocked,,,,
+ Mancho Wored Office construction Project 1,MW00213,2025-05-20,2025-11-19,90,,Completed,Low,,,
+Featured road side consturction works,MW00212,2025-06-07,2025-09-27,0,,ToDo,High,,,
+Mancho Woreda Corridor projects  electric works,MW0051,,,0,,Cancelled,Low,,,
+updated tasks for Mancho Woreda Corridor and Office Project,MW0052,,,0,,ToDo,High,,,
+task one test one,MW0053,2025-05-14,2026-05-13,50,,ToDo,Medium,,,TRUE
+Macho project: Offic construction,MW0054,2025-05-14,2025-05-14,0,,InProgress,High,,,
+Road side electric work,MW00T1,2025-03-04,2025-11-26,0,,Completed,Low,,,
+Recreation area works,MW071,2025-04-19,2025-10-26,45,,Blocked,Low,,,

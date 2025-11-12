@@ -1,0 +1,60 @@
+
+<div class="card mt-4 shadow-sm">
+    <div class="card-header">
+        <h4 class="mb-0">Project Documents</h4>
+    </div>
+    <div class="card-body">
+        <%# Document Upload Form %>
+        <h5>Upload New Documents</h5>
+        <form action="/projects/<%= project.id %>/documents/upload" method="POST" enctype="multipart/form-data" class="mb-4 p-3 border rounded bg-light">
+            <div class="mb-3">
+                <label for="project_files" class="form-label">Select Files (Max 10 files, 25MB each):</label>
+                <input class="form-control" type="file" id="project_files" name="project_files" multiple>
+            </div>
+            <%# Optional: Add fields for description/category per file - more complex UI needed for multiple files %>
+            <%# For simplicity with multiple files, descriptions/categories might be generic or handled differently %>
+            <div class="mb-3">
+                <label for="doc_descriptions" class="form-label">Descriptions (comma-separated, optional, for each file in order):</label>
+                <input type="text" class="form-control" id="doc_descriptions" name="descriptions" placeholder="Description for file 1, Description for file 2,...">
+            </div>
+            <div class="mb-3">
+                 <label for="doc_categories" class="form-label">Categories (comma-separated, optional, for each file in order):</label>
+                <input type="text" class="form-control" id="doc_categories" name="categories" placeholder="Permit, Drawing, Report,...">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i> Upload Documents</button>
+        </form>
+        <hr>
+
+        <%# List of Existing Documents %>
+        <h5>Existing Documents</h5>
+        <% if (projectDocuments && projectDocuments.length > 0) { %>
+            <ul class="list-group">
+                <% projectDocuments.forEach(doc => { %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="/<%= doc.file_path %>" target="_blank" title="Download/View <%= doc.file_name %>">
+                                <i class="fas fa-file-alt me-2"></i><%= doc.file_name %>
+                            </a>
+                            <small class="d-block text-muted">
+                                Category: <%= doc.category || 'N/A' %> | Size: <%= (doc.file_size_bytes / (1024*1024)).toFixed(2) %> MB | Uploaded: <%= new Date(doc.created_at).toLocaleDateString() %> by <%= doc.uploader_username || 'Unknown' %>
+                                <% if (doc.description) { %><br><em>Description: <%= doc.description %></em><% } %>
+                            </small>
+                        </div>
+                        <div>
+                            <%# Ensure projectDocumentManageRoles is available or use a similar check %>
+                            <% if (currentUser && (currentUser.role === 'Admin' || (project && project.project_manager_id === currentUser.id) || (typeof projectMemberRoles !== 'undefined' && projectMemberRoles.includes(currentUser.project_role_for_this_project)) ) ) { %>
+                                <form action="/projects/<%= project.id %>/documents/<%= doc.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this document?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Document">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p class="text-muted">No documents have been uploaded for this project yet.</p>
+        <% } %>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+<% /* views/projects/members/edit_member_role.ejs - Content for main_layout.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, member, projectRolesAssignable, formData, errors, layout */ %>
+
+<div class="container mt-4 mb-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details#project-members-section">Members</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Role: <%= member.display_name %></li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><%= pageTitle || `Edit Role for ${member.display_name}` %></h4>
+                    <% if (subTitle) { %><p class="mb-0 small"><%= subTitle %></p><% } %>
+                </div>
+                <div class="card-body p-4">
+                    <%- include('../../partials/_messages') %>
+
+                    <form action="/projects/<%= project.id %>/members/<%= member.project_member_id %>/edit-role" method="POST">
+                        <div class="mb-3">
+                            <p><strong>Member:</strong> <%= member.display_name %> (<%= member.username %>)</p>
+                            <p><strong>Current Role:</strong> <span class="badge bg-secondary"><%= member.role_in_project %></span></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role_in_project_select" class="form-label">New Role in Project <span class="text-danger">*</span></label>
+                            <select class="form-select <%= (errors && errors.find(e => e.param === 'role_in_project_select')) ? 'is-invalid' : '' %>" 
+                                    id="role_in_project_select" name="role_in_project_select" required
+                                    <%# Disable if this member is the designated project_manager_id %>
+                                    <% if (project.project_manager_id === member.user_id) { %>
+                                        disabled 
+                                    <% } %>>
+                                <option value="">-- Select New Role --</option>
+                                <% if (projectRolesAssignable && projectRolesAssignable.length > 0) { %>
+                                    <% projectRolesAssignable.forEach(function(role) { %>
+                                        <option value="<%= role %>" 
+                                            <%= (formData && formData.role_in_project_select === role) ? 'selected' : (member.role_in_project === role && (!formData || !formData.role_in_project_select)) ? 'selected' : '' %>>
+                                            <%= role %>
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <% if (errors && errors.find(e => e.param === 'role_in_project_select')) { %>
+                                <div class="invalid-feedback"><%= errors.find(e => e.param === 'role_in_project_select').msg %></div>
+                            <% } else { %>
+                                <div class="invalid-feedback">Please select a new role.</div>
+                            <% } %>
+                            <% if (project.project_manager_id === member.user_id) { %>
+                                <div class="form-text text-warning">The role for the designated Project Manager is primarily managed via the project edit page. Changing it here might not reflect their primary PM status.</div>
+                            <% } %>
+                        </div>
+                        
+                        <hr class="my-4">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/projects/<%= project.id %>/details#project-members-section" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <% if (project.project_manager_id !== member.user_id) { %>
+                                <button type="submit" class="btn btn-info"><i class="fas fa-user-edit me-1"></i> Update Role</button>
+                            <% } else { %>
+                                <button type="submit" class="btn btn-info" disabled><i class="fas fa-user-edit me-1"></i> Update Role (Disabled for PM)</button>
+                            <% } %>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

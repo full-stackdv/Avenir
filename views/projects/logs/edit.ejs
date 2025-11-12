@@ -1,0 +1,73 @@
+<!-- constructpro/views/projects/logs/edit.ejs -->
+<% /* Rendered by main_layout.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, log, formData, errors, layout passed from controller */ %>
+
+<div class="container mt-4 mb-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/logs">Daily Logs</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/logs/<%= log.id %>">Log for <%= new Date(log.log_date).toLocaleDateString() %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Log</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><%= pageTitle || 'Edit Daily Log' %></h4>
+                    <% if (subTitle) { %><p class="mb-0 small"><%= subTitle %></p><% } %>
+                </div>
+                <div class="card-body p-4">
+                    <%- include('../../partials/_messages', { errors: errors }) %>
+
+                    <form action="/projects/<%= project.id %>/logs/<%= log.id %>/edit" method="POST">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="log_date" class="form-label">Log Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control <%= (errors && errors.find(e => e.param === 'log_date')) ? 'is-invalid' : '' %>" 
+                                       id="log_date" name="log_date" 
+                                       value="<%= formData.log_date %>" required>
+                                <% if (errors && errors.find(e => e.param === 'log_date')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'log_date').msg %></div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="weather_conditions" class="form-label">Weather Conditions</label>
+                            <textarea class="form-control" id="weather_conditions" name="weather_conditions" rows="3"><%= formData.weather_conditions || '' %></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="site_conditions" class="form-label">Site Conditions</label>
+                            <textarea class="form-control" id="site_conditions" name="site_conditions" rows="3"><%= formData.site_conditions || '' %></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="work_performed" class="form-label">Work Performed <span class="text-danger">*</span></label>
+                            <textarea class="form-control <%= (errors && errors.find(e => e.param === 'work_performed')) ? 'is-invalid' : '' %>" 
+                                      id="work_performed" name="work_performed" rows="5" required><%= formData.work_performed || '' %></textarea>
+                            <% if (errors && errors.find(e => e.param === 'work_performed')) { %>
+                                <div class="invalid-feedback"><%= errors.find(e => e.param === 'work_performed').msg %></div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="delays_or_issues" class="form-label">Delays or Issues Encountered</label>
+                            <textarea class="form-control" id="delays_or_issues" name="delays_or_issues" rows="3"><%= formData.delays_or_issues || '' %></textarea>
+                        </div>
+
+                        <hr class="my-4">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/projects/<%= project.id %>/logs/<%= log.id %>" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

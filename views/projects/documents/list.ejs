@@ -1,0 +1,36 @@
+<!-- views/projects/documents/list.ejs (or relevant part in details.ejs) -->
+<% if (documents && documents.length > 0) { %>
+    <ul class="list-group">
+        <% documents.forEach(doc => { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-file-alt me-2"></i>
+                    <strong><%= doc.file_name %></strong> <!-- Or doc.original_file_name -->
+                    <% if (doc.description) { %><p class="mb-0 text-muted"><small><%= doc.description %></small></p><% } %>
+                    <p class="mb-0 text-muted"><small>Uploaded: <%= new Date(doc.uploaded_at).toLocaleDateString() %></small></p>
+                </div>
+                <div>
+                    <a href="/projects/<%= project.id %>/documents/<%= doc.id %>/download" class="btn btn-sm btn-outline-primary me-2" title="Download">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                    <% if (projectUserRole === 'Project Manager' || projectUserRole === 'Admin' || (projectUserRole === 'Site Supervisor' /* && user is owner of doc? */) ) { %>
+                        <!-- Optional: Delete button -->
+                        <form action="/projects/<%= project.id %>/documents/<%= doc.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this document?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    <% } %>
+                </div>
+            </li>
+        <% }); %>
+    </ul>
+<% } else { %>
+    <p>No documents uploaded for this project yet.</p>
+<% } %>
+<a href="#" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
+    <i class="fas fa-upload"></i> Upload New Document
+</a>
+
+<!-- Modal for Uploading (assuming you have one) -->
+<!-- ... modal HTML ... -->

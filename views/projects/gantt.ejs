@@ -1,0 +1,159 @@
+<%# views/projects/gantt.ejs %>
+<div class="container-fluid mt-4 mb-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Gantt Chart</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><%= pageTitle %></h2>
+        <div>
+            <%# Button to open a modal for adding dependencies %>
+            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#addDependencyModal">
+                <i class="fas fa-link"></i> Add Dependency
+            </button>
+        </div>
+    </div>
+    <%- include('../partials/_messages') %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div id="gantt_chart_container" style="height: 65vh; width: 100%;">
+                <% if (ganttTasksData && ganttTasksData.length > 0) { %>
+                    <svg id="gantt_chart_svg"></svg> <%# Container for Frappe Gantt %>
+                <% } else { %>
+                    <div class="alert alert-info text-center">
+                        <p>No tasks with valid start and end dates found for this project.</p>
+                        <p>Please <a href="/projects/<%= project.id %>/tasks/create">add tasks</a> to view the Gantt chart.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Adding Dependency -->
+<div class="modal fade" id="addDependencyModal" tabindex="-1" aria-labelledby="addDependencyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/projects/<%= project.id %>/dependencies/create" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDependencyModalLabel">Add Task Dependency</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="projectId" value="<%= project.id %>">
+                    <div class="mb-3">
+                        <label for="predecessor_task_id" class="form-label">Predecessor (Task that must finish first)</label>
+                        <select class="form-select" id="predecessor_task_id" name="predecessor_task_id" required>
+                            <option value="" disabled selected>Select Predecessor Task...</option>
+                            <% ganttTasksData.forEach(task => { %>
+                                <option value="<%= task.id %>"><%= task.name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="successor_task_id" class="form-label">Successor (Task that depends on predecessor)</label>
+                        <select class="form-select" id="successor_task_id" name="successor_task_id" required>
+                            <option value="" disabled selected>Select Successor Task...</option>
+                             <% ganttTasksData.forEach(task => { %>
+                                <option value="<%= task.id %>"><%= task.name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dependency_type" class="form-label">Dependency Type</label>
+                        <select class="form-select" id="dependency_type" name="dependency_type">
+                            <option value="FS" selected>Finish-to-Start (FS)</option>
+                            <option value="SS">Start-to-Start (SS)</option>
+                            <option value="FF">Finish-to-Finish (FF)</option>
+                            <option value="SF">Start-to-Finish (SF)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lag_days" class="form-label">Lag (days)</label>
+                        <input type="number" class="form-control" id="lag_days" name="lag_days" value="0" step="1">
+                        <small class="form-text text-muted">Positive for lag, negative for lead time.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Dependency</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<% if (ganttTasksData && ganttTasksData.length > 0) { %>
+    <!-- Frappe Gantt Library -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.css">
+    <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ensure ganttTasksData from EJS is correctly stringified and parsed
+            // If ganttTasksData can be null or undefined from server, provide default empty array
+            const serverData = <%- ganttTasksData ? JSON.stringify(ganttTasksData) : '[]' %>;
+            const rawTasksForGantt = Array.isArray(serverData) ? serverData : [];
+
+            console.log("--- MINIMAL DEBUG: Raw Tasks for Gantt ---");
+            console.log(JSON.stringify(rawTasksForGantt, null, 2));
+
+            if (rawTasksForGantt && rawTasksForGantt.length > 0) {
+                try {
+                    console.log("--- MINIMAL DEBUG: Attempting Minimal Gantt Initialization ---");
+                    const gantt = new Gantt("#gantt_chart_svg", rawTasksForGantt, {
+                        // NO CUSTOM OPTIONS YET - JUST THE BASICS
+                         view_mode: 'Week',      // <<< ADDED: Set default view to Week
+                        bar_height: 20,         // <<< ADDED: Set bar height
+                        padding: 18,            // <<< ADDED: Some padding
+                        on_click: function(task) { // Keep one simple event for testing
+                            console.log('Minimal Gantt Clicked:', task.name);
+                        }
+                    });
+                    
+                    
+                    console.log("--- MINIMAL DEBUG: Minimal Gantt Initialization SUCCEEDED ---");
+                    window.ganttInstance = gantt; // For inspecting in console
+                    
+                } catch (e) {
+                    console.error("--- MINIMAL DEBUG: Error during MINIMAL Gantt Initialization ---", e);
+                    if (document.getElementById('gantt_chart_container')) {
+                        document.getElementById('gantt_chart_container').innerHTML =
+                            '<div class="alert alert-danger">Error initializing Gantt (Minimal Setup). Check console. Message: ' + e.message + '</div>';
+                    }
+                }
+            } else {
+                console.log("--- MINIMAL DEBUG: No tasks in rawTasksForGantt ---");
+                if (document.getElementById('gantt_chart_container')) {
+                     document.getElementById('gantt_chart_container').innerHTML =
+                        '<div class="alert alert-info">No tasks to display in Gantt chart.</div>';
+                }
+            }
+        });
+    </script>
+<% } else { %>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("--- MINIMAL DEBUG: ganttTasksData from EJS was empty or null server-side ---");
+            if (document.getElementById('gantt_chart_container')) {
+                 document.getElementById('gantt_chart_container').innerHTML =
+                    '<div class="alert alert-info">No task data provided by server for Gantt chart.</div>';
+            }
+        });
+    </script>
+<% } %>
+
+<%# Ensure your SVG container exists in the main body of the EJS %>
+<%# e.g., somewhere before this script block (simplified from your full modal version) %>
+<%# <div class="card shadow-sm"> %>
+<%#     <div class="card-body"> %>
+<%#         <div id="gantt_chart_container" style="height: 65vh; width: 100%;"> %>
+<%#             <svg id="gantt_chart_svg"></svg> %>
+<%#         </div> %>
+<%#     </div> %>
+<%# </div> %>

@@ -1,0 +1,173 @@
+<%# views/admin/system/backups/index.ejs %>
+
+<div class="container-fluid mt-4">
+    <%- include('../../../partials/_messages') %>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="card-title mb-0"><i class="fas fa-shield-alt me-2"></i>System Backup Settings</h4>
+        </div>
+        <div class="card-body">
+            <% if (backupSettings) { %>
+                <dl class="row">
+                    <dt class="col-sm-4">Backup Functionality Enabled:</dt>
+                    <dd class="col-sm-8"><%- backupSettings.enabled ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' %></dd>  
+
+                    <dt class="col-sm-4">Backup Storage Directory:</dt>
+                    <dd class="col-sm-8"><code><%= backupSettings.directory %></code></dd>
+                    
+                    <dt class="col-sm-4">Max Local Backups to Keep:</dt>
+                    <dd class="col-sm-8"><%= backupSettings.maxToKeep === '0' || backupSettings.maxToKeep === 0 ? 'Unlimited' : backupSettings.maxToKeep %></dd>
+                </dl>
+                <p class="text-muted small">These settings are managed in the <a href="/admin/settings#maintenance-tab">System Settings <i class="fas fa-external-link-alt fa-xs"></i></a> (Maintenance tab).</p>
+                <% if (backupSettings.enabled) { %>
+                    <form action="/admin/system/backups/trigger-manual" method="POST" class="mt-3" onsubmit="return confirm('Are you sure you want to trigger a manual database backup? This might take a few moments.');">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-play-circle me-2"></i>Trigger Manual Backup Now {/* Changed mr-2 to me-2 for BS5 */}
+                        </button>
+                    </form>
+                <% } else { %>
+                    <div class="alert alert-warning" role="alert">
+                        Backup functionality is currently disabled. Please enable it in System Settings to perform backups.
+                    </div>
+                <% } %>
+            <% } else { %>
+                <p class="text-danger">Backup settings could not be loaded.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4 class="card-title mb-0"><i class="fas fa-history me-2"></i>Backup History (<%= typeof totalBackups !== 'undefined' ? totalBackups : 0 %>)</h4> {/* Added check for totalBackups */}
+        </div>
+        <div class="card-body">
+            <% if (typeof backups !== 'undefined' && backups && backups.length > 0) { %> {/* Added check for backups existence */}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>File Name</th>
+                                <th>Size</th>
+                                <th>Triggered By</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% backups.forEach(backup => { %>
+                                <tr>
+                                    <td><%= new Date(backup.backup_timestamp).toLocaleString() %></td>
+                                    <td>
+                                        <span class="badge bg-<%= backup.backup_type === 'manual' ? 'primary' : 'secondary' %>"> {/* Changed to bg- for BS5 */}
+                                            <%= backup.backup_type.charAt(0).toUpperCase() + backup.backup_type.slice(1) %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <% if (backup.status === 'success') { %>
+                                            <span class="badge bg-success">Success</span> {/* Changed to bg- for BS5 */}
+                                        <% } else if (backup.status === 'failed') { %>
+                                            <span class="badge bg-danger">Failed</span> {/* Changed to bg- for BS5 */}
+                                        <% } else if (backup.status === 'in_progress') { %>
+                                            <span class="badge bg-warning text-dark">In Progress</span> {/* Changed to bg- and added text-dark for BS5 warning */}
+                                        <% } else { %>
+                                            <span class="badge bg-secondary"><%= backup.status %></span> {/* Changed to bg- for BS5 */}
+                                        <% } %>
+                                    </td>
+                                    <td><code><%= backup.file_name || (backup.file_path ? backup.file_path.split(/[/\\]/).pop() : 'N/A') %></code></td>
+                                    <td>
+                                        <% if (backup.file_size_bytes) { %>
+                                            <% 
+                                                const size = backup.file_size_bytes;
+                                                let formattedSize = 'N/A';
+                                                if (size && size > 0) { // ensure size is positive
+                                                    const i = Math.floor(Math.log(size) / Math.log(1024));
+                                                    formattedSize = (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'KB', 'MB', 'GB', 'TB'][i];
+                                                }
+                                            %>
+                                            <%= formattedSize %>
+                                        <% } else { %>
+                                            N/A
+                                        <% } %>
+                                    </td>
+                                    <td><%= backup.triggered_by_username || (backup.triggered_by_user_id ? `User ID: ${backup.triggered_by_user_id}`: 'System/Auto') %></td>
+                                    <td>
+                                        <% if (backup.notes && backup.notes.length > 50) { %>
+                                            <span title="<%= backup.notes %>"><%= backup.notes.substring(0, 50) %>...</span>
+                                        <% } else { %>
+                                            <%= backup.notes || '-' %>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/system/backups/<%= backup.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this backup log and its associated file (if it exists)? This action cannot be undone.');">
+                                            <button type="submit" class="btn btn-danger btn-sm" title="Delete Backup">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                        <%# Optional: Download button - Implement controller logic first %>
+                                        <%# if (backup.status === 'success' && backup.file_path) { %>
+                                            <!-- <a href="/admin/system/backups/<%= backup.id %>/download" class="btn btn-success btn-sm ms-1" title="Download Backup File"> {/* Changed ml-1 to ms-1 for BS5 */}
+                                                <i class="fas fa-download"></i>
+                                            </a> -->
+                                        <%# } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <%# Pagination %>
+                <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %> {/* Added check for totalPages */}
+                    <nav aria-label="Backup logs pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                            </li>
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                <% } %>
+
+            <% } else { %>
+                <div class="alert alert-info text-center">
+                    No backup records found.
+                    <% if (backupSettings && backupSettings.enabled) { %>
+                        You can trigger a manual backup using the button above.
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+ <style>
+    /* Optional: Add any page-specific styles here */
+    .table-sm td, .table-sm th {
+        padding: .4rem;
+        font-size: 0.875rem; /* Smaller font for dense table */
+    }
+    .badge { font-size: 0.8em; padding: .3em .5em; } /* Adjusted badge padding for BS5 */
+    .card-title i.fas, .card-title i.far { /* Ensure icons in card titles have consistent spacing */
+        margin-right: 0.5rem;
+    }
+</style>
+
+<%- contentFor('pageScripts') %>
+<script>
+// Ensure jQuery is loaded if you plan to use it, though this script block is currently empty.
+// $(function () {
+//   // Enable Bootstrap tooltips if not globally enabled
+//   // $('[data-bs-toggle="tooltip"]').tooltip(); // For BS5
+// });
+</script>

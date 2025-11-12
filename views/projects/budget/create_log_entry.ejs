@@ -1,0 +1,107 @@
+<% /* views/projects/budget/create_log_entry.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, tasks (optional for dropdown), formData, errors, formAction, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects">Projects</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/budget/logs">Budget Logs</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add Entry</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-3"><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+                    <%- include('../../partials/_messages') %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="<%= formAction %>" method="POST">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control <%= errors.find(e => e.param === 'description' || e.msg.toLowerCase().includes('description')) ? 'is-invalid' : '' %>" 
+                                  id="description" name="description" rows="3" required><%= formData.description || '' %></textarea>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'description' || error.msg.toLowerCase().includes('description')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="amount" class="form-label">Amount (ETB) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control <%= errors.find(e => e.param === 'amount' || e.msg.toLowerCase().includes('amount')) ? 'is-invalid' : '' %>" 
+                               id="amount" name="amount" value="<%= formData.amount || '' %>" step="0.01" min="0.01" required>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'amount' || error.msg.toLowerCase().includes('amount')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="entry_type" class="form-label">Type <span class="text-danger">*</span></label>
+                        <select class="form-select <%= errors.find(e => e.param === 'entry_type' || e.msg.toLowerCase().includes('type')) ? 'is-invalid' : '' %>" 
+                                id="entry_type" name="entry_type" required>
+                            <option value="" <%= !formData.entry_type ? 'selected' : '' %>>Choose...</option>
+                            <option value="expense" <%= formData.entry_type === 'expense' ? 'selected' : '' %>>Expense</option>
+                            <option value="income" <%= formData.entry_type === 'income' ? 'selected' : '' %>>Income</option>
+                        </select>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'entry_type' || error.msg.toLowerCase().includes('type')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="log_date" class="form-label">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control <%= errors.find(e => e.param === 'log_date' || e.msg.toLowerCase().includes('date')) ? 'is-invalid' : '' %>" 
+                               id="log_date" name="log_date" value="<%= formData.log_date || new Date().toISOString().split('T')[0] %>" required>
+                        <% errors.forEach(function(error) { %>
+                            <% if (error.param === 'log_date' || error.msg.toLowerCase().includes('date')) { %>
+                                <div class="invalid-feedback"><%= error.msg %></div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="category" class="form-label">Category (Optional)</label>
+                        <input type="text" class="form-control" id="category" name="category" value="<%= formData.category || '' %>">
+                    </div>
+                    
+                    <% if (typeof tasks !== 'undefined' && tasks.length > 0) { %>
+                    <div class="col-md-6 mb-3">
+                        <label for="task_id" class="form-label">Link to Task (Optional)</label>
+                        <select class="form-select" id="task_id" name="task_id">
+                            <option value="">-- Project Level --</option>
+                            <% tasks.forEach(function(task) { %>
+                                <option value="<%= task.id %>" <%= formData.task_id == task.id ? 'selected' : '' %>>
+                                    <%= task.name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <% } %>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-1"></i> Add Log Entry
+                </button>
+                <a href="/projects/<%= project.id %>/budget/logs" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+
+

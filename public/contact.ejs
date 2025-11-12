@@ -1,0 +1,66 @@
+<%# This view is rendered within public_layout.ejs %>
+<%# title = "Contact Us" %>
+
+<div class="page-header mb-4 text-center">
+    <h1 class="display-4"><%= typeof pageTitle !== 'undefined' ? pageTitle : (typeof title !== 'undefined' ? title : 'Contact Us') %></h1>
+</div>
+<p class="text-center lead mb-5">Have questions, feedback, or want to request a demo? Fill out the form below, and we'll get back to you as soon as possible.</p>
+
+<div class="row">
+    <div class="col-lg-7 col-md-12 mb-4 mb-lg-0">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-4">Send Us a Message</h4>
+                <form action="/contact" method="POST">
+                    <input type="hidden" name="source_page" value="contact"> <%# Tracks that form submission is from /contact page %>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Your Name<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'name')) ? 'is-invalid' : '' %>" id="name" name="name" value="<%= typeof formData !== 'undefined' && formData.name ? formData.name : (currentUser ? currentUser.first_name + ' ' + currentUser.last_name : '') %>" required>
+                        <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'name')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'name').msg %></div>
+                        <% } %>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Your Email<span class="text-danger">*</span></label>
+                        <input type="email" class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'email')) ? 'is-invalid' : '' %>" id="email" name="email" value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : (currentUser ? currentUser.email : '') %>" required>
+                        <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'email')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'email').msg %></div>
+                        <% } %>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" value="<%= typeof formData !== 'undefined' && formData.subject ? formData.subject : '' %>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message<span class="text-danger">*</span></label>
+                        <textarea class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'message')) ? 'is-invalid' : '' %>" id="message" name="message" rows="5" required><%= typeof formData !== 'undefined' && formData.message ? formData.message : '' %></textarea>
+                        <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'message')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'message').msg %></div>
+                        <% } %>
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5 col-md-12">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-3"><i class="fas fa-map-marker-alt me-2"></i>Our Office</h4>
+                <address>
+                    123 Construction Ave<br>
+                    Building City, ST 54321<br>
+                    USA
+                </address>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+             <div class="card-body p-4">
+                <h4 class="card-title mb-3"><i class="fas fa-phone-alt me-2"></i>Contact Details</h4>
+                <p class="mb-1"><strong>Phone:</strong> (123) 456-7890</p>
+                <p class="mb-0"><strong>Email:</strong> <a href="mailto:info@Avenircon.com">info@avenircon.com</a></p>
+            </div>
+        </div>
+    </div>
+</div>

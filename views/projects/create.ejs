@@ -1,0 +1,153 @@
+<% /* views/projects/create.ejs - Content for main_layout.ejs */ %>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><%= pageTitle || 'Create New Project' %></h4>
+            </div>
+            <div class="card-body p-4">
+                <%- include('../partials/_messages') %> <%# Pass errors explicitly if needed by partial %>
+
+                <div>
+            <%# Link to bulk upload projects CSV form %>
+            <a href="/projects/upload-csv" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-file-csv me-1"></i> Upload Projects via CSV
+            </a>
+        </div>
+
+                <form action="/projects/create" method="POST" class="needs-validation" novalidate>
+                                           
+                        <div class="mb-3">
+                            <label for="templateId" class="form-label">Create from Template <small class="text-muted">(Optional)</small></label>
+                            <select class="form-select <%= (errors && errors.find(e => e.param === 'templateId')) ? 'is-invalid' : '' %>"
+                                    id="templateId" name="templateId">
+                                <option value="">-- Start with a Blank Project --</option>
+                                
+                                <% if (typeof userTemplates !== 'undefined' && userTemplates.length > 0) { %>
+                                    <optgroup label="My Templates">
+                                        <% userTemplates.forEach(function(template) { %>
+                                            <option value="<%= template.id %>"
+                                                <%= (formData && formData.templateId == template.id) ? 'selected' : ( (typeof queryTemplateId !== 'undefined' && queryTemplateId == template.id) ? 'selected' : '' ) %>>
+                                                <%= template.name %>
+                                            </option>
+                                        <% }); %>
+                                    </optgroup>
+                                <% } %>
+
+                                <% if (typeof systemTemplates !== 'undefined' && systemTemplates.length > 0) { %>
+                                    <optgroup label="System Templates">
+                                        <% systemTemplates.forEach(function(template) { %>
+                                            <option value="<%= template.id %>"
+                                                <%= (formData && formData.templateId == template.id) ? 'selected' : ( (typeof queryTemplateId !== 'undefined' && queryTemplateId == template.id) ? 'selected' : '' ) %>>
+                                                <%= template.name %> (System)
+                                            </option>
+                                        <% }); %>
+                                    </optgroup>
+                                <% } %>
+                                
+                                <% if ((typeof userTemplates === 'undefined' || userTemplates.length === 0) && (typeof systemTemplates === 'undefined' || systemTemplates.length === 0)) { %>
+                                    <option value="" disabled>No project templates available</option>
+                                <% } %>
+                            </select>
+                            <% if (errors && errors.find(e => e.param === 'templateId')) { %>
+                                <div class="invalid-feedback"><%= errors.find(e => e.param === 'templateId').msg %></div>
+                            <% } %>
+                            <div class="form-text">Selecting a template will pre-populate the project with its tasks and structure.</div>
+                        </div>
+                        
+
+                        
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Project Name<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'name')) ? 'is-invalid' : '' %>" 
+                               id="name" name="name" 
+                               value="<%= (formData && formData.name) ? formData.name : '' %>" required>
+                        <% if (errors && errors.find(e => e.param === 'name')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'name').msg %></div>
+                        <% } else { %>
+                            <div class="invalid-feedback">Project name is required.</div>
+                        <% } %>
+                    </div>
+                    <div class="mb-3">
+                        <label for="project_code" class="form-label">Project Code <small class="text-muted">(Optional, e.g., P001)</small></label>
+                        <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'project_code')) ? 'is-invalid' : '' %>" 
+                               id="project_code" name="project_code" 
+                               value="<%= (formData && formData.project_code) ? formData.project_code : '' %>">
+                        <% if (errors && errors.find(e => e.param === 'project_code')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'project_code').msg %></div>
+                        <% } %>
+                    </div>
+
+                    <%# ----- NEW: Project Manager Dropdown ----- %>
+                    <div class="mb-3">
+                        <label for="project_manager_id_select" class="form-label">Assign Project Manager <small class="text-muted">(Optional)</small></label>
+                        <select class="form-select <%= (errors && errors.find(e => e.param === 'project_manager_id_select')) ? 'is-invalid' : '' %>" 
+                                id="project_manager_id_select" name="project_manager_id_select">
+                            <option value="">-- Auto-assign or None --</option>
+                            <% if (typeof potentialManagers !== 'undefined' && potentialManagers.length > 0) { %>
+                                <% potentialManagers.forEach(function(manager) { %>
+                                    <option value="<%= manager.id %>" 
+                                        <%= (formData && formData.project_manager_id_select == manager.id) ? 'selected' : '' %>>
+                                        <%= manager.display_name %>
+                                    </option>
+                                <% }); %>
+                            <% } else { %>
+                                <option value="" disabled>No potential managers found</option>
+                            <% } %>
+                        </select>
+                        <% if (errors && errors.find(e => e.param === 'project_manager_id_select')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'project_manager_id_select').msg %></div>
+                        <% } %>
+                         <div class="form-text">If no manager is selected and you are a Project Manager, you will be auto-assigned.</div>
+                    </div>
+                    <%# ----- END: Project Manager Dropdown ----- %>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description <small class="text-muted">(Optional)</small></label>
+                        <textarea class="form-control" id="description" name="description" rows="4"><%= (formData && formData.description) ? formData.description : '' %></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="client_name" class="form-label">Client Name <small class="text-muted">(Optional)</small></label>
+                            <input type="text" class="form-control" id="client_name" name="client_name" 
+                                   value="<%= (formData && formData.client_name) ? formData.client_name : '' %>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="budget" class="form-label">Budget <small class="text-muted">(Optional, e.g., 100000.00)</small></label>
+                            <input type="number" step="0.01" class="form-control" id="budget" name="budget" 
+                                   value="<%= (formData && formData.budget) ? formData.budget : '' %>">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="start_date" class="form-label">Start Date <small class="text-muted">(Optional)</small></label>
+                            <input type="date" class="form-control <%= (errors && errors.find(e => e.param === 'start_date')) ? 'is-invalid' : '' %>" 
+                                   id="start_date" name="start_date" 
+                                   value="<%= (formData && formData.start_date) ? formData.start_date : '' %>">
+                            <% if (errors && errors.find(e => e.param === 'start_date')) { %>
+                                <div class="invalid-feedback"><%= errors.find(e => e.param === 'start_date').msg %></div>
+                            <% } %>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="end_date" class="form-label">End Date <small class="text-muted">(Optional)</small></label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" 
+                                   value="<%= (formData && formData.end_date) ? formData.end_date : '' %>">
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/dashboard" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Create Project</button>
+                    </div>
+                </form>
+            </div>
+
+            
+
+        </div>
+    </div>
+</div>
+
+

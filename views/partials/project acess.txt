@@ -1,0 +1,162 @@
+// constructpro/routes/app.js
+const express = require('express');
+const router = express.Router();
+
+// --- Import Controllers ---
+const projectController = require('../controllers/projectController');
+const taskController = require('../controllers/taskController');
+const userProfileController = require('../controllers/userProfileController');
+const dailyLogController = require('../controllers/dailyLogController');
+
+// --- Import Middleware ---
+const { isAuthenticated } = require('../middleware/authMiddleware');
+
+// Middleware to check project access
+const checkProjectAccess = async (req, res, next) => {
+// Correctly determine projectId from route params or body
+// Priority: req.params.projectId (for nested routes like tasks/logs)
+// Then: req.params.id (for direct project routes like project details/edit)
+// Fallback: req.body.projectId (for form submissions if ID is not in URL params)
+const projectId = req.params.projectId || req.params.id || (req.body && req.body.projectId);
+
+const userId = req.session.user.id;
+const userRole = req.session.user.role;
+
+if (!projectId) {
+req.flash('error_msg', 'Project context is missing or could not be determined.');
+return res.status(400).redirect('/dashboard');
+}
+
+try {
+const [projectRows] = await require('../config/db').query(
+'SELECT id, created_by_id, project_manager_id FROM projects WHERE id = ?', [projectId]
+);
+
+if (projectRows.length === 0) {
+req.flash('error_msg', 'Project not found.');
+return res.status(404).redirect('/dashboard');
+}
+const project = projectRows[0];
+
+const isCreator = project.created_by_id === userId;
+const isManager = project.project_manager_id === userId; // Assuming project_manager_id can be null
+const isAdmin = userRole === 'Admin';
+
+// TODO: Implement comprehensive project_members check:
+// let canAccessViaMembership = false;
+// if (!isCreator && !isManager && !isAdmin) {
+// const [memberRows] = await require('../config/db').query(
+// "SELECT role_in_project FROM project_members WHERE project_id = ? AND user_id = ?",
+// [projectId, userId]
+// );
+// if (memberRows.length > 0) {
+// // Define which roles in project_members grant access, e.g.,
+// // const allowedMemberRoles = ['Site Supervisor', 'Team Member', 'Stakeholder'];
+// // canAccessViaMembership = allowedMemberRoles.includes(memberRows[0].role_in_project);
+// canAccessViaMembership = true; // Simplified for now if any membership means access
+// }
+// }
+
+// if (!isCreator && !isManager && !isAdmin && !canAccessViaMembership) {
+if (!isCreator && !(isManager && project.project_manager_id !== null) && !isAdmin) { // Refined check for manager
+req.flash('error_msg', 'You do not have permission to access this project section.');
+// Redirecting to dashboard is generally safer to avoid redirect loops if user also lacks details page access.
+return res.status(403).redirect('/dashboard');
+}
+
+// Store project on req for downstream controllers if needed (optional but good practice)
+req.project = project;
+next();
+} catch (error) {
+console.error("Error in checkProjectAccess middleware:", error);
+// Pass to global error handler, which should render a 500 page.
+// Avoid rendering directly here as it's middleware.
+next(error);
+}
+};
+
+
+// --- Route Definitions ---
+
+// GET / (Homepage - Public Landing Page)
+router.get('/', (req, res, next) => {
+try {
+res.render('index', {
+title: 'ConstructPro - Home',
+pageTitle: 'Welcome to ConstructPro',
+layout: './layouts/public_layout',
+formData: req.session.contactFormData && req.session.contactFormData.source_page === 'homepage' ? req.session.contactFormData : {},
+errors: req.session.contactFormErrors && req.session.contactFormData && req.session.contactFormData.source_page === 'homepage' ? req.session.contactFormErrors : []
+});
+if (req.session.contactFormData && req.session.contactFormData.source_page === 'homepage') {
+delete req.session.contactFormData;
+delete req.session.contactFormErrors;
+}
+} catch (error) {
+console.error("Error rendering public homepage (index.ejs):", error);
+next(error);
+}
+});
+
+// --- Dashboard Route (Protected - User Dashboard) ---
+router.get('/dashboard', isAuthenticated, async (req, res, next) => {
+try {
+const userId = req.session.user.id;
+const projects = await projectController.listUserProjects(userId);
+
+res.render('dashboard', {
+title: 'Dashboard - ConstructPro',
+pageTitle: 'My Dashboard',
+user: req.session.user,
+projects: projects || [],
+layout: './layouts/main_layout'
+});
+} catch (error) {
+console.error("Error in dashboard route (fetching projects):", error);
+req.flash('error_msg', error.message || 'Failed to load dashboard data.');
+res.render('dashboard', {
+title: 'Dashboard - ConstructPro',
+pageTitle: 'My Dashboard',
+user: req.session.user,
+projects: [],
+layout: './layouts/main_layout',
+});
+}
+});
+
+// --- Project Routes ---
+// `id` is used for project-specific routes, `projectId` for nested resources under a project
+router.get('/projects', isAuthenticated, projectController.showProjectsList);
+router.get('/projects/create', isAuthenticated, projectController.showCreateProjectForm);
+router.post('/projects/create', isAuthenticated, projectController.handleCreateProject);
+
+router.get('/projects/:id/details', isAuthenticated, checkProjectAccess, projectController.showProjectDetails);
+router.get('/projects/:id/edit', isAuthenticated, checkProjectAccess, projectController.showEditProjectForm);
+router.post('/projects/:id/edit', isAuthenticated, checkProjectAccess, projectController.handleUpdateProject);
+router.post('/projects/:id/delete', isAuthenticated, checkProjectAccess, projectController.handleDeleteProject);
+
+
+// --- Task Routes (Nested under Projects) ---
+// Here, the parameter for project ID is named `projectId`
+router.get('/projects/:projectId/tasks/create', isAuthenticated, checkProjectAccess, taskController.showCreateTaskForm);
+router.post('/projects/:projectId/tasks/create', isAuthenticated, checkProjectAccess, taskController.handleCreateTask);
+router.get('/projects/:projectId/tasks/:taskId/edit', isAuthenticated, checkProjectAccess, taskController.showEditTaskForm);
+router.post('/projects/:projectId/tasks/:taskId/edit', isAuthenticated, checkProjectAccess, taskController.handleUpdateTask);
+router.post('/projects/:projectId/tasks/:taskId/delete', isAuthenticated, checkProjectAccess, taskController.handleDeleteTask);
+
+// --- User Profile Routes ---
+router.get('/profile', isAuthenticated, userProfileController.showProfilePage);
+router.get('/profile/edit', isAuthenticated, userProfileController.showEditProfileForm);
+router.post('/profile/edit', isAuthenticated, userProfileController.handleUpdateProfile);
+router.get('/profile/change-password', isAuthenticated, userProfileController.showChangePasswordForm);
+router.post('/profile/change-password', isAuthenticated, userProfileController.handlePasswordChange);
+
+// --- Daily Log Routes (Nested under projects) ---
+// Here, the parameter for project ID is named `projectId`
+router.get('/projects/:projectId/logs', isAuthenticated, checkProjectAccess, dailyLogController.listProjectDailyLogs);
+router.get('/projects/:projectId/logs/create', isAuthenticated, checkProjectAccess, dailyLogController.showCreateLogForm);
+router.post('/projects/:projectId/logs/create', isAuthenticated, checkProjectAccess, dailyLogController.handleCreateLog);
+router.get('/projects/:projectId/logs/:logId', isAuthenticated, checkProjectAccess, dailyLogController.showDailyLogDetails);
+// TODO: Add routes for edit/delete daily logs later
+
+module.exports = router;

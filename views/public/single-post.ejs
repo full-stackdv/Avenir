@@ -1,0 +1,168 @@
+<% /* views/public/single-post.ejs */ %>
+
+<!-- In layouts/public_layout.ejs -->
+<head>
+    <title><%= typeof title !== 'undefined' ? title : 'Default Site Title' %></title>
+    <% if (typeof meta_description !== 'undefined' && meta_description) { %>
+    <meta name="description" content="<%= meta_description %>">
+    <% } %>
+    <!-- other head elements -->
+</head>
+
+
+
+<% if (typeof isAdminPreview !== 'undefined' && isAdminPreview && post) { %>
+    <div class="alert alert-warning sticky-top text-center p-2 small" role="alert" style="z-index: 1050;">
+        <i class="fas fa-eye me-1"></i>
+        <strong>Admin Preview Mode.</strong>
+        <a href="/admin/posts/<%= post.id %>/edit" class="alert-link ms-2">Return to Edit Post</a>
+        <% if (post.status !== 'published') { %>
+            <span class="ms-2 badge bg-secondary text-uppercase"><%= post.status %></span>
+        <% } %>
+    </div>
+<% } %>
+
+<div class="container mt-4 mb-5">
+    <% if (post) { %>
+    <article class="blog-post">
+        <h1 class="display-5 blog-post-title mb-1"><%= post.title %></h1>
+        
+        <!-- Categories Display -->
+        <% if (post.categories && post.categories.length > 0) { %>
+            <div class="mb-3">
+                <% post.categories.forEach(function(category, index) { %>
+                    <a href="/blog/category/<%= category.slug %>" class="badge bg-info text-decoration-none me-1"><%= category.name %></a>
+                <% }); %>
+            </div>
+        <% } %>
+
+        <p class="blog-post-meta text-muted">
+            <% if (post.published_at) { %>
+                Published on <%= new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+            <% } else { %>
+                Created on <%= new Date(post.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                 (<span class="text-capitalize"><%= post.status %></span>)
+            <% } %>
+            by <span class="fw-semibold"><%= post.author_name || 'AvenirCon Team' %></span>
+        </p>
+
+        <% if (post.feature_image_path) { %>
+            <img src="/uploads/feature_images/<%= post.feature_image_path.split('/').pop() %>" class="img-fluid rounded my-4 shadow-sm" alt="<%= post.title %> Feature Image" style="max-height: 450px; width: 100%; object-fit: cover;">
+        <% } %>
+        
+        <hr class="my-4">
+        
+        <div class="post-content lead">
+            <%- post.content %>
+        </div>
+    </article>
+
+    <%# --- Associated Documents Section (Optional for public view) --- %>
+    <% if (typeof post_documents !== 'undefined' && post_documents.length > 0) { %>
+        <section class="post-documents mt-5 mb-4">
+            <h4 class="mb-3">Associated Documents</h4>
+            <div class="list-group">
+                <% post_documents.forEach(function(doc) { %>
+                    <a href="/uploads/documents/<%= doc.stored_filename %>" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas <%= 
+                                doc.mimetype.includes('pdf') ? 'fa-file-pdf text-danger' : 
+                                doc.mimetype.includes('word') ? 'fa-file-word text-primary' : 
+                                doc.mimetype.includes('excel') || doc.mimetype.includes('spreadsheet') ? 'fa-file-excel text-success' :
+                                doc.mimetype.includes('powerpoint') ? 'fa-file-powerpoint text-warning' :
+                                doc.mimetype.startsWith('image/') ? 'fa-file-image text-info' :
+                                'fa-file-alt text-secondary' 
+                            %> fa-fw me-2"></i>
+                            <%= doc.title || doc.original_filename %>
+                        </div>
+                        <small class="text-muted"><%= (doc.filesize / (1024*1024)).toFixed(2) %> MB</small>
+                    </a>
+                <% }); %>
+            </div>
+        </section>
+    <% } %>
+
+
+    <hr class="my-5">
+    
+    <section class="comments-section" id="comments">
+        <h3 class="mb-4">Comments (<%= comments ? comments.length : 0 %>)</h3>
+        <% if (comments && comments.length > 0) { %>
+            <% comments.forEach(function(comment) { %>
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <p class="card-text mb-1"><%- comment.content %></p>
+                    </div>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            By <span class="fw-semibold"><%= comment.user_commenter_name || comment.author_name %></span> 
+                            on <%= new Date(comment.created_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                        </small>
+                    </p>
+                </div>
+            </div>
+            <% }); %>
+        <% } else { %>
+            <p>No comments yet. Be the first to share your thoughts!</p>
+        <% } %>
+        
+        <div class="card mt-5 shadow-sm">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Leave a Comment</h4>
+                
+                <% if (typeof commentFormErrors !== 'undefined' && commentFormErrors.length > 0) { %>
+                    <div class="alert alert-danger">
+                        <% commentFormErrors.forEach(function(error) { %>
+                            <p class="mb-0"><%= error.msg %></p>
+                        <% }); %>
+                    </div>
+                <% } %>
+                <% if (typeof success_msg_comment !== 'undefined' && success_msg_comment) { %>
+                    <div class="alert alert-success"><%= success_msg_comment %></div>
+                <% } %>
+
+
+                <form action="/blog/<%= post.slug %>/comments#comment-form" method="POST" id="comment-form">
+                    <% if (!currentUser) { %>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="author_name" class="form-label">Name<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control <%= (typeof commentFormErrors !== 'undefined' && commentFormErrors.find(e => e.param === 'author_name')) ? 'is-invalid' : '' %>" id="author_name" name="author_name" required value="<%= typeof commentFormData !== 'undefined' && commentFormData.author_name ? commentFormData.author_name : '' %>">
+                            <% if (typeof commentFormErrors !== 'undefined' && commentFormErrors.find(e => e.param === 'author_name')) { %>
+                                <div class="invalid-feedback"><%= commentFormErrors.find(e => e.param === 'author_name').msg %></div>
+                            <% } %>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="author_email" class="form-label">Email <span class="text-muted">(Optional, not shown)</span></label>
+                            <input type="email" class="form-control <%= (typeof commentFormErrors !== 'undefined' && commentFormErrors.find(e => e.param === 'author_email')) ? 'is-invalid' : '' %>" id="author_email" name="author_email" value="<%= typeof commentFormData !== 'undefined' && commentFormData.author_email ? commentFormData.author_email : '' %>">
+                            <% if (typeof commentFormErrors !== 'undefined' && commentFormErrors.find(e => e.param === 'author_email')) { %>
+                                <div class="invalid-feedback"><%= commentFormErrors.find(e => e.param === 'author_email').msg %></div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% } %>
+                    <div class="mb-3">
+                        <label for="comment_content" class="form-label">Your Comment<span class="text-danger">*</span></label>
+                        <textarea class="form-control <%= (typeof commentFormErrors !== 'undefined' && commentFormErrors.find(e => e.param === 'content')) ? 'is-invalid' : '' %>" id="comment_content" name="content" rows="4" required><%= typeof commentFormData !== 'undefined' && commentFormData.content ? commentFormData.content : '' %></textarea>
+                        <% if (typeof commentFormErrors !== 'undefined' && commentFormErrors.find(e => e.param === 'content')) { %>
+                            <div class="invalid-feedback"><%= commentFormErrors.find(e => e.param === 'content').msg %></div>
+                        <% } %>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <% } else { %>
+        <div class="alert alert-warning text-center" role="alert">
+            <h4 class="alert-heading">Post Not Found</h4>
+            <p>The blog post you are looking for could not be found. It might have been moved or deleted.</p>
+            <hr>
+            <p class="mb-0">You can <a href="/blog" class="alert-link">return to the blog listing</a> or <a href="/" class="alert-link">go to the homepage</a>.</p>
+        </div>
+    <% } %>
+</div>
+
+

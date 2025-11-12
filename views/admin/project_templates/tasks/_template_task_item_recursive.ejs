@@ -1,0 +1,48 @@
+<% /* views/admin/project_templates/tasks/_template_task_item_recursive.ejs */ %>
+<% const indentation = level * 25; %>
+<div class="list-group-item template-task-item" style="padding-left: <%= 15 + indentation %>px; <%= level > 0 ? 'border-left: 3px solid #6c757d;' : '' %>">
+    <div class="d-flex w-100 justify-content-between align-items-center">
+        <div>
+            <h6 class="mb-1">
+                <%= task.name %>
+                <% if (task.is_milestone) { %>
+                    <span class="badge bg-primary ms-1">Milestone</span>
+                <% } %>
+            </h6>
+            <% if (task.description) { %>
+                <small class="text-muted d-block mb-1 task-description-preview"><%= task.description.substring(0,100) %><% if (task.description.length > 100) { %>...<% } %></small>
+            <% } %>
+            <small class="text-muted">
+                <% if (typeof task.planned_duration_days !== 'undefined' && task.planned_duration_days !== null) { %>
+                    Duration: <%= task.planned_duration_days %> day(s)
+                <% } else { %>
+                    Duration: N/A
+                <% } %>
+                <% if (typeof task.task_order !== 'undefined' && task.task_order !== null) { %>
+                    | Order: <%= task.task_order %>
+                <% } %>
+            </small>
+        </div>
+        <div class="template-task-actions btn-group btn-group-sm">
+            <a href="/admin/project-templates/<%= template.id %>/tasks/create?parent_task_id=<%= task.id %>" class="btn btn-outline-success" title="Add Sub-task to this template task">
+                <i class="fas fa-sitemap"></i> <span class="d-none d-md-inline">Sub-task</span>
+            </a>
+            <a href="/admin/project-templates/<%= template.id %>/tasks/<%= task.id %>/edit" class="btn btn-outline-primary" title="Edit this template task">
+                <i class="fas fa-edit"></i> <span class="d-none d-md-inline">Edit</span>
+            </a>
+                                                   <a href="/admin/project-templates/<%= template.id %>/structure" class="btn btn-sm btn-info">Manage Tasks</a>
+
+            <form action="/admin/project-templates/<%= template.id %>/tasks/<%= task.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this template task: \"<%= task.name %>\"? If it has sub-tasks and ON DELETE CASCADE is not set, this might fail or leave orphaned tasks.');">
+                <button type="submit" class="btn btn-outline-danger" title="Delete this template task">
+                    <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline">Delete</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<% if (task.children && task.children.length > 0) { %>
+    <% task.children.forEach(function(childTask) { %>
+        <%- include('_template_task_item_recursive', { task: childTask, template: template, level: level + 1 }) %>
+    <% }); %>
+<% } %>

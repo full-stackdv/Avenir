@@ -1,0 +1,105 @@
+<% /* views/admin/post-categories/create.ejs */ %>
+<%
+  const currentFormData = typeof formData !== 'undefined' && Object.keys(formData).length > 0 ? formData : {};
+  const currentErrors = typeof errors !== 'undefined' ? errors : [];
+%>
+
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/admin/post-categories">Manage Categories</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Create New Category</li>
+        </ol>
+    </nav>
+
+    <h3 class="mb-4">Create New Post Category</h3>
+
+    <%- include('../../partials/_messages') %> <%# For general flash messages %>
+
+    <% if (currentErrors.length > 0 && !currentErrors.find(e => e.param)) { %>
+        <div class="alert alert-danger">
+            <% currentErrors.forEach(err => { %> <p class="mb-0"><%= err.msg %></p> <% }); %>
+        </div>
+    <% } %>
+
+    <form action="/admin/post-categories/create" method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
+            <input type="text" 
+                   class="form-control <%= currentErrors.find(e => e.param === 'name') ? 'is-invalid' : '' %>" 
+                   id="name" name="name" 
+                   value="<%= currentFormData.name || '' %>" required>
+            <% if (currentErrors.find(e => e.param === 'name')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'name').msg %></div>
+            <% } %>
+        </div>
+        
+        <div class="mb-3">
+            <label for="slug" class="form-label">Slug <small class="text-muted">(Auto-generated if left blank, or customize)</small></label>
+            <input type="text" 
+                   class="form-control <%= currentErrors.find(e => e.param === 'slug') ? 'is-invalid' : '' %>" 
+                   id="slug" name="slug" 
+                   value="<%= currentFormData.slug || '' %>">
+            <% if (currentErrors.find(e => e.param === 'slug')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'slug').msg %></div>
+            <% } %>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description <span class="text-muted">(Optional)</span></label>
+            <textarea class="form-control <%= currentErrors.find(e => e.param === 'description') ? 'is-invalid' : '' %>" 
+                      id="description" name="description" rows="3"><%= currentFormData.description || '' %></textarea>
+            <% if (currentErrors.find(e => e.param === 'description')) { %>
+                <div class="invalid-feedback"><%= currentErrors.find(e => e.param === 'description').msg %></div>
+            <% } %>
+        </div>
+        
+        <hr>
+        <button type="submit" class="btn btn-success px-4"><i class="fas fa-plus-circle me-1"></i> Create Category</button>
+        <a href="/admin/post-categories" class="btn btn-light ms-2 border">Cancel</a>
+    </form>
+</div>
+
+<script>
+    // Simple slug generation helper
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+    let slugManuallyEdited = slugInput ? (slugInput.value.trim() !== '') : false;
+
+    if (slugInput) {
+        slugInput.addEventListener('input', () => {
+            slugManuallyEdited = slugInput.value.trim() !== '';
+        });
+        slugInput.addEventListener('focus', () => {
+            if (slugInput.value.trim() === '') {
+                 slugManuallyEdited = true; 
+            }
+        });
+    }
+
+    if (nameInput && slugInput) {
+        nameInput.addEventListener('input', () => {
+            if (!slugManuallyEdited) {
+                const slug = nameInput.value
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, '-')           // Replace spaces with -
+                    .replace(/[^\w-]+/g, '')       // Remove all non-word chars
+                    .replace(/--+/g, '-');          // Replace multiple - with single -
+                slugInput.value = slug;
+            }
+        });
+        // Initial slug generation if name is pre-filled and slug is empty
+        if (nameInput.value.trim() !== '' && slugInput.value.trim() === '' && !slugManuallyEdited) {
+             const initialSlug = nameInput.value
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^\w-]+/g, '')
+                    .replace(/--+/g, '-');
+            slugInput.value = initialSlug;
+        }
+    }
+</script>
+

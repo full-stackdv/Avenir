@@ -1,0 +1,71 @@
+<% /* views/projects/logs/list.ejs - Content for main_layout.ejs */ %>
+
+<nav aria-label="breadcrumb mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+        <li class="breadcrumb-item active" aria-current="page">Daily Logs</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <% /* pageTitle handled by layout */ %>
+    <a href="/projects/<%= project.id %>/logs/create" class="btn btn-success">
+        <i class="fas fa-plus me-1"></i> Create New Daily Log
+    </a>
+</div>
+
+<% if (logs && logs.length > 0) { %>
+    <div class="list-group shadow-sm">
+        <% logs.forEach(function(log) { %>
+            <a href="/projects/<%= project.id %>/logs/<%= log.id %>" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Log Date: <%= new Date(log.log_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></h5>
+        <div>
+            <small class="text-muted me-2">Logged by: <%= log.logger_username %></small>
+            <a href="/projects/<%= project.id %>/logs/<%= log.id %>/edit" class="btn btn-outline-secondary btn-sm py-0 px-1 me-1" title="Edit Log">
+                <i class="fas fa-xs fa-edit"></i>
+            </a>
+            <form action="/projects/<%= project.id %>/logs/<%= log.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this log?');">
+                <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="Delete Log">
+                    <i class="fas fa-xs fa-trash-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    <p class="mb-1 text-truncate">
+        <strong>Work Performed:</strong> <%= log.work_performed_summary %><% if(log.work_performed_summary && log.work_performed_summary.length >= 150) { %>...<% } %>
+    </p>
+    <small class="text-muted">Click to view full details.</small>
+</a>
+            <!-- 
+            
+
+            <a href="/projects/<%= project.id %>/logs/<%= log.id %>" class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">Log Date: <%= log.log_date_formatted || new Date(log.log_date).toLocaleDateString() %></h5>
+                    <small class="text-muted">Logged by: <%= log.logger_username %></small>
+                </div>
+                <p class="mb-1 text-truncate">
+                    <strong>Work:</strong> <%= log.work_performed_summary || log.work_performed.substring(0,100) + '...' %>
+                </p>
+                <small class="text-muted">Click to view full details.</small>
+            </a>
+            -->
+
+        <% }); %>
+    </div>
+<% } else { %>
+    <div class="alert alert-info text-center py-4">
+         <i class="fas fa-clipboard-list fa-3x mb-3 d-block"></i>
+        <h5 class="alert-heading">No Daily Logs Yet!</h5>
+        <p class="mb-0">No daily logs found for this project yet.</p>
+        <a href="/projects/<%= project.id %>/logs/create" class="btn btn-sm btn-primary mt-2">Create the first log</a>
+    </div>
+<% } %>
+
+
+
+
+
+

@@ -1,0 +1,543 @@
+
+/* public/css/public_styles.css */
+/* Font Imports (Example) */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Montserrat:wght@400;700&display=swap');
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: #333;
+    line-height: 1.6;
+    padding-top: 70px; /* Account for fixed navbar */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: #2c3e50; /* Dark blue-gray */
+}
+
+a {
+    color: #007bff; /* Bootstrap primary */
+    text-decoration: none;
+}
+a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Navbar Styles */
+.navbar-brand i {
+    color: #f8c146; /* Example accent color for icon */
+}
+.navbar-dark .navbar-nav .nav-link.active {
+    font-weight: 600;
+    color: #fff !important; /* Ensure active link is white */
+}
+.navbar-dark .navbar-nav .nav-link {
+    transition: color 0.2s ease-in-out;
+}
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #f8f9fa; /* Lighter color on hover */
+}
+.navbar .dropdown-menu {
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+
+/* Footer Styles */
+.public-footer {
+    background-color: #343a40; /* Bootstrap bg-dark */
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+.public-footer h3, .public-footer h5 {
+    color: #fff;
+    margin-bottom: 1rem;
+}
+.public-footer .footer-links li a {
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.2s ease;
+    padding: 0.2rem 0;
+    display: inline-block;
+}
+.public-footer .footer-links li a:hover,
+.public-footer a.hover-light:hover {
+    color: #fff;
+    text-decoration: none;
+}
+.public-footer address {
+    font-style: normal;
+    line-height: 1.7;
+}
+.public-footer .copyright {
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+.public-footer hr.bg-secondary {
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+/* --- Landing Page (index.ejs) Specific Styles --- */
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/construction-hero.jpg') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 8rem 0;
+    text-align: center;
+}
+.hero-section h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+.hero-section .lead {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
+.hero-section .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    margin: 0.5rem;
+    border-width: 2px;
+}
+
+.content-section {
+    padding: 4rem 0;
+}
+.content-section h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2.5rem;
+}
+.content-section h2 i {
+    color: #007bff;
+    margin-right: 0.5rem;
+}
+
+.about-landing .key-points {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.about-landing .key-point {
+    flex-basis: calc(50% - 1rem); /* Two columns on medium screens */
+    text-align: center;
+    padding: 1rem;
+}
+.about-landing .key-point i {
+    font-size: 2rem;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.services-landing .service-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+.services-landing .service-item {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.services-landing .service-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1);
+}
+.services-landing .service-item i {
+    font-size: 2.5rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+.services-landing .service-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.projects-landing .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+.projects-landing .project-item {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.08);
+    transition: transform 0.3s ease;
+}
+.projects-landing .project-item:hover {
+    transform: translateY(-5px);
+}
+.projects-landing .project-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+.projects-landing .project-item h3 {
+    font-size: 1.4rem;
+    margin: 1rem 1rem 0.5rem;
+}
+.projects-landing .project-item p {
+    font-size: 0.9rem;
+    padding: 0 1rem 1rem;
+    color: #6c757d;
+}
+
+.call-to-action-landing {
+    background-color: #007bff;
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+}
+.call-to-action-landing h2 {
+    color: white;
+    font-size: 2.2rem;
+}
+.call-to-action-landing .btn {
+    border-color: white;
+    color: white;
+}
+.call-to-action-landing .btn:hover {
+    background-color: white;
+    color: #007bff;
+}
+
+/* --- About Page (about.ejs) Styles --- */
+.about-hero {
+    background: linear-gradient(rgba(44, 62, 80, 0.7), rgba(44, 62, 80, 0.7)), url('/images/about-us-banner.jpg') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 5rem 0;
+    text-align: center;
+}
+.about-hero h2 { color: white; font-size: 2.8rem; }
+
+.about-section {
+    padding: 3rem 0;
+}
+.about-section h3 {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #007bff;
+    display: inline-block;
+}
+.about-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+.about-section ul li {
+    padding-left: 1.5em;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+.about-section ul li::before {
+    content: "\f00c"; /* Font Awesome check icon */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: #28a745; /* Bootstrap success green */
+    position: absolute;
+    left: 0;
+}
+.team-profiles .team-member {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.3rem;
+    border-left: 4px solid #007bff;
+}
+.team-profiles .team-member h4 { font-size: 1.3rem; }
+.team-profiles .team-member h5 { font-size: 1rem; color: #6c757d; margin-bottom: 0.5rem; }
+
+
+/* --- Contact Page (contact.ejs) Styles --- */
+.contact-hero {
+    background: linear-gradient(rgba(23, 162, 184, 0.7), rgba(23, 162, 184, 0.7)), url('/images/contact-banner.jpg') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 5rem 0;
+    text-align: center;
+}
+.contact-hero h2 { color: white; font-size: 2.8rem;}
+
+.contact-form-section .card, .contact-info-section .card {
+    border: none;
+}
+.contact-info-section address {
+    line-height: 1.8;
+}
+
+/* --- Gallery Page (gallery.ejs) Styles --- */
+.gallery-hero {
+    background: linear-gradient(rgba(108, 117, 125, 0.7), rgba(108, 117, 125, 0.7)), url('/images/gallery-banner.jpg') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 5rem 0;
+    text-align: center;
+}
+.gallery-hero h2 { color: white; font-size: 2.8rem;}
+
+.gallery-filter {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.gallery-filter button {
+    background-color: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.gallery-filter button:hover, .gallery-filter button.active {
+    background-color: #007bff;
+    color: white;
+}
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+.gallery-grid .project-item {
+    border-radius: 0.3rem;
+    overflow: hidden;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.08);
+    transition: transform 0.3s ease, opacity 0.5s ease;
+    opacity: 1;
+    display: block; /* For filtering */
+}
+.gallery-grid .project-item.hide {
+    opacity: 0;
+    transform: scale(0.9);
+    display: none; /* Hide completely after transition */
+}
+.gallery-grid .project-item img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+.gallery-grid .project-item h3 {
+    font-size: 1.2rem;
+    margin: 1rem 1rem 0.5rem;
+}
+.gallery-grid .project-item p {
+    font-size: 0.9rem;
+    padding: 0 1rem 1rem;
+    color: #6c757d;
+}
+
+/* --- Blog & Single Post (blog.ejs, single-post.ejs) Styles --- */
+.blog-header, .page-header { /* Common header for blog list and single post */
+    padding: 2rem 0 1rem; /* Adjusted padding */
+    /* border-bottom: 1px solid #dee2e6; */
+}
+.blog-header h1, .page-header h1 {
+    font-size: 2.5rem;
+    color: #343a40;
+}
+.blog-header .lead, .page-header .lead {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.card.hover-shadow {
+    transition: box-shadow .3s ease-in-out;
+}
+.card.hover-shadow:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.blog-post-title {
+    font-family: 'Playfair Display', serif;
+    color: #212529;
+}
+.blog-post-meta {
+    margin-bottom: 1.25rem;
+    color: #6c757d;
+}
+.post-content img { /* Ensure images in post content are responsive */
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.25rem;
+    margin: 1rem 0;
+}
+.post-content blockquote {
+    font-style: italic;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    border-left: 5px solid #007bff;
+    background-color: #f8f9fa;
+}
+
+.comments-section .card {
+    border: 1px solid #e9ecef;
+}
+
+/* Sidebar styles for public pages if using _aside_sidebar.ejs */
+.public-aside-sidebar .card-header {
+    padding: 0.75rem 1rem;
+}
+.public-aside-sidebar .card-header h5 {
+    font-size: 1.1rem;
+    color: #343a40;
+}
+.public-aside-sidebar .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 1rem;
+}
+.public-aside-sidebar .list-group-item a:hover {
+    color: #0056b3;
+}
+.public-aside-sidebar .btn-outline-secondary {
+    font-size: 0.85rem;
+}
+
+.navbar.fixed-top.navbar-scrolled {
+    background-color: rgba(52, 58, 64, 0.95) !important; /* Darker with slight transparency */
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+    transition: background-color 0.3s ease-in-out;
+}
+.project-item {
+    position: relative;
+    cursor: pointer;
+}
+.project-item-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    width: 100%;
+    transition: .5s ease;
+    opacity: 0;
+    padding: 15px;
+    text-align: center;
+}
+.project-item:hover .project-item-overlay {
+    opacity: 1;
+}
+.project-item-text h5 {
+    font-size: 1.1rem;
+}
+
+
+
+
+/* styles.css or blog_styles.css */
+
+/* --- Public Aside Sidebar Styling --- */
+.public-aside-sidebar {
+    /* No specific styling needed for the container itself unless you want a background or border */
+}
+
+.public-aside-sidebar .card {
+    border: 1px solid #e0e0e0; /* Softer border for cards */
+    border-radius: 0.375rem; /* Standard Bootstrap card radius */
+}
+
+.public-aside-sidebar .card-header {
+    background-color: #f8f9fa; /* Bootstrap light background */
+    border-bottom: 1px solid #e0e0e0; /* Softer border */
+    padding: 0.85rem 1.15rem; /* Adjust padding */
+}
+
+.public-aside-sidebar .card-header h5 {
+    font-size: 1.1rem; /* Slightly smaller heading for widgets */
+    font-weight: 500; /* Medium weight */
+    color: #333; /* Darker text color */
+}
+
+.public-aside-sidebar .card-header h5 .fas,
+.public-aside-sidebar .card-header h5 .far,
+.public-aside-sidebar .card-header h5 .fab {
+    color: #007bff; /* Primary color for icons in headers, or a neutral one */
+    margin-right: 0.5rem;
+    font-size: 0.9em; /* Icons slightly smaller than text */
+}
+
+.public-aside-sidebar .card-body {
+    padding: 1.15rem; /* Consistent padding */
+}
+
+/* Search Widget */
+.public-aside-sidebar .input-group .form-control {
+    border-right: 0; /* Remove right border if button is adjacent */
+}
+.public-aside-sidebar .input-group .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Bootstrap focus shadow */
+    border-color: #80bdff;
+}
+.public-aside-sidebar .input-group .btn-outline-primary {
+    border-color: #ced4da; /* Match form control border initially */
+}
+.public-aside-sidebar .input-group .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+
+/* Recent Posts Widget */
+.public-aside-sidebar .list-group-flush .list-group-item {
+    padding: 0.85rem 1.15rem;
+    border-color: #e9ecef; /* Lighter border for list items */
+    background-color: #fff; /* Ensure white background */
+}
+.public-aside-sidebar .list-group-flush .list-group-item:last-child {
+    border-bottom: 0; /* Remove bottom border for the last item if card has no footer */
+}
+
+.public-aside-sidebar .list-group-item a {
+    color: #212529; /* Default dark text color */
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+.public-aside-sidebar .list-group-item a:hover {
+    color: #0056b3; /* Primary hover color */
+    text-decoration: none; /* Or underline, if preferred */
+}
+
+.public-aside-sidebar .list-group-item small.text-muted {
+    font-size: 0.8em;
+    margin-top: 0.2rem;
+}
+
+/* Categories/Tags Widget */
+.public-aside-sidebar .card-body .btn-outline-secondary {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.25rem; /* Slightly less rounded for a modern feel */
+    color: #5a6268;
+    border-color: #ced4da;
+    transition: all 0.2s ease-in-out;
+}
+.public-aside-sidebar .card-body .btn-outline-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+    border-color: #5a6268;
+}
+
+/* Optional: If you add other widgets */
+.public-aside-sidebar .widget-title { /* A generic class you could use for widget titles */
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+

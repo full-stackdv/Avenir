@@ -1,0 +1,79 @@
+<% /* views/projects/members/add_member.ejs - Content for main_layout.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, potentialNewMembers, projectRolesAssignable, formData, errors, layout */ %>
+
+<div class="container mt-4 mb-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details#project-members-section">Members</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add Member</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><%= pageTitle || 'Add Member to Project' %></h4>
+                    <% if (subTitle) { %><p class="mb-0 small"><%= subTitle %></p><% } %>
+                </div>
+                <div class="card-body p-4">
+                    <%- include('../../partials/_messages') %>
+
+                    <form action="/projects/<%= project.id %>/members/add" method="POST">
+                        <div class="mb-3">
+                            <label for="user_id_select" class="form-label">Select User to Add <span class="text-danger">*</span></label>
+                            <select class="form-select <%= (errors && errors.find(e => e.param === 'user_id_select')) ? 'is-invalid' : '' %>" 
+                                    id="user_id_select" name="user_id_select" required>
+                                <option value="">-- Select User --</option>
+                                <% if (potentialNewMembers && potentialNewMembers.length > 0) { %>
+                                    <% potentialNewMembers.forEach(function(user) { %>
+                                        <option value="<%= user.id %>" 
+                                            <%= (formData && formData.user_id_select == user.id) ? 'selected' : '' %>>
+                                            <%= user.display_name %> (<%= user.app_role %>)
+                                        </option>
+                                    <% }); %>
+                                <% } else { %>
+                                    <option value="" disabled>No new users available to add to this project.</option>
+                                <% } %>
+                            </select>
+                            <% if (errors && errors.find(e => e.param === 'user_id_select')) { %>
+                                <div class="invalid-feedback"><%= errors.find(e => e.param === 'user_id_select').msg %></div>
+                            <% } else { %>
+                                <div class="invalid-feedback">Please select a user.</div>
+                            <% } %>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role_in_project_select" class="form-label">Assign Role in Project <span class="text-danger">*</span></label>
+                            <select class="form-select <%= (errors && errors.find(e => e.param === 'role_in_project_select')) ? 'is-invalid' : '' %>" 
+                                    id="role_in_project_select" name="role_in_project_select" required>
+                                <option value="">-- Select Role --</option>
+                                <% if (projectRolesAssignable && projectRolesAssignable.length > 0) { %>
+                                    <% projectRolesAssignable.forEach(function(role) { %>
+                                        <option value="<%= role %>" 
+                                            <%= (formData && formData.role_in_project_select === role) ? 'selected' : '' %>>
+                                            <%= role %>
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <% if (errors && errors.find(e => e.param === 'role_in_project_select')) { %>
+                                <div class="invalid-feedback"><%= errors.find(e => e.param === 'role_in_project_select').msg %></div>
+                            <% } else { %>
+                                <div class="invalid-feedback">Please assign a role for the user in this project.</div>
+                            <% } %>
+                        </div>
+                        
+                        <hr class="my-4">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/projects/<%= project.id %>/details#project-members-section" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success"><i class="fas fa-user-plus me-1"></i> Add Member to Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

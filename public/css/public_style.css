@@ -1,0 +1,108 @@
+/* public/css/public_style.css */
+/* At the top of public/css/styles.css OR in <head> of layouts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Raleway:wght@400;500;600;700&display=swap');
+
+body.public-body {
+  background-color: #fff; /* Clean white background for public pages */
+}
+
+/* Public Navbar Customization */
+.navbar-dark.bg-dark { /* Targeting the specific navbar in public_layout */
+  /* background-color: #343a40 !important; */ /* Default Bootstrap dark */
+  /* You can customize further if needed */
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+/* Main content area for public pages */
+main.flex-shrink-0 {
+  padding-bottom: 60px; /* Space for the footer */
+}
+
+/* Public Footer Styling */
+footer.py-4.bg-light {
+  background-color: #f8f9fa !important; /* Bootstrap light gray */
+  font-size: 0.9rem;
+  color: #6c757d; /* Bootstrap secondary text color */
+}
+
+footer.py-4.bg-light a {
+  color: #495057;
+}
+footer.py-4.bg-light a:hover {
+  color: #0d6efd;
+}
+
+/* Specific styling for elements common on public pages */
+.hero-section { /* If you have a hero section on the homepage */
+  padding: 60px 0;
+  background-color: #e9ecef; /* Light gray for hero */
+  text-align: center;
+}
+
+.feature-icon { /* For feature lists */
+  font-size: 2.5rem;
+  color: #0d6efd;
+  margin-bottom: 1rem;
+}
+
+/* Blog specific styles (can be expanded) */
+.blog-post-item {
+  margin-bottom: 30px;
+}
+.blog-post-item .card-title a {
+  color: #333;
+  font-weight: 600;
+}
+.blog-post-item .card-title a:hover {
+  color: #0d6efd;
+}
+.blog-post-meta {
+  font-size: 0.85rem;
+  color: #777;
+}
+.feature-image-preview {
+  max-height: 200px;
+  width: 100%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+/* Single Post Page */
+.single-post-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 15px 0;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.comments-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+.comment-item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.comment-item:last-child {
+  border-bottom: none;
+}
+.comment-author {
+  font-weight: bold;
+  margin-right: 10px;
+}
+.comment-date {
+  font-size: 0.85em;
+  color: #777;
+}
+
+/* Contact Form enhancements */
+#contact-form label {
+  font-weight: 500;
+}

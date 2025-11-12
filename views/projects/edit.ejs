@@ -1,0 +1,118 @@
+<% /* views/projects/edit.ejs - Content for main_layout.ejs */ %>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                 <h4 class="mb-0">Edit Project: <%= (formData && formData.name) ? formData.name : (project ? project.name : 'Project') %></h4>
+            </div>
+            <div class="card-body p-4">
+                <%- include('../partials/_messages') %> <%# Pass errors explicitly if needed by partial %>
+                
+                <form action="/projects/<%= project.id %>/edit" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Project Name<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'name')) ? 'is-invalid' : '' %>" 
+                               id="name" name="name" 
+                               value="<%= (typeof formData !== 'undefined' && typeof formData.name !== 'undefined') ? formData.name : (project ? project.name : '') %>" required>
+                        <% if (errors && errors.find(e => e.param === 'name')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'name').msg %></div>
+                        <% } else { %>
+                            <div class="invalid-feedback">Project name is required.</div>
+                        <% } %>
+                    </div>
+                    <div class="mb-3">
+                        <label for="project_code" class="form-label">Project Code <small class="text-muted">(Optional)</small></label>
+                        <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'project_code')) ? 'is-invalid' : '' %>" 
+                               id="project_code" name="project_code" 
+                               value="<%= (typeof formData !== 'undefined' && typeof formData.project_code !== 'undefined') ? formData.project_code : (project ? project.project_code : '') %>">
+                        <% if (errors && errors.find(e => e.param === 'project_code')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'project_code').msg %></div>
+                        <% } %>
+                    </div>
+
+                    <%# ----- NEW: Project Manager Dropdown ----- %>
+                    <div class="mb-3">
+                        <label for="project_manager_id_select" class="form-label">Assign Project Manager</label>
+                        <select class="form-select <%= (errors && errors.find(e => e.param === 'project_manager_id_select')) ? 'is-invalid' : '' %>" 
+                                id="project_manager_id_select" name="project_manager_id_select">
+                            <option value="">-- None (No Designated PM) --</option>
+                            <% if (typeof potentialManagers !== 'undefined' && potentialManagers.length > 0) { %>
+                                <% potentialManagers.forEach(function(manager) { %>
+                                    <option value="<%= manager.id %>" 
+                                        <%= ( (typeof formData !== 'undefined' && formData.project_manager_id_select == manager.id) || 
+                                             (typeof formData === 'undefined' && project && project.project_manager_id == manager.id) 
+                                           ) ? 'selected' : '' %>>
+                                        <%# Logic to select based on formData (PRG) or original project data %>
+                                        <%= manager.display_name %>
+                                    </option>
+                                <% }); %>
+                            <% } else { %>
+                                <option value="" disabled>No potential managers found to assign</option>
+                            <% } %>
+                        </select>
+                        <% if (errors && errors.find(e => e.param === 'project_manager_id_select')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'project_manager_id_select').msg %></div>
+                        <% } %>
+                    </div>
+                    <%# ----- END: Project Manager Dropdown ----- %>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description <small class="text-muted">(Optional)</small></label>
+                        <textarea class="form-control" id="description" name="description" rows="4"><%= (typeof formData !== 'undefined' && typeof formData.description !== 'undefined') ? formData.description : (project ? project.description : '') %></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="client_name" class="form-label">Client Name <small class="text-muted">(Optional)</small></label>
+                            <input type="text" class="form-control" id="client_name" name="client_name" value="<%= (typeof formData !== 'undefined' && typeof formData.client_name !== 'undefined') ? formData.client_name : (project ? project.client_name : '') %>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="budget" class="form-label">Budget <small class="text-muted">(Optional)</small></label>
+                            <input type="number" step="0.01" class="form-control" id="budget" name="budget" value="<%= (typeof formData !== 'undefined' && typeof formData.budget !== 'undefined') ? formData.budget : (project ? project.budget : '') %>">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="start_date" class="form-label">Start Date <small class="text-muted">(Optional)</small></label>
+                            <input type="date" class="form-control <%= (errors && errors.find(e => e.param === 'start_date')) ? 'is-invalid' : '' %>" 
+                                   id="start_date" name="start_date" 
+                                   value="<%= (typeof formData !== 'undefined' && typeof formData.start_date !== 'undefined') ? formData.start_date : (project ? project.start_date : '') %>">
+                             <% if (errors && errors.find(e => e.param === 'start_date')) { %>
+                                <div class="invalid-feedback"><%= errors.find(e => e.param === 'start_date').msg %></div>
+                            <% } %>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="end_date" class="form-label">End Date <small class="text-muted">(Optional)</small></label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="<%= (typeof formData !== 'undefined' && typeof formData.end_date !== 'undefined') ? formData.end_date : (project ? project.end_date : '') %>">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status<span class="text-danger">*</span></label>
+                        <select class="form-select <%= (errors && errors.find(e => e.param === 'status')) ? 'is-invalid' : '' %>" 
+                                id="status" name="status" required>
+                            <% const currentStatus = (typeof formData !== 'undefined' && typeof formData.status !== 'undefined') ? formData.status : (project ? project.status : 'Planning'); %>
+                            <option value="Planning" <%= currentStatus === 'Planning' ? 'selected' : '' %>>Planning</option>
+                            <option value="Active" <%= currentStatus === 'Active' ? 'selected' : '' %>>Active</option>
+                            <option value="On Hold" <%= currentStatus === 'On Hold' ? 'selected' : '' %>>On Hold</option>
+                            <option value="Completed" <%= currentStatus === 'Completed' ? 'selected' : '' %>>Completed</option>
+                            <option value="Cancelled" <%= currentStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        </select>
+                         <% if (errors && errors.find(e => e.param === 'status')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'status').msg %></div>
+                        <% } else { %>
+                             <div class="invalid-feedback">Please select a status.</div>
+                        <% } %>
+                    </div>
+                    
+                    <hr class="my-4">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/projects/<%= project.id %>/details" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+

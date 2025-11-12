@@ -1,0 +1,195 @@
+/* public/css/admin_styles.css */
+
+body.admin-body {
+  font-size: 0.9rem; /* Slightly smaller base font for admin dense UIs */
+  background-color: #f0f2f5; /* A common admin panel background color */
+}
+
+/* Admin Navbar */
+#adminNavbar {
+  /* background-color: #343a40 !important; */ /* Or a custom admin color */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+/* Admin Sidebar */
+.sidebar {
+  background-color: #fff; /* White sidebar */
+  border-right: 1px solid #e0e0e0;
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #495057; /* Darker gray for links */
+  padding: 0.65rem 1rem;
+}
+
+.sidebar .nav-link .fa-fw {
+  width: 1.2em; /* Consistent icon width */
+  margin-right: 0.5rem !important;
+}
+
+.sidebar .nav-link.active {
+  color: #0d6efd; /* Bootstrap primary */
+  background-color: #e6f0ff; /* Light blue active background */
+  border-left: 3px solid #0d6efd;
+  padding-left: calc(1rem - 3px);
+}
+.sidebar .nav-link:hover:not(.active) {
+  color: #0d6efd;
+  background-color: #f8f9fa;
+}
+
+.sidebar-heading {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .05rem;
+  padding-top: 1rem;
+}
+
+/* Main Content Area in Admin */
+.admin-body .main-content {
+  background-color: #f0f2f5; /* Or #fff if you prefer white content area */
+}
+
+.admin-body .page-header h1.h2 {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Tables in Admin */
+.table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: #f8f9fa;
+}
+.table td {
+  vertical-align: middle;
+}
+.table-actions a {
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+.table-actions a.text-danger:hover {
+  color: #a00 !important;
+}
+
+/* Cards in Admin */
+.card {
+  border: none;
+  box-shadow: 0 0 15px rgba(0,0,0,0.07);
+}
+.card-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 600;
+}
+
+/* Forms in Admin */
+.form-label {
+  font-weight: 500;
+}
+.form-check-label {
+  font-weight: normal;
+}
+
+/* Specific Admin Elements */
+.preview-image-container img {
+  max-width: 200px;
+  max-height: 150px;
+  border: 1px solid #ddd;
+  padding: 5px;
+  margin-top: 10px;
+}
+
+.document-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #eee;
+  margin-bottom: 5px;
+  border-radius: 0.25rem;
+}
+.document-list-item .doc-icon {
+  margin-right: 10px;
+  font-size: 1.5em;
+}
+.document-list-item .doc-title {
+  flex-grow: 1;
+}
+
+.admin-preview-banner {
+  background-color: #ffc107; /* Bootstrap warning yellow */
+  color: #333;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid #e0a800;
+}
+
+
+
+    .gantt .bar-wrapper.gantt-milestone .bar-progress { /* Target progress bar for milestones */
+        fill: #6f42c1 !important; /* Bootstrap purple */
+    }
+    .gantt .bar-wrapper.gantt-milestone .bar { /* Target main bar for milestones */
+        fill: #a98eda !important; /* Lighter purple for background */
+        stroke: #6f42c1;
+    }
+    .gantt .bar-wrapper.gantt-completed .bar-progress {
+        fill: #198754 !important; /* Bootstrap green */
+    }
+    .gantt .bar-wrapper.gantt-inprogress .bar-progress {
+        fill: #0dcaf0 !important; /* Bootstrap info blue */
+    }
+    .gantt-popup-content p { margin-bottom: 5px; }
+    .gantt-chart-svg { /* Ensure SVG takes full container height */
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+    .gantt .grid-header, .gantt .grid-row{
+        fill: #f8f9fa; /* Light background for grid lines */
+    }
+    .gantt .grid-row:nth-child(even){
+        fill: #ffffff;
+    }
+     .gantt .bar-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+
+
+
+/* Optional: Custom styles for the admin sidebar if needed */
+.admin-sidebar-main {
+    /* min-height: calc(100vh - YourNavbarHeight); */ /* Adjust if you have a fixed top navbar */
+    /* box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1); */
+}
+.sidebar-sticky-content {
+    /* Styles for the content within the sticky sidebar */
+}
+.nav-header {
+    font-size: .75rem;
+    font-weight: 500;
+}
+/* Ensure active link stands out */
+.admin-sidebar-main .nav-link.active {
+    color: #0d6efd; /* Bootstrap primary blue or your theme's active color */
+    /* background-color: rgba(0,0,0,.05); */ /* Optional: slight background for active item */
+}
+.admin-sidebar-main .nav-link:hover {
+    color: #0a58ca; /* Darker blue on hover */
+}
+.admin-sidebar-main .btn.nav-link { /* For the logout button */
+    padding-left: 0.75rem; /* Align with other nav-link items */
+}
+.admin-sidebar-main .btn.nav-link:hover {
+    background-color: transparent !important; /* Prevent button default hover */
+    color: #0a58ca !important;
+}
+
+

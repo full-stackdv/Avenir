@@ -1,0 +1,146 @@
+
+<!-- views/public/gallery.ejs -->
+<header class="gallery-hero">
+    <div class="container">
+        <h1 class="display-4" style="color: rgb(246, 247, 250); font-weight: 800;"><%= content.hero_title || 'Project Gallery' %></h1>
+        <p class="lead"><%= content.hero_subtitle || 'Showcasing our commitment to quality, innovation, and excellence in construction.' %></p>
+    </div>
+</header>
+
+<section class="project-gallery py-5">
+    <div class="container">
+        <div class="gallery-filter mb-4">
+            <% if (content.filter_buttons && Array.isArray(content.filter_buttons)) { %>
+                <% content.filter_buttons.forEach((button, index) => { %>
+                    <button class="btn btn-outline-primary <%= index === 0 ? 'active' : '' %>" data-filter="<%= button.filter %>"><%= button.label %></button>
+                <% }); %>
+            <% } else { %>
+                <button class="btn btn-outline-primary active" data-filter="all">All Projects</button>
+                <button class="btn btn-outline-primary" data-filter="commercial">Commercial</button>
+                <button class="btn btn-outline-primary" data-filter="residential">Residential</button>
+            <% } %>
+        </div>
+      
+        <div class="gallery-grid">
+            <% if (content.projects_list && Array.isArray(content.projects_list)) { %>
+                <% content.projects_list.forEach(project => { %>
+                <div class="project-item" data-category="<%= project.category %>">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#projectModal" 
+                       data-project-title="<%= project.title %>" 
+                       data-project-image="<%= project.img %>" 
+                       data-project-desc="<%= project.desc %>"
+                       data-project-category="<%= project.category ? project.category.charAt(0).toUpperCase() + project.category.slice(1) : 'General' %>">
+                        <img src="<%= project.img || '/images/project-placeholder.jpg' %>" alt="<%= project.title %>" class="img-fluid">
+                        <div class="project-item-overlay">
+                            <div class="project-item-text">
+                                <h5 class="mb-0"><%= project.title %></h5>
+                                <small class="text-warning"><%= project.category ? project.category.charAt(0).toUpperCase() + project.category.slice(1) : 'General' %></small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <% }); %>
+            <% } else { %>
+                <p class="text-center">Our project gallery is currently being updated. Please check back soon!</p>
+                 <%# Fallback hardcoded projects if needed %>
+                <% const fallbackProjects = [
+                    { img: '/images/project1.jpg', title: 'Modern Office Complex (Default)', category: 'commercial', desc: 'A state-of-the-art office space in Addis Ababa.' },
+                    { img: '/images/project2.jpg', title: 'Luxury Apartment Tower (Default)', category: 'residential', desc: 'High-end living with premium amenities in Jimma.' }
+                ]; %>
+                <% fallbackProjects.forEach(project => { %>
+                    <div class="project-item" data-category="<%= project.category %>">
+                         <a href="#" data-bs-toggle="modal" data-bs-target="#projectModal" 
+                           data-project-title="<%= project.title %>" 
+                           data-project-image="<%= project.img %>" 
+                           data-project-desc="<%= project.desc %>"
+                           data-project-category="<%= project.category.charAt(0).toUpperCase() + project.category.slice(1) %>">
+                            <img src="<%= project.img %>" alt="<%= project.title %>" class="img-fluid">
+                             <div class="project-item-overlay">
+                                <div class="project-item-text">
+                                    <h5 class="mb-0"><%= project.title %></h5>
+                                    <small class="text-warning"><%= project.category.charAt(0).toUpperCase() + project.category.slice(1) %></small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<!-- Project Detail Modal (Structure remains the same, content populated by JS) -->
+<div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="projectModalLabel">Project Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <img src="" id="modalProjectImage" class="img-fluid mb-3" alt="Project Image">
+        <h3 id="modalProjectTitle"></h3>
+        <p class="text-muted"><strong id="modalProjectCategory"></strong></p>
+        <p id="modalProjectDesc"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// JavaScript for Project Modal in gallery.ejs (remains the same)
+document.addEventListener('DOMContentLoaded', function () {
+    var projectModal = document.getElementById('projectModal');
+    if (projectModal) {
+        projectModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; 
+            var title = button.getAttribute('data-project-title');
+            var image = button.getAttribute('data-project-image');
+            var desc = button.getAttribute('data-project-desc');
+            var category = button.getAttribute('data-project-category');
+
+            var modalTitle = projectModal.querySelector('.modal-title');
+            var modalImage = projectModal.querySelector('#modalProjectImage');
+            var modalProjectTitle = projectModal.querySelector('#modalProjectTitle');
+            var modalProjectCategory = projectModal.querySelector('#modalProjectCategory');
+            var modalProjectDesc = projectModal.querySelector('#modalProjectDesc');
+
+            modalTitle.textContent = title;
+            modalImage.src = image;
+            modalImage.alt = title;
+            modalProjectTitle.textContent = title;
+            modalProjectCategory.textContent = category;
+            modalProjectDesc.textContent = desc;
+        });
+    }
+
+    // JS for gallery filter buttons
+    const filterButtons = document.querySelectorAll('.gallery-filter button');
+    const projectItems = document.querySelectorAll('.gallery-grid .project-item');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            const filterValue = this.getAttribute('data-filter');
+
+            projectItems.forEach(item => {
+                if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                    item.style.display = 'block'; // Or 'flex', 'grid' depending on your layout
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+
+<!--Use fallbacks:
+<%= content.hero_title || getSetting('fallback_hero_title', 'Default Title') %> or content.hero_title || 'Default Title' %>.
+
+For json_list content (like gallery items or core values), you'll need to loop through content.your_list_key if it's an array.-->

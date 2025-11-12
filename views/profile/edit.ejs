@@ -1,0 +1,60 @@
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i><%= pageTitle %></h4>
+            </div>
+            <div class="card-body">
+                <%- include('../partials/_messages', { errors: errors }) %> 
+                
+                <form action="/profile/edit" method="POST">
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'first_name')) ? 'is-invalid' : '' %>" id="first_name" name="first_name" value="<%= formData.first_name || '' %>" required>
+                        <% if (errors && errors.find(e => e.param === 'first_name')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'first_name').msg %></div>
+                        <% } %>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'last_name')) ? 'is-invalid' : '' %>" id="last_name" name="last_name" value="<%= formData.last_name || '' %>" required>
+                        <% if (errors && errors.find(e => e.param === 'last_name')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'last_name').msg %></div>
+                        <% } %>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control <%= (errors && errors.find(e => e.param === 'email')) ? 'is-invalid' : '' %>" id="email" name="email" value="<%= formData.email || '' %>" required>
+                        <small class="form-text text-muted">Ensure this is a valid email you have access to.</small>
+                        <% if (errors && errors.find(e => e.param === 'email')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'email').msg %></div>
+                        <% } %>
+                    </div>
+                    
+                  
+                     <div class="mb-3">
+                        <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= (errors && errors.find(e => e.param === 'username')) ? 'is-invalid' : '' %>" id="username" name="username" value="<%= formData.username || '' %>" readonly>
+                        <small class="form-text text-muted">Username cannot be changed after registration for security reasons.</small>
+                         <% if (errors && errors.find(e => e.param === 'username')) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.param === 'username').msg %></div>
+                        <% } %>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="company_name" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="company_name" name="company_name" value="<%= formData.company_name || '' %>">
+                    </div>
+
+                    <hr>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Changes</button>
+                    <a href="/profile" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

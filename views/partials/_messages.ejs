@@ -1,0 +1,62 @@
+<% /* views/partials/_messages.ejs */ %>
+
+<% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%- success_msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%- error_msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<% if (typeof info_msg !== 'undefined' && info_msg && info_msg.length > 0) { %>
+  <div class="alert alert-info alert-dismissible fade show" role="alert">
+    <%- info_msg %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<% 
+  // This block handles more specific errors, like validation errors from forms.
+  // It prioritizes an `errors` variable if explicitly passed to this partial.
+  // If not, it checks for the global `error` (from req.flash('error')).
+  // It also tries to avoid displaying if a general `error_msg` is already shown,
+  // unless `errors` is explicitly passed (as they might be for different contexts).
+
+  let detailedErrorsToDisplay = [];
+  const hasGlobalErrorMsg = typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0;
+
+  // Check for explicitly passed 'errors' (e.g., from commentFormErrors)
+  if (typeof errors !== 'undefined' && errors) {
+    if (Array.isArray(errors) && errors.length > 0) {
+      detailedErrorsToDisplay = errors;
+    } else if (!Array.isArray(errors) && typeof errors === 'object' && errors.msg) { // Single error object
+      detailedErrorsToDisplay = [errors];
+    } else if (typeof errors === 'string' && errors.length > 0){ // Single error string
+      detailedErrorsToDisplay = [{ msg: errors }];
+    }
+  } 
+  // Fallback to global 'error' if no explicit 'errors' AND no global 'error_msg' is already showing
+  else if (!hasGlobalErrorMsg && typeof error !== 'undefined' && error) {
+    if (Array.isArray(error) && error.length > 0) {
+      detailedErrorsToDisplay = error;
+    } else if (typeof error === 'string' && error.length > 0) {
+      detailedErrorsToDisplay = [{ msg: error }]; // Convert string to array of objects for consistent loop
+    }
+  }
+%>
+
+<% if (detailedErrorsToDisplay.length > 0) { %>
+  <% detailedErrorsToDisplay.forEach(function(err) { %>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <%= err.msg || (typeof err === 'string' ? err : 'An error occurred') %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% }); %>
+<% } %>
+

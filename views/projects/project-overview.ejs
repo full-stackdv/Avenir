@@ -1,0 +1,46 @@
+<%- include('../partials/_header', { title: `Overview: ${typeof project !== 'undefined' && project ? project.name : 'Project'}`, currentUser: currentUser }) %>
+
+<div class="project-layout">
+    <%- include('../partials/_sidebar', { 
+        projectId: typeof projectId !== 'undefined' ? projectId : 'unknown', 
+        projectName: typeof project !== 'undefined' && project ? project.name : 'Project Details', 
+        activeProjectPage: 'overview' 
+    }) %>
+
+    <div class="project-content">
+        <!-- Content specific to Project Overview starts here -->
+        <h2>Project Overview: <span id="project-title"><%= typeof project !== 'undefined' && project ? project.name : 'Loading...' %></span></h2>
+                
+        <div class="dashboard-grid"> <!-- Reusing dashboard-grid for layout -->
+            <div class="card">
+                <h3>Overall Progress</h3>
+                <p id="project-progress"><%= typeof project !== 'undefined' && project && project.progress_percentage ? project.progress_percentage + '%' : '--%' %></p>
+            </div>
+            <div class="card">
+                <h3>Budget Status</h3>
+                <!-- You'd need to calculate or fetch this status -->
+                <p id="project-budget-status"><%= typeof project !== 'undefined' && project && project.budget_status ? project.budget_status : 'On Track' %></p>
+            </div>
+            <div class="card">
+                <h3>Upcoming Milestones</h3>
+                <ul id="project-upcoming-milestones">
+                    <!-- This would ideally be populated from tasks data related to the project -->
+                    <li>Loading...</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Key Risks/Issues</h3>
+                <ul id="project-risks-issues">
+                     <!-- This would be populated from a risks/issues table related to the project -->
+                    <li><a href="#">Risk: Material Delay (High)</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- More sections like recent activity specific to this project can be added -->
+        <!-- Content specific to Project Overview ends here -->
+    </div> <!-- End of .project-content -->
+
+</div> <!-- End of .project-layout -->
+
+<%- include('../partials/footer') %>
+

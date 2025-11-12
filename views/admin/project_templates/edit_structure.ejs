@@ -1,0 +1,522 @@
+<%# views/admin/project_templates/edit_structure.ejs %>
+ 
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %> <%# For server-side flash messages %>
+    <div id="js-flash-messages-container"></div> <%# For client-side JS flash messages %>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">Manage Tasks for Template: <strong><%= template.name %></strong></h3>
+                    <div class="card-tools">
+                        <a href="/admin/project-templates" class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-arrow-left"></i> Back to Templates List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <% if (template.description && template.description.trim() !== '') { %>
+                        <p class="text-muted"><em><%= template.description %></em></p>
+                        <hr>
+                    <% } %>
+
+                    <h4>Work Breakdown Structure (WBS)</h4>
+                    <p class="text-muted small">
+                        Drag tasks to reorder or change their parent. Use buttons to edit, add sub-tasks, or delete.
+                    </p>
+
+                    <ul id="template-task-list-ul" class="list-unstyled mt-3" style="padding-left: 0;">
+                        <% if (tasks && tasks.length > 0) { %>
+                            <%- include('../../partials/_template_task_item_recursive', { tasks: tasks, templateId: template.id, level: 0 }) %>
+                        <% } else { %>
+                            <li class="text-muted px-2">No tasks defined for this template yet. Start by adding a top-level task below.</li>
+                        <% } %>
+                    </ul>
+
+                    <!-- Form for adding TOP-LEVEL tasks -->
+                    <div id="add-task-form-container" class="mt-5 pt-4 border-top">
+                        <h5 class="mb-3">Add New Top-Level Task</h5>
+                        <form action="/admin/project-templates/<%= template.id %>/tasks/add" method="POST" id="addTopLevelTaskForm">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="taskName">Task Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm" id="taskName" name="name" required>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="plannedDuration">Planned Duration (days)</label>
+                                    <input type="number" class="form-control form-control-sm" id="plannedDuration" name="planned_duration_days" value="1" min="0">
+                                </div>
+                                <div class="form-group col-md-3 d-flex align-items-end">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="isMilestone" name="is_milestone" value="true">
+                                        <label class="form-check-label" for="isMilestone">Is Milestone</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskDescription">Description</label>
+                                <textarea class="form-control form-control-sm" id="taskDescription" name="description" rows="2"></textarea>
+                            </div>
+                            <input type="hidden" name="parent_template_task_id" value=""> 
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Add Top-Level Task
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>Template ID: <%= template.id %></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Sub Task Modal -->
+<div class="modal fade" id="addSubTaskModal" tabindex="-1" role="dialog" aria-labelledby="addSubTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form id="addSubTaskForm" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSubTaskModalLabel">Add Sub-task for <strong id="parentTaskNameDisplay"></strong></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="parent_template_task_id_modal" name="parent_template_task_id">
+                    <input type="hidden" name="templateId_form" value="<%= template.id %>"> <!-- For consistency, though templateId is in URL -->
+
+                    <div class="form-group">
+                        <label for="subTaskNameModal">Sub-task Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" id="subTaskNameModal" name="name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-7">
+                            <label for="subTaskPlannedDurationModal">Planned Duration (days)</label>
+                            <input type="number" class="form-control form-control-sm" id="subTaskPlannedDurationModal" name="planned_duration_days" value="1" min="0">
+                        </div>
+                        <div class="form-group col-md-5 d-flex align-items-end">
+                             <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="subTaskIsMilestoneModal" name="is_milestone" value="true">
+                                <label class="form-check-label" for="subTaskIsMilestoneModal">Is Milestone</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="subTaskDescriptionModal">Description</label>
+                        <textarea class="form-control form-control-sm" id="subTaskDescriptionModal" name="description" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Add Sub-task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form id="editTaskForm" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <%# Content will be loaded by AJAX %>
+                    <p class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading task details...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 
+
+<style>
+    /* JS Flash Messages Container (if you use it) */
+    #js-flash-messages-container {
+        position: fixed;
+        top: 70px; /* Adjust based on your navbar height */
+        right: 20px;
+        z-index: 1050; /* Above modals if necessary */
+        width: auto;
+        max-width: 400px;
+    }
+    /* Example SortableJS helper styles */
+    .sortable-ghost {
+        opacity: 0.4;
+        background-color: #c8ebfb;
+        border: 1px dashed #007bff;
+    }
+    .sortable-chosen {
+        /* Optional: style for the item being picked up */
+    }
+    .sortable-drag {
+        opacity: 0.9 !important;
+        /* box-shadow: 0 4px 8px rgba(0,0,0,0.2); */
+    }
+    .template-task-item .drag-handle {
+        cursor: grab;
+    }
+    .template-task-item .drag-handle:active {
+        cursor: grabbing;
+    }
+    .droppable-empty-list {
+        /* border: 1px dashed #ccc; */ /* Optional: visual cue for empty drop zones */
+        background-color: #fdfdfd;
+    }
+</style>
+
+ 
+ <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>  
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const templateId = '<%= template.id %>';
+    // console.log('Template structure page loaded for template ID:', templateId);
+
+    // -------------------------------------------------------------------------
+    // 0. HELPER: Global Saving Indicator & JS Flash
+    // -------------------------------------------------------------------------
+    function showSavingIndicator(show, message = 'Saving...') {
+        let indicator = document.getElementById('savingIndicatorGlobal');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'savingIndicatorGlobal';
+            Object.assign(indicator.style, {
+                position: 'fixed', bottom: '20px', right: '20px', padding: '10px 20px',
+                backgroundColor: 'rgba(0,0,0,0.8)', color: 'white', borderRadius: '5px',
+                zIndex: '1060', /* Above modals */ display: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+            });
+            document.body.appendChild(indicator);
+        }
+        if (show) {
+            indicator.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${message}`;
+            indicator.style.display = 'block';
+        } else {
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, show === 'success' ? 1500 : 100);
+        }
+    }
+    
+    function showJsFlash(type, message, duration = 3500) {
+        const container = document.querySelector('#js-flash-messages-container');
+        if (!container) {
+            console.warn("JS Flash container not found. Message:", message);
+            if (type === 'danger' || type === 'error') alert(`Error: ${message}`);
+            else if (type === 'success') console.log(`Success: ${message}`);
+            return;
+        }
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show m-2 shadow-sm`;
+        alertDiv.role = 'alert';
+        alertDiv.style.pointerEvents = 'auto';
+        alertDiv.innerHTML = `${message}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>`;
+        container.appendChild(alertDiv);
+
+        setTimeout(() => {
+            $(alertDiv).alert('close');
+        }, duration);
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. ADD TOP-LEVEL TASK FORM
+    // -------------------------------------------------------------------------
+    const addTopLevelTaskForm = document.getElementById('addTopLevelTaskForm');
+    if (addTopLevelTaskForm) {
+        addTopLevelTaskForm.addEventListener('submit', function() {
+            const submitButton = addTopLevelTaskForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. ADD SUB-TASK MODAL & FORM
+    // -------------------------------------------------------------------------
+    $('#addSubTaskModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var parentTaskId = button.data('parent-task-id');
+        var parentTaskName = button.data('parent-task-name');
+        var modal = $(this);
+        modal.find('.modal-title #parentTaskNameDisplay').text(parentTaskName || 'Selected Task');
+        modal.find('.modal-body #parent_template_task_id_modal').val(parentTaskId);
+        var form = modal.find('#addSubTaskForm');
+        form.attr('action', `/admin/project-templates/${templateId}/tasks/add`);
+        form.trigger('reset'); // Clear previous values using jQuery's reset
+        const submitButton = form.find('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.html('Add Sub-task');
+    });
+
+    const addSubTaskForm = document.getElementById('addSubTaskForm');
+    if (addSubTaskForm) {
+        addSubTaskForm.addEventListener('submit', function() {
+            const submitButton = addSubTaskForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. EDIT TASK MODAL & FORM
+    // -------------------------------------------------------------------------
+    $('#editTaskModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var taskId = button.data('task-id');
+        var modal = $(this);
+        var form = modal.find('#editTaskForm');
+
+        modal.find('.modal-title').text('Edit Task');
+        modal.find('.modal-body').html('<p class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i> Loading task details...</p>');
+        const submitButtonModal = form.find('button[type="submit"]');
+        submitButtonModal.disabled = true; // Disable until content loads
+
+        form.attr('action', `/admin/project-templates/${templateId}/tasks/${taskId}/update`);
+
+        $.ajax({
+            url: `/admin/project-templates/${templateId}/tasks/${taskId}/details`,
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.task) {
+                    var task = response.task;
+                    var modalBodyContent = `
+                        <input type="hidden" name="template_task_id" value="${task.id}">
+                        <div class="form-group">
+                            <label for="editTaskNameModal">Task Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="editTaskNameModal" name="name" value="${task.name || ''}" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-7">
+                                <label for="editTaskPlannedDurationModal">Planned Duration (days)</label>
+                                <input type="number" class="form-control form-control-sm" id="editTaskPlannedDurationModal" name="planned_duration_days" value="${task.planned_duration_days || 1}" min="0">
+                            </div>
+                            <div class="form-group col-md-5 d-flex align-items-end">
+                                 <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="editTaskIsMilestoneModal" name="is_milestone" value="true" ${task.is_milestone ? 'checked' : ''}>
+                                    <label class="form-check-label" for="editTaskIsMilestoneModal">Is Milestone</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTaskDescriptionModal">Description</label>
+                            <textarea class="form-control form-control-sm" id="editTaskDescriptionModal" name="description" rows="2">${task.description || ''}</textarea>
+                        </div>
+                    `;
+                    modal.find('.modal-body').html(modalBodyContent);
+                    modal.find('.modal-title').text('Edit Task: ' + task.name);
+                    submitButtonModal.disabled = false;
+                    submitButtonModal.html('Save Changes');
+                } else {
+                    modal.find('.modal-body').html(`<p class="text-danger">Error loading task: ${response.message || 'Unknown error'}</p>`);
+                }
+            },
+            error: function(xhr) {
+                modal.find('.modal-body').html(`<p class="text-danger">Failed to fetch task details. (${xhr.status} ${xhr.statusText})</p>`);
+            }
+        });
+    });
+
+    const editTaskForm = document.getElementById('editTaskForm');
+    if (editTaskForm) {
+        editTaskForm.addEventListener('submit', function() {
+            const submitButton = editTaskForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. DELETE TASK (AJAX for smooth UI removal)
+    // -------------------------------------------------------------------------
+    const mainTaskListUlForDelete = document.getElementById('template-task-list-ul');
+    if (mainTaskListUlForDelete) {
+        mainTaskListUlForDelete.addEventListener('click', function(event) {
+            let targetButton = event.target.closest('.delete-task-btn');
+            if (!targetButton) return;
+
+            const taskId = targetButton.dataset.taskId;
+            const taskTemplateId = targetButton.dataset.templateId;
+            const taskName = targetButton.dataset.taskName;
+
+            if (!taskId || !taskTemplateId || taskTemplateId !== templateId) { // Ensure correct template ID
+                showJsFlash('danger', 'Cannot delete: invalid task identifiers.');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete "${taskName}" and all its sub-tasks? This cannot be undone.`)) {
+                targetButton.disabled = true;
+                targetButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                fetch(`/admin/project-templates/${taskTemplateId}/tasks/${taskId}/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' /*, 'X-CSRF-Token': 'your_csrf_token_here'*/ }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const taskListItem = targetButton.closest('li.template-task-item');
+                        if (taskListItem) {
+                            taskListItem.style.transition = 'opacity 0.3s ease, transform 0.3s ease, height 0.3s ease';
+                            taskListItem.style.opacity = '0';
+                            taskListItem.style.transform = 'scale(0.9)';
+                            taskListItem.style.height = '0px';
+                            taskListItem.style.paddingTop = '0px';
+                            taskListItem.style.paddingBottom = '0px';
+                            taskListItem.style.marginBottom = '0px';
+                            setTimeout(() => {
+                                taskListItem.remove();
+                                if (mainTaskListUlForDelete.children.length === 0) {
+                                    mainTaskListUlForDelete.innerHTML = '<li class="text-muted px-2">No tasks defined. Add one below.</li>';
+                                }
+                                showJsFlash('success', data.message || 'Task deleted.');
+                            }, 300);
+                        }
+                    } else {
+                        showJsFlash('danger', data.message || 'Failed to delete task.');
+                        targetButton.disabled = false;
+                        targetButton.innerHTML = '<i class="fas fa-trash"></i>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch Error deleting task:', error);
+                    showJsFlash('danger', 'Network error during delete.');
+                    targetButton.disabled = false;
+                    targetButton.innerHTML = '<i class="fas fa-trash"></i>';
+                });
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. SORTABLEJS TASK REORDERING
+    // -------------------------------------------------------------------------
+    if (typeof Sortable !== 'undefined') {
+        const mainSortableList = document.getElementById('template-task-list-ul');
+
+        function initializeSortable(element) {
+            if (!element || Sortable.get(element)) return; // Already initialized
+
+            new Sortable(element, {
+                group: 'templateTasksShared', 
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                fallbackOnBody: true,
+                swapThreshold: 0.50,
+                onEnd: function (evt) {
+                    const taskId = evt.item.dataset.taskId;
+                    let newParentId = evt.to.dataset.parentIdForList || null;
+                    if (evt.to.id === 'template-task-list-ul') {
+                        newParentId = null;
+                    }
+
+                    const siblingsInNewList = Array.from(evt.to.children);
+                    const orderedTaskIds = siblingsInNewList.map(child => child.dataset.taskId);
+                    
+                    evt.item.dataset.parentId = newParentId || ''; // Optimistic UI update for data attribute
+
+                    showSavingIndicator(true, 'Saving order...');
+
+                    fetch(`/admin/project-templates/${templateId}/tasks/reorder`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' /*, 'X-CSRF-Token': 'your_csrf_token_here'*/ },
+                        body: JSON.stringify({
+                            movedTaskId: taskId,
+                            newParentId: newParentId,
+                            orderedTaskIds: orderedTaskIds
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showSavingIndicator('success', data.message || 'Order saved!');
+                            // To ensure all levels and data attributes are perfectly correct,
+                            // a reload is safest. More advanced would be precise DOM updates.
+                            setTimeout(() => window.location.reload(), 800);
+                        } else {
+                            showSavingIndicator(false);
+                            showJsFlash('danger', `Reorder error: ${data.message || 'Unknown'}`);
+                            setTimeout(() => window.location.reload(), 1200); // Reload to revert UI
+                        }
+                    })
+                    .catch(error => {
+                        showSavingIndicator(false);
+                        console.error('Fetch Error reordering:', error);
+                        showJsFlash('danger', 'Network error on reorder.');
+                        setTimeout(() => window.location.reload(), 1200);
+                    });
+                },
+                onAdd: function(evt) { // When item is dropped into a new list
+                    const listElement = evt.to;
+                    if (listElement.classList.contains('droppable-empty-list') && listElement.children.length > 0) {
+                        listElement.classList.remove('droppable-empty-list');
+                        listElement.style.minHeight = ''; 
+                        if (!Sortable.get(listElement)) { // Re-check if it needs init
+                           initializeSortable(listElement);
+                        }
+                    }
+                    const fromList = evt.from;
+                    if (fromList && fromList.classList.contains('template-task-children-list') && fromList.children.length === 0) {
+                        fromList.classList.add('droppable-empty-list');
+                        fromList.style.minHeight = '20px';
+                    }
+                     // Recursively update margin-left for the moved item and its children if structure changed
+                    updateIndentations(mainSortableList, 0);
+                },
+                onSort: function(evt) { // After sort within the same list
+                    updateIndentations(mainSortableList, 0);
+                }
+            });
+        }
+        
+        function updateIndentations(listElement, level) {
+            Array.from(listElement.children).forEach(item => {
+                if (item.matches('li.template-task-item')) {
+                    item.style.marginLeft = (level * 25) + 'px'; // 25px per level
+                    const childList = item.querySelector('ul.template-task-children-list');
+                    if (childList) {
+                        updateIndentations(childList, level + 1);
+                    }
+                }
+            });
+        }
+
+
+        if (mainSortableList) {
+            initializeSortable(mainSortableList);
+        }
+        document.querySelectorAll('.template-task-children-list').forEach(listElement => {
+            initializeSortable(listElement);
+        });
+        
+        // Initial indentation update on page load
+        if (mainSortableList) {
+             updateIndentations(mainSortableList, 0);
+        }
+
+    } else {
+        console.warn('SortableJS library not found.');
+    }
+});
+</script> 

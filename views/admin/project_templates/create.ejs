@@ -1,0 +1,42 @@
+
+<div class="container-fluid mt-4">
+    <h1><%= pageTitle %></h1>
+    <hr>
+
+    <%- include('../../partials/_messages') %>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            New System Template Details
+        </div>
+        <div class="card-body">
+            <form action="/admin/project-templates/create" method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Template Name <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.msg.toLowerCase().includes('name'))) ? 'is-invalid' : '' %>" 
+                           id="name" name="name" 
+                           value="<%= typeof formData !== 'undefined' && formData.name ? formData.name : '' %>" required>
+                    <% if (typeof errors !== 'undefined' && errors.find(e => e.msg.toLowerCase().includes('name'))) { %>
+                        <div class="invalid-feedback"><%= errors.find(e => e.msg.toLowerCase().includes('name')).msg %></div>
+                    <% } %>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" 
+                              id="description" name="description" 
+                              rows="3"><%= typeof formData !== 'undefined' && formData.description ? formData.description : '' %></textarea>
+                </div>
+                
+                <p class="form-text text-muted">
+                    Note: Tasks for this system template can be added/managed after creation via an "Edit Template" interface (future feature to define WBS).
+                </p>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Create System Template</button>
+                <a href="/admin/project-templates" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<%- contentFor('end') %>

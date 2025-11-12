@@ -1,0 +1,67 @@
+<% /* views/projects/logs/create.ejs - Content for main_layout.ejs */ %>
+
+<nav aria-label="breadcrumb mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+        <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/logs">Daily Logs</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Create New Log</li>
+    </ol>
+</nav>
+
+<% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+    <div class="alert alert-danger" role="alert">
+        <h6 class="alert-heading">Please correct the following errors:</h6>
+        <ul class="mb-0">
+        <% errors.forEach(function(error) { %>
+            <li><%= error.msg %></li>
+        <% }); %>
+        </ul>
+    </div>
+<% } %>
+
+<form action="/projects/<%= project.id %>/logs/create" method="POST" class="needs-validation" novalidate>
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">New Daily Log Entry</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="log_date" class="form-label">Log Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control <%= (errors && errors.find(e => e.param === 'log_date')) ? 'is-invalid' : '' %>" 
+                           id="log_date" name="log_date" 
+                           value="<%= (formData && formData.log_date) ? formData.log_date : new Date().toISOString().split('T')[0] %>" required>
+                    <div class="invalid-feedback"><%= (errors && errors.find(e => e.param === 'log_date')) ? errors.find(e => e.param === 'log_date').msg : 'Log date is required.' %></div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="weather_conditions" class="form-label">Weather Conditions <small class="text-muted">(Optional)</small></label>
+                <textarea class="form-control" id="weather_conditions" name="weather_conditions" rows="2"><%= (formData && formData.weather_conditions) ? formData.weather_conditions : '' %></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="site_conditions" class="form-label">Site Conditions <small class="text-muted">(Optional)</small></label>
+                <textarea class="form-control" id="site_conditions" name="site_conditions" rows="2"><%= (formData && formData.site_conditions) ? formData.site_conditions : '' %></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="work_performed" class="form-label">Work Performed <span class="text-danger">*</span></label>
+                <textarea class="form-control <%= (errors && errors.find(e => e.param === 'work_performed')) ? 'is-invalid' : '' %>" 
+                          id="work_performed" name="work_performed" rows="5" required><%= (formData && formData.work_performed) ? formData.work_performed : '' %></textarea>
+                <div class="invalid-feedback"><%= (errors && errors.find(e => e.param === 'work_performed')) ? errors.find(e => e.param === 'work_performed').msg : 'Details of work performed are required.' %></div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="delays_or_issues" class="form-label">Delays or Issues Encountered <small class="text-muted">(Optional)</small></label>
+                <textarea class="form-control" id="delays_or_issues" name="delays_or_issues" rows="3"><%= (formData && formData.delays_or_issues) ? formData.delays_or_issues : '' %></textarea>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-end">
+                <a href="/projects/<%= project.id %>/logs" class="btn btn-outline-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Create Log</button>
+            </div>
+        </div>
+    </div>
+</form>

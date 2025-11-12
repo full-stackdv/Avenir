@@ -1,0 +1,32 @@
+<!--views/layout/main_layout.ejs-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Avenircon App' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css"> <%# Your main app styles %>
+    <% if (currentPath && currentPath.startsWith('/profile')) { %>
+        <link rel="stylesheet" href="/css/profile_styles.css"> <%# Specific styles for profile pages %>
+    <% } %>
+</head>
+<body>
+    <%# This could be the _public_navbar or a dedicated _app_navbar if needed %>
+    <%# For now, let's assume it can reuse the public navbar structure if simple enough %>
+    <%- include('../partials/_public_navbar') %>
+
+    <main class="container mt-4 mb-5"> <%# Changed from just 'main' to add container & margin %>
+        <%- include('../partials/_messages') %>
+        <%- body %>
+    </main>
+
+    <%# Using the generic _footer.ejs you provided earlier %>
+    <%- include('../partials/_footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/script.js"></script> <%# Your main app scripts %>
+</body>
+</html>

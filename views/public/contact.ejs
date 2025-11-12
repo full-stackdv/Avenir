@@ -1,0 +1,118 @@
+
+<header class="contact-hero">
+    <div class="container">
+        <h1 class="display-4">Get In Touch</h1>
+        <p class="lead">We're here to answer your questions and discuss your project needs.</p>
+    </div>
+</header>
+
+<section class="contact-form-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                 <%- include('../partials/_messages') %> <%# Display flash messages %>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-7 col-md-12 mb-4 mb-lg-0">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="card-title mb-4">Send Us a Message</h3>
+
+                                                <form action="/contact" method="POST">
+                            <input type="hidden" name="source_page" value="contact_page">
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Your Name<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'name')) ? 'is-invalid' : '' %>" id="name" name="name" value="<%= typeof formData !== 'undefined' && formData.name ? formData.name : (currentUser ? currentUser.first_name + ' ' + currentUser.last_name : '') %>" required>
+                                <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'name')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'name').msg %></div>
+                                <% } %>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Your Email<span class="text-danger">*</span></label>
+                                <input type="email" class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'email')) ? 'is-invalid' : '' %>" id="email" name="email" value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : (currentUser ? currentUser.email : '') %>" required>
+                                <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'email')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'email').msg %></div>
+                                <% } %>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="subject" name="subject" value="<%= typeof formData !== 'undefined' && formData.subject ? formData.subject : '' %>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Message<span class="text-danger">*</span></label>
+                                <textarea class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'message')) ? 'is-invalid' : '' %>" id="message" name="message" rows="5" required><%= typeof formData !== 'undefined' && formData.message ? formData.message : '' %></textarea>
+                                <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'message')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'message').msg %></div>
+                                <% } %>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">Send Message <i class="fas fa-paper-plane ms-2"></i></button>
+                        </form>
+
+
+                        <form action="/contact" method="POST">
+                            <input type="hidden" name="source_page" value="contact_page">
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Your Name<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'name')) ? 'is-invalid' : '' %>" id="name" name="name" value="<%= typeof formData !== 'undefined' && formData.name ? formData.name : (currentUser ? currentUser.first_name + ' ' + currentUser.last_name : '') %>" required>
+                                <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'name')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'name').msg %></div>
+                                <% } %>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Your Email<span class="text-danger">*</span></label>
+                                <input type="email" class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'email')) ? 'is-invalid' : '' %>" id="email" name="email" value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : (currentUser ? currentUser.email : '') %>" required>
+                                <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'email')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'email').msg %></div>
+                                <% } %>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="subject" name="subject" value="<%= typeof formData !== 'undefined' && formData.subject ? formData.subject : '' %>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Message<span class="text-danger">*</span></label>
+                                <textarea class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.param === 'message')) ? 'is-invalid' : '' %>" id="message" name="message" rows="5" required><%= typeof formData !== 'undefined' && formData.message ? formData.message : '' %></textarea>
+                                <% if (typeof errors !== 'undefined' && errors.find(e => e.param === 'message')) { %>
+                                    <div class="invalid-feedback"><%= errors.find(e => e.param === 'message').msg %></div>
+                                <% } %>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg px-4">Send Message <i class="fas fa-paper-plane ms-2"></i></button>
+                        </form>
+
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-md-12 contact-info-section">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-3"><i class="fas fa-map-marker-alt me-2 text-primary"></i>Our Office</h4>
+                        <address>
+                            <%= getSetting('companyAddressLine1', 'MRWW+W8G, Avenir Plaza') %><br>
+                            <%= getSetting('companyAddressCity', 'Jimma') %>, <%= getSetting('companyAddressRegion', 'Oromia') %><br>
+                            <%= getSetting('companyAddressCountry', 'Ethiopia') %>
+                        </address>
+                    </div>
+                </div>
+                <div class="card shadow-sm">
+                     <div class="card-body p-4">
+                        <h4 class="card-title mb-3"><i class="fas fa-phone-alt me-2 text-primary"></i>Contact Details</h4>
+                        <p class="mb-2"><strong>Phone:</strong> <a href="tel:<%= getSetting('companyPhone', '+251912748275') %>"><%= getSetting('companyPhone', '(251) 912-748275') %></a></p>
+                        <p class="mb-0"><strong>Email:</strong> <a href="mailto:<%= getSetting('companyEmail', 'info@avenircon.com') %>"><%= getSetting('companyEmail', 'info@avenircon.com') %></a></p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h5>Business Hours</h5>
+                    <p class="text-muted">
+                        Monday - Friday: 8:00 AM - 5:00 PM<br>
+                        Saturday: 9:00 AM - 1:00 PM<br>
+                        Sunday: Closed
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

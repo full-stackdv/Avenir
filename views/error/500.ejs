@@ -1,0 +1,23 @@
+<div class="text-center py-5">
+    <h1 class="display-1">500</h1>
+    <h2>Internal Server Error</h2>
+    <p class="lead">
+        We're sorry, something went wrong on our end. Please try again later.
+    </p>
+    <img src="/images/server-error-illustration.svg" alt="Server Error Illustration" style="max-width: 300px; margin: 20px auto;"> <%# Example image %>
+    <div class="mt-4">
+        <a href="/" class="btn btn-primary btn-lg me-2">
+            <i class="fas fa-home me-2"></i>Go to Homepage
+        </a>
+        <a href="javascript:location.reload()" class="btn btn-outline-secondary btn-lg">
+           <i class="fas fa-sync-alt me-2"></i>Try Again
+        </a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error && process.env.NODE_ENV === 'development') { %>
+        <div class="mt-5 text-start p-3 bg-light border rounded" style="max-width: 800px; margin: auto;">
+            <h5 class="text-danger">Developer Error Details:</h5>
+            <pre><code style="white-space: pre-wrap; word-break: break-all;"><%= JSON.stringify(error, Object.getOwnPropertyNames(error), 2) %></code></pre>
+        </div>
+    <% } %>
+</div>

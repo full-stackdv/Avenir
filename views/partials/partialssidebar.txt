@@ -1,0 +1,217 @@
+
+6. Update Admin Sidebar (views/partials/_admin_sidebar.ejs)
+
+Add links to the new admin sections.
+
+<% /* views/partials/_admin_sidebar.ejs (Example Structure) */ %>
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="/admin" class="brand-link">
+        <span class="brand-text font-weight-light">ConstructPro Admin</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <%# <img src="/path/to/admin-avatar.png" class="img-circle elevation-2" alt="User Image"> %>
+                 <i class="fas fa-user-shield fa-2x text-white-50"></i>
+            </div>
+            <div class="info">
+                <a href="/profile" class="d-block text-white"><%= currentUser.username %> (<%= currentUser.role %>)</a>
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link <%= typeof pageTitle !== 'undefined' && pageTitle.includes('Dashboard') ? 'active' : '' %>">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/posts" class="nav-link <%= typeof pageTitle !== 'undefined' && pageTitle.includes('Post') ? 'active' : '' %>">
+                        <i class="nav-icon fas fa-newspaper"></i>
+                        <p>Manage Posts</p>
+                    </a>
+                </li>
+                
+                <%# --- NEW ADMIN LINKS --- %>
+                <li class="nav-header">USER & SYSTEM ADMIN</li>
+                <li class="nav-item">
+                    <a href="/admin/users" class="nav-link <%= typeof pageTitle !== 'undefined' && pageTitle.includes('User Management') ? 'active' : '' %>">
+                        <i class="nav-icon fas fa-users-cog"></i>
+                        <p>User Management</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/audit-logs" class="nav-link <%= typeof pageTitle !== 'undefined' && pageTitle.includes('Audit Logs') ? 'active' : '' %>">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>Audit Logs</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/contact-messages" class="nav-link <%= typeof pageTitle !== 'undefined' && pageTitle.includes('Contact Messages') ? 'active' : '' %>">
+                        <i class="nav-icon fas fa-envelope-open-text"></i>
+                        <p>Contact Messages</p>
+                    </a>
+                </li>
+                <%# --- END NEW ADMIN LINKS --- %>
+                
+                <%# Add other admin links here (e.g., Project Templates Admin) %>
+
+                <li class="nav-header">APPLICATION</li>
+                 <li class="nav-item">
+                    <a href="/dashboard" class="nav-link">
+                        <i class="nav-icon fas fa-arrow-left"></i>
+                        <p>Back to App</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                     <form action="/auth/logout" method="POST" class="nav-link p-0 m-0 d-inline w-100">
+                        <button type="submit" class="btn btn-link nav-link text-start w-100">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>Logout</p>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>
+ 
+
+Final Steps:
+
+Create Database Tables:
+
+Ensure you have an audit_logs table. A common structure:
+
+
+
+
+
+
+CREATE TABLE audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL, -- Can be NULL for system actions
+    action VARCHAR(100) NOT NULL, -- e.g., 'USER_LOGIN', 'PROJECT_CREATED', 'ADMIN_PASSWORD_RESET'
+    target_type VARCHAR(50) NULL, -- e.g., 'users', 'projects', 'tasks'
+    target_id INT NULL, -- ID of the entity affected
+    details JSON NULL, -- Store old/new values or relevant info
+    ip_address VARCHAR(45) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+
+Ensure you have a contact_messages table. A possible structure:
+
+CREATE TABLE contact_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NULL,
+    message TEXT NOT NULL,
+    ip_address VARCHAR(45) NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+alter table contact_messages add ip_address VARCHAR(45) NULL; 
+alter table contact_messages add is_read BOOLEAN DEFAULT FALSE;
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+
+Implement Audit Logging: As mentioned, the adminAuditLogController displays logs. You need to go through your application (especially authController.js, projectController.js, taskController.js, adminUserController.js, etc.) and add calls to insert records into audit_logs after critical operations.
+
+Example: In authController.handleLogin after successful login:
+await db.query("INSERT INTO audit_logs (user_id, action, ip_address) VALUES (?, 'LOGIN_SUCCESS', ?)", [user.id, req.ip]);
+
+In adminUserController.handleChangeUserPassword after successful password change:
+await db.query("INSERT INTO audit_logs (user_id, action, target_type, target_id, ip_address) VALUES (?, 'ADMIN_PASSWORD_RESET', 'users', ?, ?)", [req.session.user.id, userIdToEdit, req.ip]);
+
+Ensure publicController.handleContactForm (or similar) saves to contact_messages table.
+
+Restart and Test: Thoroughly test all new admin functionalities.
+
+This completes the implementation plan for the specified admin features. It's a significant chunk of work! Good luck!
+
+
+
+
+
+<% /* views/admin/audit_logs/list.ejs */ %>
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><%= pageTitle %> (<%= totalLogs %>)</h2>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form method="GET" action="/admin/audit-logs" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="userId" class="form-label">User</label>
+                    <select id="userId" name="userId" class="form-select form-select-sm">
+                        <option value="">All Users</option>
+                        <% distinctUsers.forEach(user => { %>
+                            <option value="<%= user.id %>" <%= filters.userId == user.id ? 'selected' : '' %>><%= user.username %> (ID: <%= user.id %>)</option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="action" class="form-label">Action</label>
+                    <input type="text" class="form-control form-control-sm" id="action" name="action" value="<%= filters.action || '' %>" placeholder="e.g., LOGIN_SUCCESS">
+                </div>
+                <div class="col-md-2">
+                    <label for="targetType" class="form-label">Target Type</label>
+                     <select id="targetType" name="targetType" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        <% distinctTargetTypes.forEach(type => { %>
+                            <option value="<%= type.target_type %>" <%= filters.targetType == type.target_type ? 'selected' : '' %>><%= type.target_type %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="dateStart" class="form-label">Date From</label>
+                    <input type="date" class="form-control form-control-sm" id="dateStart" name="dateStart" value="<%= filters.dateStart || '' %>">
+                </div>
+                 <div class="col-md-2">
+                    <label for="dateEnd" class="form-label">Date To</label>
+                    <input type="date" class="form-control form-control-sm" id="dateEnd" name="dateEnd" value="<%= filters.dateEnd || '' %>">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <% if (logs && logs.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Timestamp <a href="?sort=created_at&order=<%= filters.sort === 'created_at' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString().replace(/&?sort=[^&]*|&?order=[^&]*/g, '') %>"><i class="fas fa-sort"></i></a></th>
+                        <th>User <a href="?sort=actor_username&order=<%= filters.sort === 'actor_username' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString().replace(/&?sort=[^&]*|&?order=[^&]*/g, '') %>"><i class="fas fa-sort"></i></a></th>
+                        <th>Action <a href="?sort=action&order=<%= filters.sort === 'action' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString().replace(/&?sort=[^&]*|&?order=[^&]*/g, '') %>"><i class="fas fa-sort"></i></a></th>
+                        <th>Target Type <a href="?sort=target_type&order=<%= filters.sort === 'target_type' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(filters).toString().

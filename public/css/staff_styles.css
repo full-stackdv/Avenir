@@ -1,0 +1,469 @@
+/* public/css/staff_styles.css */
+
+/* General Styles for Staff Module / Custom Layout */
+body.bg-light { /* If custom_layout uses bg-light */
+    /* font-family: 'Roboto', sans-serif; */ /* Example */
+}
+
+/* Re-use admin sidebar/navbar styles for consistency if needed */
+/* @import url('admin_styles.css'); (if not already linked in layout) */
+
+
+/* --- ID Card Generator Specific Styles --- */
+/* (Styles from your original idcard.css or equivalent) */
+.id-card-generator-page h3 {
+    color: #333;
+}
+
+#id-card-application-wrapper {
+    /* Styles for the main container of the ID card app */
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.id-card-render-area {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    background-size: cover;
+    background-position: center;
+}
+.id-card-render-area:hover {
+    transform: scale(1.02);
+}
+
+/* Styles for form controls within the ID card generator */
+.id-card-generator-page .form-label-sm {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+}
+.id-card-generator-page .form-control-sm {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+.id-card-generator-page .form-control-color {
+    min-height: calc(1.5em + .5rem + 2px); /* BS5 default height for form-control-sm */
+    width: 100%; /* Make color picker full width */
+}
+
+.id-card-generator-page fieldset {
+    border: 1px solid #dee2e6 !important; /* Important to override BS if needed */
+}
+.id-card-generator-page fieldset legend {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.id-card-generator-page details summary {
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0.5rem;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+.id-card-generator-page details summary:hover {
+    background-color: #dde2e6;
+}
+
+
+/* Preview Modal (if using the one from idcard.js example) */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1070; /* Higher than Bootstrap's default navbar */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5); 
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 900px; /* Adjust as needed */
+    border-radius: .3rem;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+}
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+
+/* --- Staff Listing/Form Page Styles --- */
+/* (Styles from your original staff.css or equivalent) */
+.staff-management-page .table th {
+    background-color: #e9ecef;
+}
+.staff-management-page .img-thumbnail {
+    border: 2px solid #dee2e6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .id-card-generator-page .sticky-top {
+        position: static !important; /* Disable sticky on smaller screens */
+    }
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+}
+
+/* public/css/idcard.css */
+
+/* --- Overall Page Layout for ID Card Generator --- */
+.id-card-generator-page {
+    /* background-color: #f4f7f6; /* Light gray background for the page */
+    /* padding-bottom: 3rem; */
+}
+
+.id-card-generator-page .card-header h5 i {
+    color: #0d6efd; /* Bootstrap primary */
+}
+
+.id-card-generator-page .card-body {
+    /* max-height: calc(100vh - 150px); /* Adjust based on navbar/footer height */
+    /* overflow-y: auto; */
+}
+
+/* --- ID Card Preview Area Styles --- */
+.id-card-render-area {
+    width: 337px; /* Approx 85.6mm at 96 DPI (standard ID card width) */
+    height: 212px; /* Approx 53.98mm at 96 DPI (standard ID card height) */
+    /* For MM-based dimensions from JS, ensure JS sets these if overriding */
+    /* width: var(--card-width-px, 323px); */ /* CSS variable fallback */
+    /* height: var(--card-height-px, 204px); */
+
+    border: 1px solid #adb5bd; /* Light border */
+    background-color: #ffffff; /* Default white background */
+    border-radius: 10px; /* Rounded corners like a real card */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative; /* For absolute positioning of internal elements */
+    overflow: hidden; /* Clip content that goes outside card boundaries */
+    margin: 0 auto 1.5rem auto; /* Centering and bottom margin */
+    font-family: Arial, Helvetica, sans-serif; /* Common sans-serif font */
+    font-size: 10px; /* Base font size for card elements (will be overridden) */
+    color: #000000; /* Default text color */
+    /* Ensure images within don't break layout */
+    display: flex; /* Can help with alignment if top-level elements are few */
+    flex-direction: column; /* If using flex */
+    justify-content: space-between; /* Example flex layout */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* --- Common Elements on ID Card Preview --- */
+
+/* Company Logo on Card */
+.id-card-render-area img#companyLogo, /* Front */
+.id-card-render-area img#logo { /* Back */
+    position: absolute; /* Default, JS might override based on inputs */
+    object-fit: contain; /* Or 'cover' depending on desired look */
+    /* Default size/position, JS will likely override */
+    max-width: 70px;
+    max-height: 35px;
+    top: 10px;
+    left: 10px;
+}
+
+/* Employee Photo on Card */
+.id-card-render-area img#employeePhoto {
+    position: absolute;
+    object-fit: cover;
+    border: 2px solid #000000; /* Default border */
+    background-color: #ffffff; /* Default background if image is transparent */
+    /* Default size/position, JS will likely override */
+    width: 80px;
+    height: 100px;
+    top: 50px;
+    left: 15px;
+}
+
+/* Text elements on card - general styling */
+.id-card-render-area div[id^="companyName"],
+.id-card-render-area div[id^="companySubtitle"],
+.id-card-render-area div[id^="employeeName"],
+.id-card-render-area div[id^="employeePosition"],
+.id-card-render-area div[id^="employeeId"],
+.id-card-render-area div[id^="backName"],
+.id-card-render-area div[id^="backPosition"],
+.id-card-render-area div[id^="backId"],
+.id-card-render-area div[id^="issueDate"],
+.id-card-render-area div[id^="expiryDate"],
+.id-card-render-area div[id^="companyPhoneDisplay"],
+.id-card-render-area div[id^="companyEmailDisplay"],
+.id-card-render-area div[id^="companyWebsiteDisplay"],
+.id-card-render-area div[id^="companyLocationDisplay"],
+.id-card-render-area div[id^="authorizationDisplay"],
+.id-card-render-area div[id^="ceoNameDisplay"],
+.id-card-render-area div[id^="companyNameDisplay"] { /* Back footer company name */
+    position: absolute; /* Default, JS might override */
+    padding: 2px 4px; /* Small padding for text boxes */
+    line-height: 1.2;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal; /* Allow wrapping */
+}
+
+/* Barcode elements */
+.id-card-render-area svg[id^="frontBarcode"],
+.id-card-render-area svg[id^="backBarcode"] {
+    position: absolute; /* Default, JS might override */
+    /* Default size/position, JS will likely override */
+    width: 80px; /* Default width */
+    height: 30px; /* Default height */
+    bottom: 10px;
+    right: 10px;
+}
+/* Parent of barcode if specific alignment needed */
+.barcode-box {
+    position: absolute;
+    display: flex;
+    /* width, height, top, left set by JS */
+}
+
+
+/* --- Front ID Card Specific Default Styles (can be overridden by JS based on inputs) --- */
+#front-id-card .header-section { /* Assuming a div with this class wraps company name/subtitle */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 5px 10px;
+    background-color: #004A99; /* Example AvenirCon blue */
+    color: white;
+    box-sizing: border-box;
+}
+#front-id-card .header-section h1#companyName { /* If companyNameEl is an H1 inside header-section */
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+    position: static; /* Override absolute if it's part of a flow */
+}
+#front-id-card #companySubtitle {
+    font-size: 9px;
+    position: static;
+    opacity: 0.9;
+}
+
+#front-id-card #employeeName {
+    font-size: 16px;
+    font-weight: bold;
+    top: 60px; /* Example default */
+    left: 105px; /* Example default */
+}
+#front-id-card #employeePosition {
+    font-size: 12px;
+    top: 85px; /* Example default */
+    left: 105px; /* Example default */
+}
+#front-id-card #employeeId {
+    font-size: 11px;
+    top: 105px; /* Example default */
+    left: 105px; /* Example default */
+    font-family: 'Courier New', Courier, monospace; /* For ID look */
+}
+
+/* --- Back ID Card Specific Default Styles --- */
+#back-id-card #logo { /* The company logo on the back */
+    top: 10px;
+    left: 10px;
+}
+#back-id-card #authorizationDisplay {
+    font-size: 7.5px; /* Small text for auth statement */
+    line-height: 1.3;
+    text-align: center;
+    top: 50px; /* Example */
+    left: 10px;
+    right: 10px; /* Span across */
+    padding: 5px;
+    hyphens: auto; /* Allow hyphenation for long words */
+    word-wrap: break-word;
+}
+#back-id-card img.signature {
+    position: absolute;
+    bottom: 35px; /* Example */
+    left: 15px;  /* Example */
+    max-height: 30px;
+    object-fit: contain;
+}
+#back-id-card #ceoNameDisplay {
+    font-size: 9px;
+    bottom: 15px; /* Example */
+    left: 15px;   /* Example */
+}
+#back-id-card img.stamp {
+    position: absolute;
+    bottom: 10px; /* Example */
+    right: 15px; /* Example */
+    max-height: 40px;
+    object-fit: contain;
+}
+#back-id-card .contact-info { /* A div wrapping phone, email, web */
+    position: absolute;
+    bottom: 60px; /* Example */
+    left: 10px;
+    right: 10px;
+    font-size: 8px;
+    text-align: center;
+}
+#back-id-card #companyNameDisplay { /* Footer company name */
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 8px;
+    font-weight: bold;
+    color: #555;
+}
+#back-id-card #backName, #back-id-card #backPosition, #back-id-card #backId {
+    /* Example: if these are grouped */
+    top: 120px; /* Example */
+    left: 10px;
+    right: 10px;
+    text-align: center;
+    font-size: 10px;
+}
+#back-id-card #issueDate, #back-id-card #expiryDate {
+    font-size: 9px;
+    font-family: 'Courier New', Courier, monospace;
+    /* Position them as needed */
+}
+
+
+/* --- Input Controls Panel Styles --- */
+/* These selectors need to match the ones in your idcard.js and EJS */
+.id-card-generator-page .form-label {
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+}
+.id-card-generator-page .form-control,
+.id-card-generator-page .form-select {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem; /* Space below inputs in a group */
+}
+.id-card-generator-page fieldset {
+    border: 1px solid #ced4da;
+    padding: 1rem 1.25rem 0.5rem 1.25rem; /* top right bottom left */
+    margin-bottom: 1.5rem;
+    border-radius: 0.25rem;
+}
+.id-card-generator-page fieldset legend {
+    float: none; /* Reset BS float */
+    width: auto; /* Reset BS width */
+    padding: 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem; /* Space below legend inside fieldset */
+}
+
+/* Style customization sections */
+.id-card-generator-page details {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+.id-card-generator-page details summary {
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+    list-style: none; /* Remove default marker */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.id-card-generator-page details summary::-webkit-details-marker { display: none; } /* Chrome/Safari */
+.id-card-generator-page details summary::marker { display: none; } /* Firefox */
+
+.id-card-generator-page details summary:after {
+    content: '\f078'; /* Font Awesome chevron-down */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    transition: transform 0.2s ease-in-out;
+}
+.id-card-generator-page details[open] summary:after {
+    transform: rotate(180deg);
+}
+
+.id-card-generator-page details > div { /* Content of details */
+    padding: 1rem;
+}
+.id-card-generator-page .style-control-group label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.85rem;
+}
+.id-card-generator-page .style-control-group input[type="color"] {
+    width: 100%;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #ccc;
+}
+.id-card-generator-page .style-control-group input[type="number"],
+.id-card-generator-page .style-control-group select {
+    width: 100%; /* Or smaller if grouped like (top, left, width, height) */
+}
+.id-card-generator-page .input-group-sm .form-control,
+.id-card-generator-page .input-group-sm .form-select {
+    font-size: 0.8rem;
+}
+
+/* Action Buttons */
+.id-card-generator-page .d-grid button i {
+    margin-right: 0.5rem;
+}
+
+/* --- Preview Modal Styles (If using the one from earlier EJS) --- */
+#previewModal .modal-dialog {
+    max-width: 900px; /* Adjust for wider modal if needed */
+}
+#previewModal #front-preview-modal,
+#previewModal #back-preview-modal {
+    /* These will inherit .id-card-render-area styles if their content is a clone */
+    /* Or if the modal content structure mimics the card exactly */
+    border: 1px solid #dee2e6;
+    margin: 10px auto; /* Centering within their columns */
+    transform: scale(1.2); /* Slightly larger in modal */
+    transform-origin: center;
+}
+
+/* Sticky preview column */
+@media (min-width: 768px) { /* md breakpoint and up */
+    .id-card-generator-page .sticky-top {
+        top: 80px; /* Adjust based on your fixed navbar height + some padding */
+        z-index: 1010; /* Below navbar, above other content */
+    }
+}
+
+/* Utility for invalid feedback with inputs not in .mb-x */
+.form-control.is-invalid + .invalid-feedback,
+.form-select.is-invalid + .invalid-feedback {
+    display: block;
+    margin-top: 0.1rem;
+}

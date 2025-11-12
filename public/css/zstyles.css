@@ -1,0 +1,37 @@
+/* public/css/styles.css OR public/css/profile_styles.css */
+
+/* Profile View Page Specific Styles */
+.profile-view-page .card-header {
+    /* Example: Deeper color for profile view header */
+    /* background-color: #0056b3; */
+}
+
+.profile-view-page dt { /* Definition Term in profile view */
+    font-weight: 600;
+    color: #555;
+}
+
+.profile-view-page dd { /* Definition Description */
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+/* Profile Edit/Change Password Form Styles */
+.profile-form-page .card-header {
+    /* Example: Specific header color for forms */
+}
+
+.profile-form-page .form-label {
+    font-weight: 500; /* Slightly bolder labels */
+}
+
+.profile-form-page .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* General utility for profile pages if needed */
+.profile-container {
+    max-width: 700px; /* Constrain width of profile content for readability */
+    margin: 2rem auto;
+}

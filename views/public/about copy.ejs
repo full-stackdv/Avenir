@@ -1,0 +1,443 @@
+<%# views/public/index.ejs %>
+<% layout('../layouts/public_layout') -%> <%# Use the public layout %>
+<%# Set page-specific title %>
+<% title = 'AvenirCon - Building Ethiopia\'s Future' %>
+
+<!-- Hero Section -->
+<header class="hero-section text-center text-white">
+    <div class="container py-5">
+        <i class="fas fa-hard-hat fa-5x mb-4 text-warning"></i>
+        <h1 class="display-4 fw-bold"><%= getSetting('companyName', 'Avenir Construction') %></h1>
+        <p class="lead mb-4"><%= getSetting('companySlogan', 'Building Ethiopia\'s Future, Brick by Brick. Your Trusted Partner for Quality and Sustainable Construction Solutions.') %></p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <% if (isAuthenticated) { %>
+                <a href="/dashboard" class="btn btn-warning btn-lg px-4 gap-3"><i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard</a>
+            <% } else { %>
+                <a href="/register" class="btn btn-warning btn-lg px-4 gap-3">Get Started</a>
+                <a href="/contact" class="btn btn-outline-light btn-lg px-4">Contact Us</a>
+            <% } %>
+        </div>
+    </div>
+</header>
+
+<!-- About Us Snippet -->
+<section id="about-snippet" class="content-section bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5"><i class="fas fa-info-circle"></i> Who We Are</h2>
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="/images/about-team.jpg" alt="Avenir Construction Team" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6">
+                <p class="lead"><%= getSetting('aboutUsSummary', 'Avenir General Construction is a leading construction company in Ethiopia, with over 7 years of experience delivering exceptional projects. We are committed to excellence, sustainability, and exceeding our clients\' expectations.') %></p>
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                            <div><h5>Quality First</h5><p class="text-muted small">Uncompromising standards and attention to detail.</p></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                         <div class="d-flex align-items-start">
+                            <i class="fas fa-leaf fa-2x text-success me-3"></i>
+                            <div><h5>Sustainability</h5><p class="text-muted small">Environmentally responsible construction practices.</p></div>
+                        </div>
+                    </div>
+                </div>
+                <a href="/about" class="btn btn-outline-primary mt-3">Learn More About Us</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Snippet -->
+<section id="services-snippet" class="content-section">
+    <div class="container services-landing">
+        <h2 class="text-center mb-5"><i class="fas fa-cogs"></i> Our Expertise</h2>
+        <div class="service-list">
+            <div class="service-item">
+                <i class="fas fa-building"></i>
+                <h3>General Construction</h3>
+                <p>Office, Business, Industrial, Residential Buildings</p>
+            </div>
+            <div class="service-item">
+                <i class="fas fa-road"></i>
+                <h3>Road & Bridge</h3>
+                <p>Building reliable transportation infrastructure.</p>
+            </div>
+            <div class="service-item">
+                <i class="fas fa-tint"></i>
+                <h3>Water & Irrigation</h3>
+                <p>Solutions for water management and agriculture.</p>
+            </div>
+            <!-- Add more services as needed -->
+        </div>
+        <div class="text-center mt-4">
+             <a href="/about#services" class="btn btn-primary">View All Services</a> <%# Link to services section on about page %>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Snippet -->
+<section id="projects-snippet" class="content-section bg-light projects-landing">
+    <div class="container">
+        <h2 class="text-center mb-5"><i class="fas fa-briefcase"></i> Our Portfolio</h2>
+        <div class="project-grid">
+            <!-- Example Project Items (these could be dynamic later) -->
+            <div class="project-item">
+                <img src="/images/project1.jpg" alt="Commercial Building">
+                <div class="p-3">
+                    <h3>Modern Office Complex</h3>
+                    <p class="text-muted small">Addis Ababa - Completed 2023</p>
+                </div>
+            </div>
+            <div class="project-item">
+                <img src="/images/project2.jpg" alt="Residential Complex">
+                 <div class="p-3">
+                    <h3>Luxury Apartment Tower</h3>
+                    <p class="text-muted small">Jimma - Under Construction</p>
+                </div>
+            </div>
+             <div class="project-item">
+                <img src="/images/project3.jpg" alt="Bridge Construction">
+                 <div class="p-3">
+                    <h3>City Bypass Bridge</h3>
+                    <p class="text-muted small">Regional - Completed 2022</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/gallery" class="btn btn-primary">View Full Gallery</a>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Snippet (Dynamically load recent posts) -->
+<% if (typeof recentPosts !== 'undefined' && recentPosts.length > 0) { %>
+<section id="blog-snippet" class="content-section">
+    <div class="container">
+        <h2 class="text-center mb-5"><i class="fas fa-newspaper"></i> From Our Blog</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <% recentPosts.slice(0,3).forEach(function(bPost) { %> <%# Show up to 3 recent posts %>
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <% if (bPost.feature_image_path) { %>
+                    <a href="/blog/<%= bPost.slug %>">
+                        <img src="/uploads/feature_images/<%= bPost.feature_image_path.split('/').pop() %>" class="card-img-top" alt="<%= bPost.title %>" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <% } else { %>
+                     <a href="/blog/<%= bPost.slug %>">
+                         <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-light"></i>
+                        </div>
+                    </a>
+                    <% } %>
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="/blog/<%= bPost.slug %>" class="text-decoration-none text-dark stretched-link"><%= bPost.title %></a></h5>
+                        <p class="card-text text-muted small mb-2">
+                            <%= new Date(bPost.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                        </p>
+                        <p class="card-text small"><%= bPost.summary ? bPost.summary.substring(0, 100) + '...' : (bPost.content.replace(/<[^>]+>/g, '').substring(0, 100) + '...') %></p>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/blog" class="btn btn-primary">Read All Articles</a>
+        </div>
+    </div>
+</section>
+<% } %>
+
+<!-- Call to Action -->
+<section class="call-to-action-landing text-center">
+    <div class="container py-5">
+        <h2 class="display-6 fw-bold">Let's Build Your Vision Together.</h2>
+        <p class="lead my-4">Contact us today to discuss your construction needs and discover how Avenir can bring your project to life.</p>
+        <a href="/contact" class="btn btn-warning btn-lg px-4">Get a Quote</a>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+<div class="row justify-content-center">
+   
+  <section class="about-hero hero-section">
+ <div class="container">
+            <h1>Building on a Foundation of Excellence</h1>
+    </div>
+  </section>
+   
+   
+  
+  <section class="our-story">
+    <div class="container">
+      <h3>Our Story</h3>
+      <p>Avenir Construction was established in 2017 in Jimma, Oromia, Ethiopia, with a vision to transform the
+        construction landscape in our region. From our humble beginnings, we've grown into a respected
+        construction company, driven by a passion for quality, innovation, and client satisfaction. We've
+        tackled diverse projects, from residential buildings to complex infrastructure, always striving to deliver
+        exceptional results.</p>
+    </div>
+  </section>
+  
+  <section class="mission-vision">
+    <div class="container">
+      <h3>Our Mission and Vision</h3>
+      <p><strong>Our Vision:</strong> To be the leading construction company in Ethiopia, renowned for excellence
+        and sustainability. We aspire to set new standards in the industry, contributing to the nation's
+        development through innovative and responsible construction practices.</p>
+      <p><strong>Our Mission:</strong> To provide exceptional construction services that meet the needs of our
+        clients, while contributing to the development of our communities. We are committed to delivering
+        projects on time, within budget, and to the highest quality standards, fostering lasting relationships
+        with our clients and partners.</p>
+    </div>
+  </section>
+  
+  <section class="core-values">
+    <div class="container">
+      <h3>Our Core Values</h3>
+      <ul>
+        <li><strong>Integrity:</strong> We conduct our business with honesty, transparency, and ethical
+          practices.</li>
+        <li><strong>Innovation:</strong> We embrace new technologies and methodologies to enhance efficiency and
+          sustainability.</li>
+        <li><strong>Quality:</strong> We are dedicated to delivering superior craftsmanship and exceeding client
+          expectations.</li>
+        <li><strong>Customer Satisfaction:</strong> We prioritize client needs and build strong, collaborative
+          partnerships.</li>
+        <li><strong>Safety:</strong> We maintain a safe working environment for our employees and stakeholders.
+        </li>
+        <li><strong>Sustainability:</strong> We are committed to minimizing our environmental impact and promoting
+          sustainable construction practices.</li>
+      </ul>
+    </div>
+  </section>
+ 
+  <section class="sustainability">
+    <div class="container">
+      <h3>Building a Greener Future</h3>
+      <p>At Avenir, we recognize the importance of environmental stewardship. We integrate sustainable practices
+        into all our projects, from using eco-friendly materials to implementing energy-efficient construction
+        techniques. We are committed to reducing our carbon footprint and contributing to a more sustainable
+        future for Ethiopia.</p>
+      <ul>
+        <li>Sustainable Material Sourcing</li>
+        <li>Waste Reduction and Recycling</li>
+        <li>Energy Efficiency Measures</li>
+        <li>Environmental Impact Assessments</li>
+      </ul>
+    </div>
+  </section>
+  
+  <section class="community">
+    <div class="container">
+      <h3>Giving Back to Our Community</h3>
+      <p>We believe in giving back to the communities where we work and live. We actively support local
+        initiatives and organizations, contributing to social and economic development. We are committed to
+        creating positive change and building a stronger future for our community.</p>
+      <ul>
+        <li>Local Employment and Training Programs</li>
+        <li>Support for Educational Initiatives</li>
+        <li>Community Infrastructure Development</li>
+        <li>Philanthropic Activities</li>
+      </ul>
+    </div>
+  </section>
+
+    <section class="cta">
+    <div class="container">
+      <h3>Ready to Partner with Avenir?</h3>
+      <p>Contact us today to learn more about our services and how we can help you achieve your construction
+        goals.</p>
+      <a href="/contact" class="btn">Contact Us</a>
+    </div>
+  </section>
+  
+  </div>
+  <style>
+    body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  width: 85%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  background-color: #343a40;
+  color: #fff;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+header nav {
+  margin-top: 1rem;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1.1rem;
+}
+
+header nav a:hover {
+  text-decoration: underline;
+}
+
+.about-hero {
+  background-color: #e9ecef;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.about-hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #343a40;
+}
+
+.our-story,
+.mission-vision,
+.core-values,
+.team,
+.sustainability,
+.community {
+  padding: 4rem 0;
+}
+
+.our-story h3,
+.mission-vision h3,
+.core-values h3,
+.team h3,
+.sustainability h3,
+.community h3 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #343a40;
+}
+
+.our-story p,
+.mission-vision p,
+.core-values p,
+.team p,
+.sustainability p,
+.community p {
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+.core-values ul {
+  list-style: none;
+  padding: 0;
+}
+
+.core-values ul li {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+.team-profiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 2rem;
+}
+
+.team-member {
+  width: 30%;
+  min-width: 250px;
+  margin-bottom: 2rem;
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.team-member h4 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+.team-member h5 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-style: italic;
+}
+
+.team-member p {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.cta {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.cta h3 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #343a40;
+}
+
+.footer {
+  background-color: #343a40;
+  color: #fff;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 15px;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+  }
+  
+  .about-hero h2 {
+    font-size: 2rem;
+  }
+  
+  .team-profiles {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .team-member {
+    width: 80%;
+    margin-bottom: 1.5rem;
+  }
+}
+  </style>

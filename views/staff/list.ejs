@@ -1,0 +1,64 @@
+
+<div class="container mt-4" style="margin-top: 60px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        
+        <h1>Staff Management</h1>
+        <a href="/staff/register" class="btn btn-success">
+            <i class="fas fa-plus-circle"></i> Register New Staff
+        </a>
+    </div>
+    <%- include('../partials/_messages') %>
+
+    <% if (staffMembers && staffMembers.length > 0) { %>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Employee ID</th>
+                    <th>Email</th>
+                    <th>Issue Date</th>
+                    <th>Expiry Date</th>
+                    <th>Registered By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% staffMembers.forEach(staff => { %>
+                <tr>
+                    <td>
+                        <img src="<%= staff.photo_filename ? '/uploads/staff_photos/' + staff.photo_filename : '/images/placeholder-photo.png' %>?v=<%= Date.now() %>"
+                             alt="<%= staff.full_name %>" class="img-thumbnail"
+                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
+                    </td>
+                    <td><%= staff.full_name %></td>
+                    <td><%= staff.position %></td>
+                    <td><%= staff.employee_id_number %></td>
+                    <td><%= staff.email || 'N/A' %></td>
+                    <td><%= staff.issue_date %></td>
+                    <td><%= staff.expiry_date %></td>
+                    <td><%= staff.created_by_username || 'System' %></td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/staff/<%= staff.id %>/idcard" class="btn btn-sm btn-info" title="Generate ID Card"><i class="fas fa-id-card"></i> Card</a>
+                            <a href="/staff/<%= staff.id %>/edit" class="btn btn-sm btn-warning" title="Edit Staff"><i class="fas fa-edit"></i> Edit</a>
+                            <% if (user && user.role === 'Admin') { %>
+                            <form action="/staff/<%= staff.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this staff member? This action cannot be undone.');">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Staff"><i class="fas fa-trash"></i> Delete</button>
+                            </form>
+                            <% } %>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <% } else { %>
+    <div class="alert alert-info" role="alert">
+        No staff members found. <a href="/staff/register" class="alert-link">Register the first one now!</a>
+    </div>
+    <% } %>
+</div>

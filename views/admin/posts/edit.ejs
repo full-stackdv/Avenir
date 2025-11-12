@@ -1,0 +1,87 @@
+<% pageTitle = "Edit Post: " + post.title %>
+<form action="/admin/posts/<%= post.id %>/edit" method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+        <input type="text" class="form-control ..." id="title" name="title" value="<%= ... %>" required>
+    </div>
+    <div class="mb-3">
+        <label for="slug" class="form-label">Slug <span class="text-danger">*</span> ...</label>
+        <input type="text" class="form-control ..." id="slug" name="slug" value="<%= ... %>" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="summary" class="form-label">Summary</label>
+        <textarea class="form-control" id="summary" name="summary" rows="3"><%= ... %></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+        <textarea class="form-control ..." id="content" name="content" rows="10" required><%= ... %></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label d-block">Feature Image</label>
+        <% if (post.feature_image_path) { %>
+        <% } %>
+        <input class="form-control mt-2 ..." type="file" id="feature_image" name="feature_image" accept="image/*">
+    </div>
+        
+    <div class="mb-3">
+        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+        <select class="form-select ..." id="status" name="status" required></select>
+    
+    </div>
+
+    <hr>
+    <button type="submit" class="btn btn-primary px-4">Save Post Changes</button>
+    <a href="/admin/posts/<%= post.id %>/preview" class="btn btn-outline-secondary ms-2" target="_blank">
+    <i class="fas fa-eye me-1"></i> Preview Post
+</a>
+<a href="/admin/posts/<%= post.id %>/statistics" class="btn btn-outline-success ms-2"><i class="fas fa-chart-line me-1"></i> View Statistics</a> 
+
+    <a href="/admin/posts" class="btn btn-secondary">Cancel</a>
+</form>
+
+
+<hr class="my-5"> 
+<div class="mb-4">
+    <h4 class="mb-3">Associated Documents</h4>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Upload New Document(s)</h5>
+            <form action="/admin/posts/<%= post.id %>/documents/upload" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="post_documents" class="form-label">Select Document(s) <span class="text-danger">*</span></label>
+                    <input class="form-control" type="file" id="post_documents" name="post_documents" multiple required>
+                    <small class="form-text text-muted">You can upload multiple files. Max 10MB per file.</small>
+                </div>
+                <div class="mb-3">
+                    <label for="document_titles" class="form-label">Document Title(s) <span class="text-muted">...</span></label>
+                    <input type="text" class="form-control" id="document_titles" name="document_titles" placeholder="...">
+                </div>
+                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-upload me-1"></i> Upload Selected Document(s)</button>
+            </form>
+        </div>
+    </div>
+
+    <h5>Current Documents:</h5>
+    <% if (typeof post_documents !== 'undefined' && post_documents.length > 0) { %>
+        <div class="list-group">
+            <% post_documents.forEach(function(doc) { %>
+                 
+                <div class="list-group-item ...">
+                     
+                    <form action="/admin/posts/<%= post.id %>/documents/<%= doc.id %>/delete" method="POST" class="d-inline delete-document-form">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" ...>
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <p class="text-muted">No documents associated with this post yet.</p>
+    <% } %>
+</div>
+ 

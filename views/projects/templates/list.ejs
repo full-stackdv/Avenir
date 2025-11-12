@@ -1,0 +1,56 @@
+<%# constructpro/views/projects/templates/list.ejs %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><%= pageTitle %></li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><%= pageTitle %></h1>
+        <a href="/projects/create" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Create New Project
+        </a>
+    </div>
+
+    <%- include('../../partials/_messages') %>
+
+    <% if (templates && templates.length > 0) { %>
+        <div class="list-group shadow-sm">
+            <% templates.forEach(template => { %>
+                <div class="list-group-item list-group-item-action flex-column align-items-start mb-2">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1"><%= template.name %></h5>
+                        <small class="text-muted">Created: <%= new Date(template.created_at).toLocaleDateString() %></small>
+                    </div>
+                    <% if (template.description) { %>
+                        <p class="mb-1 text-muted" style="font-size: 0.9rem;"><%= template.description %></p>
+                    <% } %>
+                    <% if (template.source_project_id && template.source_project_name) { %>
+                        <small class="text-muted">Derived from: <a href="/projects/<%= template.source_project_id %>/details"><%= template.source_project_name %></a></small>
+                    <% } else if (template.source_project_id) { %>
+                         <small class="text-muted">Derived from project ID: <%= template.source_project_id %></small>
+                    <% } %>
+
+                    <div class="mt-2">
+                        <a href="/projects/create?templateId=<%= template.id %>" class="btn btn-success btn-sm me-2">
+                            <i class="fas fa-play-circle"></i> Use this Template
+                        </a>
+                        <form action="/projects/templates/<%= template.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this template?');">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info text-center">
+            <p>You haven't created any project templates yet.</p>
+            <p>You can save an existing project's structure as a template from the project's details page.</p>
+        </div>
+    <% } %>
+</div>

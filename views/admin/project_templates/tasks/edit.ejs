@@ -1,0 +1,88 @@
+<div class="container-fluid mt-4">
+    <h1><%= pageTitle %></h1>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+    <hr>
+
+    <%- include('../../../partials/_messages') %>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            Edit Template Task Details
+        </div>
+        <div class="card-body">
+            <form action="/admin/project-templates/<%= template.id %>/tasks/<%= taskToEdit.id %>/edit" method="POST">
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label">Task Name <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.msg.toLowerCase().includes('name'))) ? 'is-invalid' : '' %>" 
+                           id="name" name="name" 
+                           value="<%= typeof formData !== 'undefined' && typeof formData.name !== 'undefined' ? formData.name : taskToEdit.name %>" 
+                           required>
+                    <% if (typeof errors !== 'undefined' && errors.find(e => e.msg.toLowerCase().includes('name'))) { %>
+                        <div class="invalid-feedback"><%= errors.find(e => e.msg.toLowerCase().includes('name')).msg %></div>
+                    <% } %>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" 
+                              id="description" name="description" 
+                              rows="3"><%= typeof formData !== 'undefined' && typeof formData.description !== 'undefined' ? formData.description : (taskToEdit.description || '') %></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="planned_duration_days" class="form-label">Planned Duration (days)</label>
+                        <input type="number" 
+                               class="form-control <%= (typeof errors !== 'undefined' && errors.find(e => e.msg.toLowerCase().includes('duration'))) ? 'is-invalid' : '' %>" 
+                               id="planned_duration_days" name="planned_duration_days" 
+                               value="<%= typeof formData !== 'undefined' && typeof formData.planned_duration_days !== 'undefined' ? formData.planned_duration_days : (taskToEdit.planned_duration_days || '') %>" 
+                               min="0" step="1">
+                        <% if (typeof errors !== 'undefined' && errors.find(e => e.msg.toLowerCase().includes('duration'))) { %>
+                            <div class="invalid-feedback"><%= errors.find(e => e.msg.toLowerCase().includes('duration')).msg %></div>
+                        <% } %>
+                    </div>
+                     <div class="col-md-4 mb-3">
+                        <label for="task_order" class="form-label">Task Order (optional)</label>
+                        <input type="number" class="form-control" id="task_order" name="task_order" 
+                               value="<%= typeof formData !== 'undefined' && typeof formData.task_order !== 'undefined' ? formData.task_order : (taskToEdit.task_order || '') %>" 
+                               step="1">
+                         <div class="form-text">Used for sorting tasks at the same level.</div>
+                    </div>
+                    <div class="col-md-4 mb-3 d-flex align-items-center pt-3">
+                         <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="is_milestone" name="is_milestone" 
+                                   <%= (typeof formData !== 'undefined' ? (formData.is_milestone === 'on' || formData.is_milestone === true) : taskToEdit.is_milestone) ? 'checked' : '' %>>
+                            <label class="form-check-label" for="is_milestone">
+                                Mark as Milestone
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="parent_template_task_id" class="form-label">Parent Task (for sub-task)</label>
+                    <select class="form-select" id="parent_template_task_id" name="parent_template_task_id">
+                        <option value="">-- No Parent (Root Task) --</option>
+                        <% if (potentialParentTasks && potentialParentTasks.length > 0) { %>
+                            <% potentialParentTasks.forEach(function(parentTask) { %>
+                                <% if (parentTask.id !== taskToEdit.id) { %> <%# Prevent self-parenting %>
+                                    <option value="<%= parentTask.id %>" 
+                                        <%= (typeof formData !== 'undefined' && formData.parent_template_task_id == parentTask.id) || (!formData && taskToEdit.parent_template_task_id == parentTask.id) ? 'selected' : '' %>>
+                                        <%= parentTask.name %> (ID: <%= parentTask.id %>)
+                                    </option>
+                                <% } %>
+                            <% }); %>
+                        <% } %>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                <a href="/admin/project-templates/<%= template.id %>/tasks" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+<%- contentFor('end') %>

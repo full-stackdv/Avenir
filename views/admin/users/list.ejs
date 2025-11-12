@@ -1,0 +1,123 @@
+<% /* views/admin/users/list.ejs */ %>
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><%= pageTitle %> (<%= totalUsers %>)</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><%= pageTitle %> (<%= totalUsers %>)</h2>
+    <div>
+        <a href="/admin/users/create" class="btn btn-success"><i class="fas fa-plus"></i> Add New User</a>
+    </div>
+</div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form method="GET" action="/admin/users" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search User</label>
+                    <input type="text" class="form-control form-control-sm" id="search" name="search" value="<%= currentSearch %>" placeholder="Username, email, name...">
+                </div>
+                <div class="col-md-3">
+                    <label for="role" class="form-label">Filter by Role</label>
+                    <select id="role" name="role" class="form-select form-select-sm">
+                        <option value="">All Roles</option>
+                        <% allRoles.forEach(roleOpt => { %>
+                            <option value="<%= roleOpt %>" <%= currentRole === roleOpt ? 'selected' : '' %>><%= roleOpt %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Filter by Status</label>
+                    <select id="status" name="status" class="form-select form-select-sm">
+                        <option value="">All Statuses</option>
+                        <option value="active" <%= currentStatus === 'active' ? 'selected' : '' %>>Active</option>
+                        <option value="inactive" <%= currentStatus === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter"></i> Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <% if (users && users.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(user => { %>
+                        <tr>
+                            <td><%= user.id %></td>
+                            <td><%= user.username %></td>
+                            <td><%= user.email %></td>
+                            <td><%= user.first_name || '' %> <%= user.last_name || '' %></td>
+                            <td><span class="badge bg-info"><%= user.role %></span></td>
+                            <td>
+                                <% if (user.is_active) { %>
+                                    <span class="badge bg-success">Active</span>
+                                <% } else { %>
+                                    <span class="badge bg-danger">Inactive</span>
+                                <% } %>
+                            </td>
+                            <td><%= user.created_at_formatted %></td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <form action="/admin/users/<%= user.id %>/toggle-status" method="POST" class="d-inline me-1" onsubmit="return confirm('Are you sure you want to <%= user.is_active ? 'deactivate' : 'activate' %> this user?');">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm" title="<%= user.is_active ? 'Deactivate' : 'Activate' %> User">
+                                            <i class="fas fa-<%= user.is_active ? 'user-slash' : 'user-check' %>"></i>
+                                        </button>
+                                    </form>
+                                    <a href="/admin/users/<%= user.id %>/assign-role" class="btn btn-outline-primary btn-sm me-1" title="Assign Role">
+                                        <i class="fas fa-user-tag"></i>
+                                    </a>
+                                    <a href="/admin/users/<%= user.id %>/change-password" class="btn btn-outline-secondary btn-sm" title="Change Password">
+                                        <i class="fas fa-key"></i>
+                                    </a>
+                                      <a href="/admin/users/<%= user.id %>/edit" class="btn btn-outline-info btn-sm" title="Edit User Details"><i class="fas fa-edit"></i></a> 
+                                </a>
+<a href="/admin/users/<%= user.id %>/edit" class="btn btn-outline-info btn-sm me-1" title="Edit User Details">
+    <i class="fas fa-user-edit"></i>
+</a>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+         <% if (totalPages > 1) { %>
+            <nav aria-label="User pagination">
+                <ul class="pagination pagination-sm justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= currentPage - 1 %>&search=<%= currentSearch %>&role=<%= currentRole %>&status=<%= currentStatus %>">Previous</a></li>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>&search=<%= currentSearch %>&role=<%= currentRole %>&status=<%= currentStatus %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= currentPage + 1 %>&search=<%= currentSearch %>&role=<%= currentRole %>&status=<%= currentStatus %>">Next</a></li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+
+    <% } else { %>
+        <div class="alert alert-info text-center">No users found matching your criteria.</div>
+    <% } %>
+</div>

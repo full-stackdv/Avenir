@@ -1,0 +1,62 @@
+<% tasks.forEach(task => { %>
+  <li data-task-id="<%= task.id %>" 
+      data-parent-id="<%= task.parent_template_task_id || '' %>" 
+      style="margin-left: <%= level * 25 %>px;" <%# Indentation based on level %>
+      class="template-task-item mb-2 p-2 border rounded bg-light shadow-sm">
+    
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center flex-grow-1">
+            <span class="drag-handle mr-2" style="cursor: move; touch-action: none;" title="Drag to reorder">
+                <i class="fas fa-grip-vertical text-muted"></i>
+            </span>
+            <strong class="task-name flex-grow-1">
+                <%= task.name %>
+            </strong>
+            <% if (task.is_milestone) { %>
+                <span class="badge badge-info ml-2">Milestone</span>
+            <% } %>
+        </div>
+        <div class="task-actions ml-2 flex-shrink-0">
+            <button class="btn btn-xs btn-outline-primary edit-task-btn"
+                    data-toggle="modal"
+                    data-target="#editTaskModal"
+                    data-task-id="<%= task.id %>"
+                    data-template-id="<%= templateId %>" 
+                    title="Edit Task">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-xs btn-outline-success add-subtask-btn" 
+                    data-toggle="modal" 
+                    data-target="#addSubTaskModal" 
+                    data-parent-task-id="<%= task.id %>" 
+                    data-parent-task-name="<%= task.name %>"
+                    title="Add Sub-task">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+            <button class="btn btn-xs btn-outline-danger delete-task-btn"
+                    data-task-id="<%= task.id %>"
+                    data-template-id="<%= templateId %>"
+                    data-task-name="<%= task.name %>"
+                    title="Delete Task">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>
+
+    <% if (task.description && task.description.trim() !== '') { %>
+        <p class="text-muted mb-1 mt-1 px-2" style="font-size: 0.85em;"><small><%= task.description %></small></p>
+    <% } %>
+    
+    <small class="text-muted d-block mt-1 px-2" style="font-size: 0.8em;">
+        Duration: <%= task.planned_duration_days || 'N/A' %> days | Order: <%= task.task_order %> | ID: <%= task.id %>
+    </small>
+
+    <ul class="list-unstyled mt-2 template-task-children-list <%= (task.children && task.children.length > 0) ? '' : 'droppable-empty-list' %>" 
+        style="<%= (task.children && task.children.length > 0) ? '' : 'min-height: 20px;' /* Placeholder for empty lists */ %>" 
+        data-parent-id-for-list="<%= task.id %>">
+      <% if (task.children && task.children.length > 0) { %>
+        <%- include('../partials/_template_task_item_recursive', { tasks: task.children, templateId: templateId, level: level + 1 }) %>
+      <% } %>
+    </ul>
+  </li>
+<% }); %>

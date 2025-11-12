@@ -1,0 +1,243 @@
+/* public/css/main_styles.css */
+
+body.app-body {
+  background-color: #eef0f2; /* A slightly different light gray from admin for distinction */
+  font-size: 0.95rem;
+}
+
+/* Main App Navbar */
+#mainAppNavbar {
+  /* background-color: #ffffff !important; */
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.06); */
+}
+#mainAppNavbar .navbar-brand {
+  font-weight: 500;
+}
+
+/* Content Area */
+.app-body .container-fluid { /* Or .container if you prefer fixed width */
+  /* padding-top: 20px; */ /* Spacing from navbar if not handled by main element in layout */
+}
+
+.app-body .page-header h1.h2 {
+  font-weight: 500;
+  color: #2c3e50; /* A slightly softer black */
+}
+.app-body .page-header .text-muted {
+  color: #566573 !important;
+}
+
+/* Cards in Main App Area */
+.app-body .card {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.app-body .card-header {
+  background-color: #f8f9fa;
+  font-weight: 500;
+}
+.app-body .card-title {
+  font-weight: 500;
+}
+
+/* Project Details Page */
+.project-meta-item {
+  margin-bottom: 0.5rem;
+}
+.project-meta-item strong {
+  display: inline-block;
+  min-width: 120px; /* Adjust as needed for alignment */
+}
+
+/* Task List (Example Styling) */
+.task-list {
+  list-style: none;
+  padding-left: 0;
+}
+.task-item {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.task-item.status-Completed {
+  background-color: #f0fff0; /* Light green for completed tasks */
+  border-left: 4px solid #28a745; /* Bootstrap success green */
+}
+.task-item.status-InProgress {
+  border-left: 4px solid #ffc107; /* Bootstrap warning yellow */
+}
+.task-item.status-ToDo {
+  border-left: 4px solid #17a2b8; /* Bootstrap info cyan */
+}
+.task-item .task-name {
+  font-weight: 500;
+}
+.task-item .task-actions a {
+  margin-left: 10px;
+}
+
+/* Styles for nested tasks (if you render them with indentation) */
+.task-list .task-item ul.sub-tasks {
+  list-style: none;
+  padding-left: 25px; /* Indent sub-tasks */
+  margin-top: 10px;
+}
+
+/* Profile Page Specifics (if any, else use general app styles) */
+/* Moved to profile_styles.css - can keep this file lean */
+
+/* Daily Log Styles */
+.daily-log-entry {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+.daily-log-entry .log-date {
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #333;
+}
+.daily-log-entry .log-meta {
+  font-size: 0.85em;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+
+/* public/css/main_styles.css or similar */
+.task-item {
+    /* border-bottom: 1px solid #eee; */ /* If not using list-group */
+    /* padding-top: 10px; */
+    /* padding-bottom: 10px; */
+}
+
+.task-item:last-child {
+    /* border-bottom: none; */ /* If not using list-group */
+}
+
+.task-actions .btn-sm {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+}
+/* Add more specific styling for task hierarchy if needed */
+
+
+    .gantt .bar-wrapper.gantt-milestone .bar-progress { /* Target progress bar for milestones */
+        fill: #6f42c1 !important; /* Bootstrap purple */
+    }
+    .gantt .bar-wrapper.gantt-milestone .bar { /* Target main bar for milestones */
+        fill: #a98eda !important; /* Lighter purple for background */
+        stroke: #6f42c1;
+    }
+    .gantt .bar-wrapper.gantt-completed .bar-progress {
+        fill: #198754 !important; /* Bootstrap green */
+    }
+    .gantt .bar-wrapper.gantt-inprogress .bar-progress {
+        fill: #0dcaf0 !important; /* Bootstrap info blue */
+    }
+    .gantt-popup-content p { margin-bottom: 5px; }
+    .gantt-chart-svg { /* Ensure SVG takes full container height */
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+    .gantt .grid-header, .gantt .grid-row{
+        fill: #f8f9fa; /* Light background for grid lines */
+    }
+    .gantt .grid-row:nth-child(even){
+        fill: #ffffff;
+    }
+     .gantt .bar-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+    } 
+
+
+
+
+    
+    /* Custom CSS for Gantt styling (enhances Frappe Gantt) */
+    .gantt .bar-wrapper.gantt-milestone .bar-progress { /* Target progress bar for milestones */
+        fill: #6f42c1 !important; /* Bootstrap purple */
+    }
+    .gantt .bar-wrapper.gantt-milestone .bar { /* Target main bar for milestones */
+        fill: #a98eda !important; /* Lighter purple for background */
+        stroke: #6f42c1;
+    }
+    .gantt .bar-wrapper.gantt-completed .bar-progress {
+        fill: #198754 !important; /* Bootstrap green */
+    }
+    .gantt .bar-wrapper.gantt-inprogress .bar-progress {
+        fill: #0dcaf0 !important; /* Bootstrap info blue */
+    }
+
+    
+  /* Avenircon/public/css/main_styles.css */
+
+.project-card .card-title a {
+    color: var(--bs-primary); /* Or your preferred link color */
+}
+
+.project-card .card-title a:hover {
+    text-decoration: underline;
+}
+
+.project-card .progress {
+    height: 10px; /* Consistent height for progress bars */
+    margin-bottom: 0.5rem; /* Add some space below progress bar */
+}
+
+/* You might already have styles for badges, but ensure they look good */
+.badge.bg-primary { /* Or more specific if needed */
+    /* Custom styles for primary badge if Bootstrap default isn't preferred */
+}
+
+/* Avenircon/public/css/main_styles.css */
+
+.project-card .card-title a {
+    color: var(--bs-primary); /* Or your preferred link color */
+    /* Ensure it doesn't clash with stretched-link if you want default bootstrap link behavior */
+}
+
+.project-card .card-title a:hover {
+    text-decoration: underline;
+}
+
+.project-card .progress {
+    height: 10px; 
+    /* margin-bottom: 0.5rem; /* Optional: space below progress bar before next stat */
+}
+
+/* Example for overdue tasks, if you want more specific styling than just text-danger */
+.project-card .text-danger.fw-bold { 
+    /* e.g., background-color: rgba(220, 53, 69, 0.1); padding: 0.1rem 0.3rem; border-radius: 0.2rem; */
+}
+
+/* Ensure icons have good alignment and spacing if needed */
+.project-card .fas { /* Or more specific like .fa-exclamation-triangle */
+    /* margin-right: 0.25rem; /* Default Bootstrap might handle this with me-1 */
+}
+
+
+ 
+    /* Optional: Small CSS for better print layout / report readability */
+    @media print {
+        body { font-size: 10pt; }
+        .breadcrumb, .btn, .alert:not(.alert-danger):not(.alert-warning) { display: none !important; } /* Hide nav, buttons, success/info messages on print */
+        .card { box-shadow: none !important; border: 1px solid #ccc !important; margin-bottom: 1rem !important; }
+        .card-header { background-color: #f8f9fa !important; color: #000 !important; border-bottom: 1px solid #ccc !important;}
+        .table-responsive { overflow-x: hidden; } /* Prevent table scroll on print */
+        .progress-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; } /* Ensure progress bars print colors */
+    }
+    
+    .badge.bg-purple { background-color: #6f42c1; color: white; } /* For milestone badge if not in main CSS */
+    .progress-bar.fs-xs { font-size: 0.7rem; line-height: 18px; } /* Make progress % smaller in table */
+ 

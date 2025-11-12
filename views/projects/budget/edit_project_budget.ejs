@@ -1,0 +1,44 @@
+<!-- views/projects/budget/edit_project_budget.ejs -->
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects">Projects</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Manage Budget</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-3"><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="/projects/<%= project.id %>/budget/edit" method="POST">
+                <div class="mb-3">
+ 
+<label for="budget" class="form-label">Planned Project Budget (ETB)</label>
+<input type="number" class="form-control <%= errors.find(e => e.param === 'budget' || e.msg.toLowerCase().includes('budget')) ? 'is-invalid' : '' %>"
+       id="budget" name="budget"  <%# Changed name to "budget" %>
+       value="<%= formData.budget || (project.budget || '') %>" <%# Changed to use project.budget %>
+       step="0.01" min="0" required>
+<% errors.forEach(function(error) { %>
+    <% if (error.param === 'budget' || error.msg.toLowerCase().includes('budget')) { %> <%# Check against 'budget' %>
+        <div class="invalid-feedback"><%= error.msg %></div>
+    <% } %>
+<% }); %>
+</div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Update Planned Budget
+                </button>
+                <a href="/projects/<%= project.id %>/details" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

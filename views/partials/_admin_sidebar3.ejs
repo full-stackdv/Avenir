@@ -1,0 +1,187 @@
+<% /* views/partials/_admin_sidebar.ejs */ %>
+<%
+  const isActive = (pathPrefixOrExact) => {
+    if (typeof currentPath !== 'undefined') {
+      // Exact match for dashboard or specific single-level admin pages
+      if (pathPrefixOrExact === '/admin' && (currentPath === '/admin' || currentPath === '/admin/')) return 'active';
+      if (pathPrefixOrExact === '/admin/settings' && currentPath === '/admin/settings') return 'active';
+      if (pathPrefixOrExact === '/admin/audit-logs' && currentPath === '/admin/audit-logs') return 'active';
+      if (pathPrefixOrExact === '/admin/idcard/settings' && currentPath === '/admin/idcard/settings') return 'active'; // For exact match
+
+      // Prefix match for sections like /admin/posts/* or /admin/users/*
+      if (pathPrefixOrExact !== '/admin' && 
+          pathPrefixOrExact !== '/admin/settings' && 
+          pathPrefixOrExact !== '/admin/audit-logs' &&
+          pathPrefixOrExact !== '/admin/idcard/settings' && // Exclude exact matches from prefix check
+          currentPath.startsWith(pathPrefixOrExact)) {
+        return 'active';
+      }
+    }
+    return '';
+  };
+%>
+<nav id="adminSidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse admin-sidebar-main">
+    <div class="position-sticky pt-3 sidebar-sticky-content">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin') %>" href="/admin">
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard
+                </a>
+            </li>
+
+            <li class="nav-header px-3 mt-3 mb-1 text-muted text-uppercase small">Content</li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/posts') %>" href="/admin/posts">
+                    <i class="fas fa-newspaper fa-fw me-2"></i> Post Management
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/pages') %>" href="/admin/pages"> {/* NEW */}
+                    <i class="fas fa-file-alt fa-fw me-2"></i> Editable Pages
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/content/announcements') %>" href="/admin/content/announcements"> {/* NEW */}
+                    <i class="fas fa-bullhorn fa-fw me-2"></i> Announcements
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/contact-messages') %>" href="/admin/contact-messages">
+                    <i class="fas fa-envelope-open-text fa-fw me-2"></i> Contact Messages
+                </a>
+            </li>
+
+            <li class="nav-header px-3 mt-3 mb-1 text-muted text-uppercase small">Communication</li> {/* NEW HEADER */}
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/communication/notification-templates') %>" href="/admin/communication/notification-templates"> {/* NEW */}
+                    <i class="fas fa-mail-bulk fa-fw me-2"></i> Notification Templates
+                </a>
+            </li>
+
+            <li class="nav-header px-3 mt-3 mb-1 text-muted text-uppercase small">User & System</li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/users') %>" href="/admin/users">
+                    <i class="fas fa-users-cog fa-fw me-2"></i> User Management
+                </a>
+            </li>
+             <!-- NEWLY ADDED for Staff ID Card Company Settings -->
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/idcard/settings') %>" href="/admin/idcard/settings">
+                    <i class="fas fa-id-badge fa-fw me-2"></i> Company ID Settings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/audit-logs') %>" href="/admin/audit-logs">
+                    <i class="fas fa-clipboard-list fa-fw me-2"></i> Audit Logs
+                </a>
+            </li>
+                        <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/system/backups') %>" href="/admin/system/backups"> {/* NEW */}
+                    <i class="fas fa-database fa-fw me-2"></i> System Backups
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/project-templates') %>" href="/admin/project-templates">
+                    <i class="fas fa-layer-group fa-fw me-2"></i> Project Templates
+                </a>
+            </li>
+       
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/settings') %>" href="/admin/settings">
+                    <i class="fas fa-cog fa-fw me-2"></i> System Settings
+                </a>
+            </li>
+
+            <li class="nav-header px-3 mt-3 mb-1 text-muted text-uppercase small">Application Links</li>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath.startsWith('/staff') ? 'active' : '' %>" href="/staff">
+                     <i class="fas fa-users me-2"></i> Staff Module
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-briefcase fa-fw me-2"></i> App Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/projects">
+                    <i class="fas fa-project-diagram fa-fw me-2"></i> App Projects
+                </a>
+            </li>
+        </ul>
+         <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/project-templates') %>" href="/admin/project-templates">
+                    <i class="fas fa-layer-group fa-fw me-2"></i> Project Templates
+                </a>
+            </li>
+       
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+            <span>Quick Actions</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/posts/create">
+                    <i class="fas fa-plus-circle fa-fw me-2"></i> New Post
+                </a>
+            </li>
+            
+             <li class="nav-item">
+                <a class="nav-link" href="/admin/content/announcements/create"> {/* NEW Quick Action */}
+                    <i class="fas fa-plus-square fa-fw me-2"></i> New Announcement
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/users/create"> <!-- Assuming this route exists for admin user creation -->
+                    <i class="fas fa-user-plus fa-fw me-2"></i> New User
+                </a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" href="/staff/register">
+                    <i class="fas fa-user-plus fa-fw me-2"></i> New Staff Member
+                </a>
+            </li>
+        </ul>
+
+        <hr>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                 <a class="nav-link" href="/profile">
+                    <i class="fas fa-user-circle fa-fw me-2"></i> My Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                 <form action="/logout" method="POST" class="d-inline w-100"> <!-- Ensure logout route is POST and correct path -->
+                    <button type="submit" class="nav-link btn btn-link text-start w-100" style="color: var(--bs-nav-link-color);">
+                        <i class="fas fa-sign-out-alt fa-fw me-2"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!-- CSS from original file is fine -->
+<style>
+.admin-sidebar-main .nav-link.active {
+    color: #0d6efd; 
+    font-weight: 500;
+}
+.admin-sidebar-main .nav-link:hover {
+    color: #0a58ca; 
+}
+.admin-sidebar-main .btn.nav-link { 
+    padding-left: 0.75rem; 
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+.admin-sidebar-main .btn.nav-link:hover {
+    background-color: transparent !important; 
+    color: #0a58ca !important;
+}
+.nav-header {
+    font-size: .8rem;
+    font-weight: 600;
+    color: #6c757d; /* Bootstrap muted color */
+}
+</style>

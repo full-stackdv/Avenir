@@ -1,0 +1,155 @@
+
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><%= pageTitle %> (<%= totalLogs %>)</h2>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header">
+            Filters
+        </div>
+        <div class="card-body">
+            <form method="GET" action="/admin/audit-logs" class="row g-3 align-items-end">
+                <div class="col-md-3 col-lg-2">
+                    <label for="userId" class="form-label">User</label>
+                    <select id="userId" name="userId" class="form-select form-select-sm">
+                        <option value="">All Users</option>
+                        <% distinctUsers.forEach(userFilterItem => { %> <%# Changed 'user' to 'userFilterItem' to avoid potential conflict if 'user' was used elsewhere in a loop %>
+                            <option value="<%= userFilterItem.id %>" <%= String(filters.userId) === String(userFilterItem.id) ? 'selected' : '' %>><%= userFilterItem.username %> (ID: <%= userFilterItem.id %>)</option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-3 col-lg-2">
+                    <label for="action" class="form-label">Action Contains</label>
+                    <input type="text" class="form-control form-control-sm" id="action" name="action" value="<%= filters.action || '' %>" placeholder="e.g., LOGIN_SUCCESS">
+                </div>
+                <div class="col-md-3 col-lg-2">
+                    <label for="targetType" class="form-label">Target Type</label>
+                     <select id="targetType" name="targetType" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        <% distinctTargetTypes.forEach(type => { %>
+                            <option value="<%= type.target_type %>" <%= filters.targetType === type.target_type ? 'selected' : '' %>><%= type.target_type %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-3 col-lg-2">
+                    <label for="dateStart" class="form-label">Date From</label>
+                    <input type="date" class="form-control form-control-sm" id="dateStart" name="dateStart" value="<%= filters.dateStart || '' %>">
+                </div>
+                 <div class="col-md-3 col-lg-2">
+                    <label for="dateEnd" class="form-label">Date To</label>
+                    <input type="date" class="form-control form-control-sm" id="dateEnd" name="dateEnd" value="<%= filters.dateEnd || '' %>">
+                </div>
+                <div class="col-md-3 col-lg-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100 me-2"><i class="fas fa-filter"></i> Filter</button>
+                    <a href="/admin/audit-logs" class="btn btn-secondary btn-sm w-100"><i class="fas fa-times"></i> Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <% if (logs && logs.length > 0) { %>  <%# CORRECTED: Check for 'logs' instead of 'users' %>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>
+                            <a href="?sort=created_at&order=<%= filters.sort === 'created_at' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(Object.entries(filters).filter(([key]) => !['sort', 'order'].includes(key))).toString() %>">
+                                Timestamp <i class="fas fa-sort"></i>
+                            </a>
+                        </th>
+                        <th>
+                             <a href="?sort=actor_username&order=<%= filters.sort === 'actor_username' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(Object.entries(filters).filter(([key]) => !['sort', 'order'].includes(key))).toString() %>">
+                                User <i class="fas fa-sort"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=action&order=<%= filters.sort === 'action' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(Object.entries(filters).filter(([key]) => !['sort', 'order'].includes(key))).toString() %>">
+                                Action <i class="fas fa-sort"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=target_type&order=<%= filters.sort === 'target_type' && filters.order === 'asc' ? 'desc' : 'asc' %>&<%= new URLSearchParams(Object.entries(filters).filter(([key]) => !['sort', 'order'].includes(key))).toString() %>">
+                                Target Type <i class="fas fa-sort"></i>
+                            </a>
+                        </th>
+                        <th>Target ID</th>
+                        <th>Details</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% logs.forEach(log => { %>
+                        <tr>
+                            <td><%= log.id %></td>
+                            <td><%= log.created_at_formatted %></td>
+                            <td><%= log.actor_username || 'System (N/A)' %> <small class="text-muted">(ID: <%= log.user_id || 'N/A' %>)</small></td>
+                            <td><span class="badge bg-secondary"><%= log.action %></span></td>
+                            <td><%= log.target_type || 'N/A' %></td>
+                            <td><%= log.target_id || 'N/A' %></td>
+                            <td>
+                                <% if (log.details) { %>
+                                    <pre class="log-details-preview"><%= JSON.stringify(log.details, null, 2) %></pre>
+                                <% } else { %>
+                                    N/A
+                                <% } %>
+                            </td>
+                            <td><%= log.ip_address || 'N/A' %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <%# Pagination %>
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Audit Log pagination">
+                <ul class="pagination pagination-sm justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= currentPage - 1 %>&<%= new URLSearchParams(filters).toString() %>">Previous</a></li>
+                    <% } %>
+                    <%
+                        const maxPagesToShow = 5;
+                        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+                        let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                        if (endPage - startPage + 1 < maxPagesToShow) {
+                            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                        }
+                    %>
+                    <% if (startPage > 1) { %>
+                        <li class="page-item"><a class="page-link" href="?page=1&<%= new URLSearchParams(filters).toString() %>">1</a></li>
+                        <% if (startPage > 2) { %><li class="page-item disabled"><span class="page-link">...</span></li><% } %>
+                    <% } %>
+                    <% for (let i = startPage; i <= endPage; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>&<%= new URLSearchParams(filters).toString() %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                     <% if (endPage < totalPages) { %>
+                        <% if (endPage < totalPages - 1) { %><li class="page-item disabled"><span class="page-link">...</span></li><% } %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= totalPages %>&<%= new URLSearchParams(filters).toString() %>"><%= totalPages %></a></li>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= currentPage + 1 %>&<%= new URLSearchParams(filters).toString() %>">Next</a></li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+
+    <% } else { %> <%# This 'else' corresponds to the 'if (logs && logs.length > 0)' %>
+        <div class="alert alert-info text-center">No audit logs found matching your criteria.</div>
+    <% } %>
+</div>
+<style>
+    .log-details-preview {
+        max-height: 100px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        padding: 5px;
+        font-size: 0.8em;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+</style>

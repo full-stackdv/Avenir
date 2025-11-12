@@ -1,0 +1,42 @@
+<!-- In views/projects/details.ejs, add a new card or section -->
+<div class="col-md-6 mb-4">
+    <div class="card h-100">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Budget Overview</h5>
+        </div>
+        <div class="card-body">
+            <%
+                const plannedBudget = project.planned_budget ? parseFloat(project.planned_budget) : 0;
+                const actualCost = project.actual_cost ? parseFloat(project.actual_cost) : 0;
+                const variance = plannedBudget - actualCost;
+            %>
+            <p><strong>Planned Budget:</strong> $<%= plannedBudget.toFixed(2) %></p>
+            <p><strong>Actual Cost:</strong> $<%= actualCost.toFixed(2) %></p>
+            <p><strong>Variance:</strong>
+                <span class="fw-bold text-<%= variance >= 0 ? 'success' : 'danger' %>">
+                    $<%= variance.toFixed(2) %>
+                    <%= variance >= 0 ? '(Under Budget)' : '(Over Budget)' %>
+                </span>
+            </p>
+            <hr>
+            <a href="/projects/<%= project.id %>/budget/edit" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="fas fa-edit"></i> Manage Planned Budget
+            </a>
+            <a href="/projects/<%= project.id %>/budget/log/add" class="btn btn-sm btn-outline-success me-2">
+                <i class="fas fa-plus-circle"></i> Add Budget Entry
+            </a>
+            <a href="/projects/<%= project.id %>/budget/logs" class="btn btn-sm btn-outline-info">
+                <i class="fas fa-list-alt"></i> View Full Log
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- You'll also want a way to add budget to individual tasks.
+     This could be a button next to each task in the task list on this page,
+     or on the task details page if you have one.
+     Example link for a task:
+     <a href="/projects/<%= project.id %>/budget/log/add?taskId=<%= task.id %>" class="btn btn-xs btn-outline-success">
+        <i class="fas fa-dollar-sign"></i> Log for Task
+     </a>
+-->

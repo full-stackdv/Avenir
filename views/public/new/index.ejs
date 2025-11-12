@@ -1,0 +1,284 @@
+<!-- views/index.ejs -->
+
+<!-- Hero Section -->
+<header class="hero-section text-center text-white">
+    <div class="container py-5">
+        <i class="fas fa-hard-hat fa-5x mb-4 text-warning"></i>
+        <h1 class="display-4 fw-bold" style="color:gainsboro">
+            <%= content.hero_main_title || getSetting('companyName', 'ConstructPro') %>
+        </h1>
+        <p class="lead mb-4">
+            <%= content.hero_slogan || getSetting('companySlogan', 'Building Ethiopia\'s Future, Brick by Brick. Your Trusted Partner for Quality and Sustainable Construction Solutions.') %>
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <% if (isAuthenticated) { %>
+                <a href="/dashboard" class="btn btn-warning btn-lg px-4 gap-3"><i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard</a>
+            <% } else { %>
+                <a href="/register" class="btn btn-warning btn-lg px-4 gap-3">Get Started</a>
+                <a href="/contact" class="btn btn-outline-light btn-lg px-4">Contact Us</a>
+            <% } %>
+        </div>
+    </div>
+</header>
+
+<!-- About Us Snippet -->
+<section id="about-snippet" class="content-section bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5"><i class="fas fa-info-circle"></i> 
+            <%= content.about_snippet_heading || 'Who We Are' %>
+        </h2>
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="<%= content.about_snippet_image || '/images/about-team.jpg' %>" alt="ConstructPro Team" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6">
+                <p class="lead">
+                    <%= content.about_snippet_summary || getSetting('aboutUsSummary', 'ConstructPro is a leading construction company...') %>
+                </p>
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-check-circle fa-2x text-success me-3"></i>
+                            <div>
+                                <h5><%= content.about_snippet_quality_title || 'Quality First' %></h5>
+                                <p class="text-muted small"><%= content.about_snippet_quality_text || 'Uncompromising standards and attention to detail.' %></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                         <div class="d-flex align-items-start">
+                            <i class="fas fa-leaf fa-2x text-success me-3"></i>
+                            <div>
+                                <h5><%= content.about_snippet_sustainability_title || 'Sustainability' %></h5>
+                                <p class="text-muted small"><%= content.about_snippet_sustainability_text || 'Environmentally responsible construction practices.' %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="/about" class="btn btn-outline-primary mt-3"><%= content.about_snippet_learn_more_button_text || 'Learn More About Us' %></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Snippet -->
+<section id="services-snippet" class="content-section">
+    <div class="container services-landing">
+        <h2 class="text-center mb-5"><i class="fas fa-cogs"></i> 
+            <%= content.services_snippet_heading || 'Our Expertise' %>
+        </h2>
+        <div class="service-list">
+            <div class="service-item">
+                <i class="<%= content.services_snippet_item1_icon || 'fas fa-building' %>"></i>
+                <h3><%= content.services_snippet_item1_title || 'General Construction' %></h3>
+                <p><%= content.services_snippet_item1_desc || 'Office, Business, Industrial, Residential Buildings' %></p>
+            </div>
+            <div class="service-item">
+                <i class="<%= content.services_snippet_item2_icon || 'fas fa-road' %>"></i>
+                <h3><%= content.services_snippet_item2_title || 'Road & Bridge' %></h3>
+                <p><%= content.services_snippet_item2_desc || 'Building reliable transportation infrastructure.' %></p>
+            </div>
+            <div class="service-item">
+                <i class="<%= content.services_snippet_item3_icon || 'fas fa-tint' %>"></i>
+                <h3><%= content.services_snippet_item3_title || 'Water & Irrigation' %></h3>
+                <p><%= content.services_snippet_item3_desc || 'Solutions for water management and agriculture.' %></p>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+             <a href="/about#services" class="btn btn-primary"><%= content.services_snippet_button_text || 'View All Services' %></a>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Snippet -->
+<section id="projects-snippet" class="content-section bg-light projects-landing">
+    <div class="container">
+        <h2 class="text-center mb-5"><i class="fas fa-briefcase"></i> 
+            <%= content.projects_snippet_heading || 'Our Portfolio' %>
+        </h2>
+        <div class="project-grid">
+            <div class="project-item">
+                <img src="<%= content.projects_snippet_item1_image || '/images/commercial.jpg' %>" alt="<%= content.projects_snippet_item1_title || 'Commercial Building' %>">
+                <div class="p-3">
+                    <h3><%= content.projects_snippet_item1_title || 'Modern Office Complex' %></h3>
+                    <p class="text-muted small"><%= content.projects_snippet_item1_desc || 'Addis Ababa - Completed 2023' %></p>
+                </div>
+            </div>
+            <div class="project-item">
+                <img src="<%= content.projects_snippet_item2_image || '/images/appartments.jpg' %>" alt="<%= content.projects_snippet_item2_title || 'Residential Complex' %>">
+                 <div class="p-3">
+                    <h3><%= content.projects_snippet_item2_title || 'Luxury Apartment Tower' %></h3>
+                    <p class="text-muted small"><%= content.projects_snippet_item2_desc || 'Jimma - Under Construction' %></p>
+                </div>
+            </div>
+             <div class="project-item">
+                <img src="<%= content.projects_snippet_item3_image || '/images/bridge-placeholder.jpg' %>" alt="<%= content.projects_snippet_item3_title || 'Bridge Construction' %>">
+                 <div class="p-3">
+                    <h3><%= content.projects_snippet_item3_title || 'City Bypass Bridge' %></h3>
+                    <p class="text-muted small"><%= content.projects_snippet_item3_desc || 'Regional - Completed 2022' %></p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/gallery" class="btn btn-primary"><%= content.projects_snippet_button_text || 'View Full Gallery' %></a>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Snippet (Recent posts are passed as `recentPosts` variable) -->
+<% if (typeof recentPosts !== 'undefined' && recentPosts.length > 0) { %>
+<section id="blog-snippet" class="content-section">
+    <div class="container">
+        <h2 class="text-center mb-5"><i class="fas fa-newspaper"></i> 
+            <%= content.blog_snippet_heading || 'From Our Blog' %>
+        </h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <% recentPosts.slice(0,3).forEach(function(bPost) { %>
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <% if (bPost.feature_image_path) { %>
+                    <a href="/blog/<%= bPost.slug %>">
+                        <img src="/uploads/feature_images/<%= bPost.feature_image_path.split('/').pop() %>" class="card-img-top" alt="<%= bPost.title %>" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <% } else { %>
+                     <a href="/blog/<%= bPost.slug %>">
+                         <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-light"></i>
+                        </div>
+                    </a>
+                    <% } %>
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="/blog/<%= bPost.slug %>" class="text-decoration-none text-dark stretched-link"><%= bPost.title %></a></h5>
+                        <p class="card-text text-muted small mb-2">
+                            <% if (bPost.published_at_formatted) { %>
+                                <%= bPost.published_at_formatted %>
+                            <% } else if (bPost.published_at) { %>
+                                <%= new Date(bPost.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                            <% } %>
+                        </p>
+                        <p class="card-text small"><%= bPost.summary ? bPost.summary.substring(0, 100) + (bPost.summary.length > 100 ? '...' : '') : (bPost.content ? bPost.content.replace(/<[^>]+>/g, '').substring(0, 100) + (bPost.content.replace(/<[^>]+>/g, '').length > 100 ? '...' : '') : '') %></p>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/blog" class="btn btn-primary"><%= content.blog_snippet_button_text || 'Read All Articles' %></a>
+        </div>
+    </div>
+</section>
+<% } %>
+
+<!-- Call to Action -->
+<section class="call-to-action-landing text-center">
+    <div class="container py-5">
+        <h2 class="display-6 fw-bold">
+            <%= content.cta_heading || 'Let\'s Build Your Vision Together.' %>
+        </h2>
+        <p class="lead my-4">
+            <%= content.cta_text || 'Contact us today to discuss your construction needs and discover how ConstructPro can bring your project to life.' %>
+        </p>
+        <a href="/contact" class="btn btn-warning btn-lg px-4"><%= content.cta_button_text || 'Get a Quote' %></a>
+    </div>
+</section>
+
+<!-- Contact Form Section on Landing Page (data passed from controller) -->
+<section id="contact-section-landing" class="py-5 <%# if (typeof success_msg === 'undefined' && (typeof contactFormErrors === 'undefined' || contactFormErrors.length === 0)) { %> hide <%# } %>" 
+    style="<%# if (typeof success_msg === 'undefined' && (typeof contactFormErrors === 'undefined' || contactFormErrors.length === 0)) { %> display:none; <%# } %>">
+    <div class="container">
+        <h2 class="text-center mb-4"> Let's Build Together</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                <p class="text-center text-muted mb-4">Have questions or want a demo? Fill out the form below, and we'll get back to you shortly.</p>
+                
+                <%- include('partials/_messages') %>
+ 
+                <% if (typeof contactFormErrors !== 'undefined' && contactFormErrors.length > 0 && !success_msg && (!locals.messages || !locals.messages.success)) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Please correct the following errors:</strong>
+                        <ul>
+                            <% contactFormErrors.forEach(function(error) { %>
+                                <li><%= error.message %></li>
+                            <% }); %>
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
+                <form id="landingContactForm" action="/contact" method="POST" class="needs-validation" novalidate>
+                    <input type="hidden" name="source_page" value="homepage">
+                    <input type="hidden" name="landingContactForm" value="true"> <!-- Specific identifier for this form -->
+                    
+                    <div class="mb-3">
+                        <label for="landingContactName" class="form-label">Full Name<span class="text-danger">*</span></label>
+                        <input type="text" 
+                               class="form-control <%= (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'name')) ? 'is-invalid' : '' %>" 
+                               id="landingContactName" name="name" required 
+                               value="<%= (typeof contactFormData !== 'undefined' && typeof contactFormData.name !== 'undefined') ? contactFormData.name : (currentUser ? (currentUser.first_name + ' ' + currentUser.last_name).trim() : '') %>">
+                        <% if (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'name')) { %>
+                            <div class="invalid-feedback"><%= contactFormErrors.find(e => e.field === 'name').message %></div>
+                        <% } else { %>
+                            <div class="invalid-feedback">Please enter your name.</div>
+                        <% } %>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="landingContactEmail" class="form-label">Email Address<span class="text-danger">*</span></label>
+                        <input type="email" 
+                               class="form-control <%= (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'email')) ? 'is-invalid' : '' %>" 
+                               id="landingContactEmail" name="email" required
+                               value="<%= (typeof contactFormData !== 'undefined' && typeof contactFormData.email !== 'undefined') ? contactFormData.email : (currentUser ? currentUser.email : '') %>">
+                        <% if (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'email')) { %>
+                            <div class="invalid-feedback"><%= contactFormErrors.find(e => e.field === 'email').message %></div>
+                        <% } else { %>
+                             <div class="invalid-feedback">Please enter a valid email address.</div>
+                        <% } %>
+                    </div>
+
+                     <div class="mb-3">
+                        <label for="landingContactSubject" class="form-label">Subject</label>
+                        <input type="text" 
+                               class="form-control <%= (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'subject')) ? 'is-invalid' : '' %>" 
+                               id="landingContactSubject" name="subject"
+                               value="<%= (typeof contactFormData !== 'undefined' && typeof contactFormData.subject !== 'undefined') ? contactFormData.subject : '' %>">
+                        <% if (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'subject')) { %>
+                            <div class="invalid-feedback"><%= contactFormErrors.find(e => e.field === 'subject').message %></div>
+                        <% } %>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="landingContactMessage" class="form-label">Message<span class="text-danger">*</span></label>
+                        <textarea class="form-control <%= (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'message')) ? 'is-invalid' : '' %>" 
+                                  id="landingContactMessage" name="message" rows="4" required><%= (typeof contactFormData !== 'undefined' && typeof contactFormData.message !== 'undefined') ? contactFormData.message : '' %></textarea>
+                        <% if (typeof contactFormErrors !== 'undefined' && contactFormErrors.find(e => e.field === 'message')) { %>
+                            <div class="invalid-feedback"><%= contactFormErrors.find(e => e.field === 'message').message %></div>
+                        <% } else { %>
+                            <div class="invalid-feedback">Please enter your message.</div>
+                        <% } %>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+      'use strict'
+      var forms = document.querySelectorAll('.needs-validation')
+      Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+          form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+              event.preventDefault()
+              event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+          }, false)
+        })
+    })()
+</script>

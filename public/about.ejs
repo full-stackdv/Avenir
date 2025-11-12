@@ -1,0 +1,29 @@
+<%# This view is rendered within public_layout.ejs %>
+<%# The layout handles the main title, but we can provide a specific page title if needed %>
+<%# title = "About Avenircon" %> <%# This can be set in the controller for the page %>
+
+<div class="page-header mb-4 text-center">
+    <h1 class="display-4"><%= typeof pageTitle !== 'undefined' ? pageTitle : (typeof title !== 'undefined' ? title : 'About Us') %></h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <p class="lead">Avenircon is dedicated to revolutionizing the construction industry by providing intuitive, powerful, and accessible project management tools. We believe that great software can empower construction professionals to build more efficiently, collaboratively, and successfully.</p>
+        
+        <h3 class="mt-5">Our Mission</h3>
+        <p>To streamline every phase of the construction lifecycle – from initial planning and WBS development, through scheduling and resource allocation, to daily monitoring and final reporting. We aim to reduce complexities, enhance communication, and provide clear insights for better decision-making.</p>
+
+        <h3 class="mt-4">Our Vision</h3>
+        <p>To be the leading project management platform trusted by construction companies of all sizes, fostering a future where projects are consistently delivered on time, within budget, and to the highest quality standards through smart technology.</p>
+
+        <h3 class="mt-4">Why Avenircon?</h3>
+        <ul>
+            <li><strong>User-Centric Design:</strong> Built with the end-user in mind, ensuring ease of use for both office and field teams.</li>
+            <li><strong>Comprehensive Features:</strong> Covering all critical aspects of project management.</li>
+            <li><strong>Collaborative Platform:</strong> Facilitating seamless communication and data sharing among all stakeholders.</li>
+            <li><strong>Scalable Solution:</strong> Adapting to the needs of growing businesses and complex projects.</li>
+        </ul>
+
+        <p class="mt-4">We are passionate about construction and technology, and we are committed to continuous improvement and innovation to serve our users best.</p>
+    </div>
+</div>

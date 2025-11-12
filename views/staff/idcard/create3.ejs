@@ -1,0 +1,1577 @@
+
+<%- contentFor('body') %>
+<div class="container-fluid mt-4 id-card-generator-page">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>ID Card Generator: <span class="text-primary"><%= staffMember.full_name %></span></h3>
+        <a href="/staff" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Back to Staff List</a>
+    </div>
+    <%- include('../../partials/_messages') %>
+
+    <script>
+        // Server-provided data
+        const initialStaffData = <%- JSON.stringify(staffMember) %>;
+        const initialCompanySettings = <%- JSON.stringify(companySettings) %>;
+
+        // Correct image paths for client-side JS
+        initialStaffData.photo_url = initialStaffData.photo_filename ? `/uploads/staff_photos/${initialStaffData.photo_filename}` : '/images/placeholder-photo.png';
+        initialCompanySettings.logo_url = initialCompanySettings.logo_filename ? `/uploads/company_assets/${initialCompanySettings.logo_filename}` : '/images/logo.png';
+        initialCompanySettings.signature_url = initialCompanySettings.signature_filename ? `/uploads/company_assets/${initialCompanySettings.signature_filename}` : '/images/signature.png';
+        initialCompanySettings.stamp_url = initialCompanySettings.stamp_filename ? `/uploads/company_assets/${initialCompanySettings.stamp_filename}` : '/images/stamp.png';
+    </script>
+
+    <div id="id-card-application-wrapper" class="container-fluid gx-0">
+        <div class="row">
+            <!-- Column 1: Controls Panel -->
+            <div class="col-lg-4 col-md-5 id-card-controls-column">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header">
+                        <h5><i class="fas fa-edit me-2"></i>Card Information & Styles</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 85vh; overflow-y: auto;">
+                        <!-- === COMPANY INFORMATION INPUTS === -->
+                        <fieldset class="mb-3 p-2 border rounded">
+                            <legend class="w-auto px-2 h6">Company Details</legend>
+                            <div class="mb-2">
+                                <label for="idcard-companyName" class="form-label form-label-sm">Company Name:</label>
+                                <input type="text" id="idcard-companyName" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="companyNameInputError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-companySubtitle" class="form-label form-label-sm">Company Subtitle:</label>
+                                <input type="text" id="idcard-companySubtitle" class="form-control form-control-sm">
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-companyLogoUpload" class="form-label form-label-sm">Company Logo Upload:</label>
+                                <input type="file" id="idcard-companyLogoUpload" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-ceoSignatureUpload" class="form-label form-label-sm">CEO Signature Upload:</label>
+                                <input type="file" id="idcard-ceoSignatureUpload" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-companyStampUpload" class="form-label form-label-sm">Company Stamp Upload:</label>
+                                <input type="file" id="idcard-companyStampUpload" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-companyPhone" class="form-label form-label-sm">Company Phone:</label>
+                                <input type="tel" id="idcard-companyPhone" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="companyPhoneError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-companyEmail" class="form-label form-label-sm">Company Email:</label>
+                                <input type="email" id="idcard-companyEmail" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="companyEmailError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-companyWebsite" class="form-label form-label-sm">Company Website:</label>
+                                <input type="url" id="idcard-companyWebsite" class="form-control form-control-sm" placeholder="https://example.com">
+                                <div class="invalid-feedback" id="companyWebsiteError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-companyLocation" class="form-label form-label-sm">Company Location:</label>
+                                <textarea id="idcard-companyLocation" class="form-control form-control-sm" rows="2"></textarea>
+                                <div class="invalid-feedback" id="companyLocationError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-ceoName" class="form-label form-label-sm">CEO Name:</label>
+                                <input type="text" id="idcard-ceoName" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="ceoNameInputError"></div>
+                            </div>
+                        </fieldset>
+
+                        <!-- === EMPLOYEE INFORMATION INPUTS === -->
+                        <fieldset class="mb-3 p-2 border rounded">
+                            <legend class="w-auto px-2 h6">Employee Details</legend>
+                            <div class="mb-2">
+                                <label for="idcard-employeeFullNameFront" class="form-label form-label-sm">Full Name (Front Card):</label>
+                                <input type="text" id="idcard-employeeFullNameFront" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="frontNameInputError"></div>
+                            </div>
+                             <div class="mb-2">
+                                <label for="idcard-employeePositionFront" class="form-label form-label-sm">Position (Front Card):</label>
+                                <input type="text" id="idcard-employeePositionFront" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="frontPositionInputError"></div>
+                            </div>
+                             <div class="mb-2">
+                                <label for="idcard-employeeFullNameBack" class="form-label form-label-sm">Full Name (Back Card):</label>
+                                <input type="text" id="idcard-employeeFullNameBack" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="backNameInputError"></div>
+                            </div>
+                             <div class="mb-2">
+                                <label for="idcard-employeePositionBack" class="form-label form-label-sm">Position (Back Card):</label>
+                                <input type="text" id="idcard-employeePositionBack" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="backPositionInputError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-employeePhotoUpload" class="form-label form-label-sm">Employee Photo Upload:</label>
+                                <input type="file" id="idcard-employeePhotoUpload" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-employeePhone" class="form-label form-label-sm">Employee Phone (Optional):</label>
+                                <input type="tel" id="idcard-employeePhone" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="employeePhoneError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-employeeEmail" class="form-label form-label-sm">Employee Email (Optional):</label>
+                                <input type="email" id="idcard-employeeEmail" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="employeeEmailError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-employeeIdNumber" class="form-label form-label-sm">Employee ID Number (Front):</label>
+                                <input type="text" id="idcard-employeeIdNumber" class="form-control form-control-sm" data-barcode-value="">
+                                <div class="invalid-feedback" id="frontIdNumberError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-employeeIdNumberBack" class="form-label form-label-sm">Employee ID Number (Back):</label>
+                                <input type="text" id="idcard-employeeIdNumberBack" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="backIdNumberError"></div>
+                            </div>
+                             <div class="mb-2">
+                                <label for="idcard-issueDate" class="form-label form-label-sm">ID Issue Date:</label>
+                                <input type="date" id="idcard-issueDate" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="backIssueDateError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-expiryDate" class="form-label form-label-sm">ID Expiry Date:</label>
+                                <input type="date" id="idcard-expiryDate" class="form-control form-control-sm">
+                                <div class="invalid-feedback" id="backExpiryDateError"></div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="idcard-authorizationStatement" class="form-label form-label-sm">Authorization Statement:</label>
+                                <textarea id="idcard-authorizationStatement" class="form-control form-control-sm" rows="3"></textarea>
+                                <div class="invalid-feedback" id="authorizationStatementError"></div>
+                            </div>
+                        </fieldset>
+
+                        <!-- === STYLE CUSTOMIZATION INPUTS === -->
+                        <details class="mb-3" open>
+                            <summary class="h6" style="cursor:pointer;">Front Card Styles</summary>
+                            <div class="p-2 border rounded">
+                                <!-- Front Card Colors -->
+                                <h6 class="small text-muted">Colors</h6>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6"><label for="frontIdCardBackgroundColor" class="form-label form-label-sm">Card BG:</label><input type="color" id="frontIdCardBackgroundColor" class="form-control form-control-color form-control-sm" value="#FFFFFF"></div>
+                                    <div class="col-6"><label for="frontHeaderBackgroundColor" class="form-label form-label-sm">Header BG:</label><input type="color" id="frontHeaderBackgroundColor" class="form-control form-control-color form-control-sm" value="#FF4900"></div>
+                                    <div class="col-6"><label for="frontHeaderFontColor" class="form-label form-label-sm">Header Font:</label><input type="color" id="frontHeaderFontColor" class="form-control form-control-color form-control-sm" value="#FFFFFF"></div>
+                                    <div class="col-6"><label for="frontEmployeePhotoBorderColor" class="form-label form-label-sm">Photo Border:</label><input type="color" id="frontEmployeePhotoBorderColor" class="form-control form-control-color form-control-sm" value="#000000"></div>
+                                    <!-- Add all other color inputs from idcard.js for front card -->
+                                </div>
+                                <div class="d-flex justify-content-end mb-2">
+                                    <button id="frontApplyColorsButton" class="btn btn-sm btn-outline-secondary me-1">Apply Colors</button>
+                                    <button id="frontResetColorsButton" class="btn btn-sm btn-outline-danger">Reset Colors</button>
+                                </div>
+                                <hr class="my-1">
+                                <!-- Front Card Fonts -->
+                                <h6 class="small text-muted">Fonts & Positioning (Name)</h6>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-md-3 col-6"><label for="frontEmployeeNameTop" class="form-label form-label-sm">Name Top (mm):</label><input type="number" id="frontEmployeeNameTop" class="form-control form-control-sm" value="45"></div>
+                                    <div class="col-md-3 col-6"><label for="frontEmployeeNameLeft" class="form-label form-label-sm">Name Left (mm):</label><input type="number" id="frontEmployeeNameLeft" class="form-control form-control-sm" value="5"></div>
+                                    <div class="col-md-3 col-6"><label for="frontEmployeeNameFontSize" class="form-label form-label-sm">Name Font (mm):</label><input type="number" id="frontEmployeeNameFontSize" class="form-control form-control-sm" value="3.5"></div>
+                                    <div class="col-md-3 col-6"><label for="frontEmployeeNameFontWeight" class="form-label form-label-sm">Name Weight:</label><input type="number" id="frontEmployeeNameFontWeight" class="form-control form-control-sm" step="100" value="500"></div>
+                                    <div class="col-12"><label for="frontEmployeeNameTextAlign" class="form-label form-label-sm">Name Align:</label><select id="frontEmployeeNameTextAlign" class="form-select form-select-sm"><option value="left">Left</option><option value="center" selected>Center</option><option value="right">Right</option></select></div>
+                                    <!-- Add other font inputs: Header, Position, ID -->
+                                </div>
+                                <div class="d-flex justify-content-end mb-2">
+                                    <button id="frontApplyFontButton" class="btn btn-sm btn-outline-secondary me-1">Apply Fonts</button>
+                                    <button id="frontResetFontButton" class="btn btn-sm btn-outline-danger">Reset Fonts</button>
+                                </div>
+                                <hr class="my-1">
+                                <!-- Front Card Images & Border Radius -->
+                                <h6 class="small text-muted">Images & Barcode</h6>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-md-3 col-6"><label for="frontCompanyLogoWidth" class="form-label form-label-sm">Logo W (mm):</label><input type="number" id="frontCompanyLogoWidth" class="form-control form-control-sm" value="10"></div>
+                                    <div class="col-md-3 col-6"><label for="frontCompanyLogoHeight" class="form-label form-label-sm">Logo H (mm):</label><input type="number" id="frontCompanyLogoHeight" class="form-control form-control-sm" value="10"></div>
+                                    <div class="col-md-3 col-6"><label for="frontEmployeePhotoWidth" class="form-label form-label-sm">Photo W (mm):</label><input type="number" id="frontEmployeePhotoWidth" class="form-control form-control-sm" value="30"></div>
+                                    <div class="col-md-3 col-6"><label for="frontEmployeePhotoHeight" class="form-label form-label-sm">Photo H (mm):</label><input type="number" id="frontEmployeePhotoHeight" class="form-control form-control-sm" value="30"></div>
+                                    <div class="col-md-6 col-12"><label for="idcard-frontEmployeePhotoBorderRadius" class="form-label form-label-sm">Photo Radius (%):</label><input type="number" id="idcard-frontEmployeePhotoBorderRadius" class="form-control form-control-sm" value="50" min="0" max="50"></div>
+                                    <div class="col-md-6 col-12"><label for="idcard-frontCompanyLogoBorderRadius" class="form-label form-label-sm">Logo Radius (%):</label><input type="number" id="idcard-frontCompanyLogoBorderRadius" class="form-control form-control-sm" value="0" min="0" max="50"></div>
+                                     <!-- Add other image/barcode style inputs -->
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button id="frontApplyImageButton" class="btn btn-sm btn-outline-secondary me-1">Apply Images</button>
+                                    <button id="frontResetImageButton" class="btn btn-sm btn-outline-danger">Reset Images</button>
+                                </div>
+                            </div>
+                        </details>
+
+                        <details class="mb-3">
+                            <summary class="h6" style="cursor:pointer;">Back Card Styles</summary>
+                             <div class="p-2 border rounded">
+                                <!-- Back Card Colors -->
+                                <h6 class="small text-muted">Colors</h6>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6"><label for="backIdCardBackgroundColor" class="form-label form-label-sm">Card BG:</label><input type="color" id="backIdCardBackgroundColor" class="form-control form-control-color form-control-sm" value="#FFFFFF"></div>
+                                    <!-- Add more back card color inputs -->
+                                </div>
+                                <div class="d-flex justify-content-end mb-2">
+                                    <button id="backApplyColorsButton" class="btn btn-sm btn-outline-secondary me-1">Apply Colors</button>
+                                    <button id="backResetColorsButton" class="btn btn-sm btn-outline-danger">Reset Colors</button>
+                                </div>
+                                <hr class="my-1">
+                                <!-- Back Card Fonts -->
+                                <h6 class="small text-muted">Fonts</h6>
+                                <!-- Add back card font inputs -->
+                                <div class="d-flex justify-content-end mb-2">
+                                    <button id="backApplyFontButton" class="btn btn-sm btn-outline-secondary me-1">Apply Fonts</button>
+                                    <button id="backResetFontButton" class="btn btn-sm btn-outline-danger">Reset Fonts</button>
+                                </div>
+                                <hr class="my-1">
+                                <!-- Back Card Images & Border Radius -->
+                                <h6 class="small text-muted">Images & Barcode</h6>
+                                <div class="row g-2 mb-2">
+                                <div class="col-md-6 col-12"><label for="idcard-backCompanyLogoBorderRadius" class="form-label form-label-sm">Logo Radius (%):</label><input type="number" id="idcard-backCompanyLogoBorderRadius" class="form-control form-control-sm" value="0" min="0" max="50"></div>
+                                <!-- Add other back card image style inputs -->
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button id="backApplyImageButton" class="btn btn-sm btn-outline-secondary me-1">Apply Images</button>
+                                    <button id="backResetImageButton" class="btn btn-sm btn-outline-danger">Reset Images</button>
+                                </div>
+                            </div>
+                        </details>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button id="idcard-generatePreviewBtn" class="btn btn-primary btn-lg"><i class="fas fa-sync-alt me-1"></i> Generate/Update Preview</button>
+                            <button id="idcard-previewCardBtn" class="btn btn-secondary"><i class="fas fa-eye me-1"></i> Open Full Preview</button>
+                            <button id="idcard-exportPdfBtn" class="btn btn-success"><i class="fas fa-file-pdf me-1"></i> Export PDF</button>
+                            <button id="idcard-exportPngBtn" class="btn btn-info"><i class="fas fa-file-image me-1"></i> Export PNG</button>
+                            <button id="idcard-printBtn" class="btn btn-warning"><i class="fas fa-print me-1"></i> Print Card</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Preview Panel -->
+            <div class="col-lg-8 col-md-7 id-card-preview-column">
+                <div class="sticky-top" style="top: 20px;">
+                    <h5 class="text-center mb-3">Live Preview</h5>
+                    <div class="row justify-content-center">
+                        <div class="col-xl-6 col-lg-12 col-md-12 mb-3 d-flex flex-column align-items-center">
+                            <h6 class="text-center text-muted small mb-1">Front View</h6>
+                            <!-- === FRONT CARD PREVIEW DIV === -->
+                            <div id="front-id-card" class="id-card-render-area shadow">
+                                <!-- Dynamic Elements based on idcard.js -->
+                                <div class="header-section"> <!-- Assuming this class is used -->
+                                    <h1 id="companyName"></h1> <!-- Populated by JS -->
+                                    <div id="companySubtitle"></div> <!-- Populated by JS -->
+                                </div>
+                                <img id="companyLogo" src="/images/logo.png" alt="Company Logo">
+                                <img id="employeePhoto" src="/images/placeholder-photo.png" alt="Employee Photo">
+                                <div class="employee-name-box"> <!-- Assuming this class is used -->
+                                    <p id="employeeName"></p> <!-- Populated by JS -->
+                                </div>
+                                <div class="employee-position-box"> <!-- Assuming this class is used -->
+                                    <p id="employeePosition"></p> <!-- Populated by JS -->
+                                </div>
+                                <div class="employee-id-box"> <!-- Assuming this class is used -->
+                                    <p id="employeeId"></p> <!-- Populated by JS -->
+                                </div>
+                                <div class="barcode-box" style="position:absolute; bottom:5px; right:5px; /* Adjust */">
+                                    <svg id="frontBarcode"></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-12 col-md-12 mb-3 d-flex flex-column align-items-center">
+                            <h6 class="text-center text-muted small mb-1">Back View</h6>
+                            <!-- === BACK CARD PREVIEW DIV === -->
+                            <div id="back-id-card" class="id-card-render-area shadow">
+                                <!-- Dynamic Elements based on idcard.js -->
+                                <img id="logo" src="/images/logo.png" alt="Back Company Logo"> <!-- Matches idcard.js 'logoEl' -->
+                                <div class="employee-details"> <!-- Assuming a wrapper class -->
+                                    <p><strong id="backName"></strong></p> <!-- Populated by JS -->
+                                    <p><span id="backPosition"></span></p> <!-- Populated by JS -->
+                                    <p>ID: <span id="backId"></span></p> <!-- Populated by JS -->
+                                </div>
+                                <div class="contact-info"> <!-- Assuming a wrapper class -->
+                                    <p id="companyPhoneDisplay"></p>
+                                    <p id="companyEmailDisplay"></p>
+                                    <p id="companyWebsiteDisplay"></p>
+                                    <p id="companyLocationDisplay"></p>
+                                </div>
+                                <div class="authorization" id="authorizationDisplay"></div> <!-- Populated by JS -->
+                                <div id="issueDate" class="card-date"></div>
+                                <div id="expiryDate" class="card-date"></div>
+                                <img class="signature" src="/images/signature.png" alt="CEO Signature">
+                                <div class="ceoName">
+                                    <p id="ceoNameDisplay"></p> <!-- Populated by JS -->
+                                </div>
+                                <img class="stamp" src="/images/stamp.png" alt="Company Stamp">
+                                <div class="footer" id="companyNameDisplay"></div> <!-- Populated by JS -->
+                                <div class="barcode-box" style="position:absolute; bottom:45px; left:50%; transform: translateX(-50%); /* Adjust */">
+                                    <svg id="backBarcode"></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End of #id-card-application-wrapper -->
+
+    <!-- Modal structure -->
+    <div id="previewModal" class="modal fade" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">ID Card Preview</h5>
+                    <button type="button" class="btn-close close-button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 text-center mb-3 mb-md-0">
+                            <h6>Front</h6>
+                            <div id="front-preview-modal" class="id-card-render-area mx-auto"></div>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <h6>Back</h6>
+                            <div id="back-preview-modal" class="id-card-render-area mx-auto"></div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary close-button" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div> <!-- End of .container-fluid -->
+
+<!-- External JS Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Your Custom idcard.js -->
+<script>
+    // public/js/idcard.js
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Constants
+    const CARD_WIDTH_MM = 50; // Standard CR80 card width is 85.6mm, height is 53.98mm. Let's assume landscape for these dimensions or adjust.
+    const CARD_HEIGHT_MM = 85; // The EJS preview seems portrait, so width 50mm, height 85mm might be custom.
+    const DPI = 72; // dots per inch
+    const PX_PER_MM = DPI / 25.4;
+    const CARD_WIDTH_PX = CARD_WIDTH_MM * PX_PER_MM;
+    const CARD_HEIGHT_PX = CARD_HEIGHT_MM * PX_PER_MM;
+    const LOCAL_STORAGE_KEY = 'idCardGeneratorCustomizations_v2'; // Changed key to avoid conflict with old versions
+
+    // DOM Elements - Card Preview Areas
+    const frontIdCardEl = document.getElementById('front-id-card');
+    const backIdCardEl = document.getElementById('back-id-card');
+
+    // DOM Elements - Live Preview Card Content
+    const companyNameLiveEl = document.getElementById('companyName'); // Front header
+    const companySubtitleLiveEl = document.getElementById('companySubtitle'); // Front header
+    const companyLogoLiveEl = document.getElementById('companyLogo'); // Front
+    const employeePhotoLiveEl = document.getElementById('employeePhoto'); // Front
+    const employeeNameLiveEl = document.getElementById('employeeName'); // Front
+    const employeePositionLiveEl = document.getElementById('employeePosition'); // Front
+    const employeeIdLiveEl = document.getElementById('employeeId'); // Front
+    const frontBarcodeLiveEl = document.getElementById('frontBarcode'); // Front
+
+    const backLogoLiveEl = document.getElementById('logo'); // Back card logo
+    const backNameLiveEl = document.getElementById('backName'); // Back
+    const backPositionLiveEl = document.getElementById('backPosition'); // Back
+    const backIdLiveEl = document.getElementById('backId'); // Back
+    const issueDateLiveEl = document.getElementById('issueDate'); // Back
+    const expiryDateLiveEl = document.getElementById('expiryDate'); // Back
+    const companyPhoneDisplayLiveEl = document.getElementById('companyPhoneDisplay'); // Back
+    const companyEmailDisplayLiveEl = document.getElementById('companyEmailDisplay'); // Back
+    const companyWebsiteDisplayLiveEl = document.getElementById('companyWebsiteDisplay'); // Back
+    const companyLocationDisplayLiveEl = document.getElementById('companyLocationDisplay'); // Back
+    const authorizationDisplayLiveEl = document.getElementById('authorizationDisplay'); // Back
+    const ceoNameDisplayLiveEl = document.getElementById('ceoNameDisplay'); // Back
+    const companyNameDisplayLiveEl = document.getElementById('companyNameDisplay'); // Back footer
+    const backBarcodeLiveEl = document.getElementById('backBarcode'); // Back
+    const signatureLiveEl = document.querySelector('#back-id-card .signature'); // Back
+    const stampLiveEl = document.querySelector('#back-id-card .stamp'); // Back
+
+    // DOM Elements - Form Inputs: Company Details
+    const companyNameInputEl = document.getElementById('idcard-companyName');
+    const companySubtitleInputEl = document.getElementById('idcard-companySubtitle');
+    const companyLogoUploadEl = document.getElementById('idcard-companyLogoUpload');
+    const ceoSignatureUploadEl = document.getElementById('idcard-ceoSignatureUpload');
+    const companyStampUploadEl = document.getElementById('idcard-companyStampUpload');
+    const companyPhoneInputEl = document.getElementById('idcard-companyPhone');
+    const companyEmailInputEl = document.getElementById('idcard-companyEmail');
+    const companyWebsiteInputEl = document.getElementById('idcard-companyWebsite');
+    const companyLocationInputEl = document.getElementById('idcard-companyLocation');
+    const ceoNameInputEl = document.getElementById('idcard-ceoName');
+
+    // DOM Elements - Form Inputs: Employee Details
+    const employeeFullNameFrontInputEl = document.getElementById('idcard-employeeFullNameFront');
+    const employeePositionFrontInputEl = document.getElementById('idcard-employeePositionFront');
+    const employeeFullNameBackInputEl = document.getElementById('idcard-employeeFullNameBack');
+    const employeePositionBackInputEl = document.getElementById('idcard-employeePositionBack');
+    const employeePhotoUploadEl = document.getElementById('idcard-employeePhotoUpload');
+    const employeePhoneInputEl = document.getElementById('idcard-employeePhone');
+    const employeeEmailInputEl = document.getElementById('idcard-employeeEmail');
+    const employeeIdNumberInputEl = document.getElementById('idcard-employeeIdNumber');
+    const employeeIdNumberBackInputEl = document.getElementById('idcard-employeeIdNumberBack');
+    const issueDateInputEl = document.getElementById('idcard-issueDate');
+    const expiryDateInputEl = document.getElementById('idcard-expiryDate');
+    const authorizationStatementInputEl = document.getElementById('idcard-authorizationStatement');
+
+    // DOM Elements - Style Controls: Front Card Colors
+    const frontIdCardBackgroundColorEl = document.getElementById('frontIdCardBackgroundColor');
+    const frontHeaderBackgroundColorEl = document.getElementById('frontHeaderBackgroundColor');
+    const frontHeaderFontColorEl = document.getElementById('frontHeaderFontColor');
+    const frontEmployeePhotoBorderColorEl = document.getElementById('frontEmployeePhotoBorderColor');
+    // EJS doesn't have these from old HTML:
+    // const frontEmployeePhotoBackgroundColorEl = document.getElementById('frontEmployeePhotoBackgroundColor');
+    // const frontEmployeeNameBackgroundColorEl = document.getElementById('frontEmployeeNameBackgroundColor');
+    // const frontEmployeeNameFontColorEl = document.getElementById('frontEmployeeNameFontColor');
+    // const frontEmployeePositionBackgroundColorEl = document.getElementById('frontEmployeePositionBackgroundColor');
+    // const frontEmployeePositionFontColorEl = document.getElementById('frontEmployeePositionFontColor');
+    // const frontEmployeeIdBackgroundColorEl = document.getElementById('frontEmployeeIdBackgroundColor');
+    // const frontEmployeeIdFontColorEl = document.getElementById('frontEmployeeIdFontColor');
+    // const frontCompanyLogoBackgroundColorEl = document.getElementById('frontCompanyLogoBackgroundColor');
+    // const frontCompanyLogoBorderColorEl = document.getElementById('frontCompanyLogoBorderColor');
+
+    // DOM Elements - Style Controls: Front Card Fonts & Positioning
+    const frontEmployeeNameTopEl = document.getElementById('frontEmployeeNameTop');
+    const frontEmployeeNameLeftEl = document.getElementById('frontEmployeeNameLeft');
+    const frontEmployeeNameFontSizeEl = document.getElementById('frontEmployeeNameFontSize');
+    const frontEmployeeNameFontWeightEl = document.getElementById('frontEmployeeNameFontWeight');
+    const frontEmployeeNameTextAlignEl = document.getElementById('frontEmployeeNameTextAlign');
+    // Additional font controls from EJS would go here if mapped from old HTML
+
+    // DOM Elements - Style Controls: Front Card Images & Barcode
+    const frontCompanyLogoWidthEl = document.getElementById('frontCompanyLogoWidth');
+    const frontCompanyLogoHeightEl = document.getElementById('frontCompanyLogoHeight');
+    const frontEmployeePhotoWidthEl = document.getElementById('frontEmployeePhotoWidth');
+    const frontEmployeePhotoHeightEl = document.getElementById('frontEmployeePhotoHeight');
+    const frontEmployeePhotoBorderRadiusEl = document.getElementById('idcard-frontEmployeePhotoBorderRadius');
+    const frontCompanyLogoBorderRadiusEl = document.getElementById('idcard-frontCompanyLogoBorderRadius');
+    // Additional image/barcode style inputs from EJS would go here
+
+    // DOM Elements - Style Controls: Back Card Colors
+    const backIdCardBackgroundColorEl = document.getElementById('backIdCardBackgroundColor');
+    // Add more back card color inputs if they exist in EJS and are needed
+
+    // DOM Elements - Style Controls: Back Card Fonts
+    // Add back card font inputs if they exist in EJS and are needed
+
+    // DOM Elements - Style Controls: Back Card Images & Barcode
+    const backCompanyLogoBorderRadiusEl = document.getElementById('idcard-backCompanyLogoBorderRadius');
+    // Add other back card image style inputs from EJS if needed
+
+    // DOM Elements - Buttons
+    const generatePreviewBtnEl = document.getElementById('idcard-generatePreviewBtn');
+    const previewCardBtnEl = document.getElementById('idcard-previewCardBtn');
+    const exportPdfBtnEl = document.getElementById('idcard-exportPdfBtn');
+    const exportPngBtnEl = document.getElementById('idcard-exportPngBtn');
+    const printBtnEl = document.getElementById('idcard-printBtn');
+
+    // Style Apply/Reset Buttons
+    const frontApplyColorsButtonEl = document.getElementById('frontApplyColorsButton');
+    const frontResetColorsButtonEl = document.getElementById('frontResetColorsButton');
+    const frontApplyFontButtonEl = document.getElementById('frontApplyFontButton');
+    const frontResetFontButtonEl = document.getElementById('frontResetFontButton');
+    const frontApplyImageButtonEl = document.getElementById('frontApplyImageButton');
+    const frontResetImageButtonEl = document.getElementById('frontResetImageButton');
+
+    const backApplyColorsButtonEl = document.getElementById('backApplyColorsButton');
+    const backResetColorsButtonEl = document.getElementById('backResetColorsButton');
+    const backApplyFontButtonEl = document.getElementById('backApplyFontButton');
+    const backResetFontButtonEl = document.getElementById('backResetFontButton');
+    const backApplyImageButtonEl = document.getElementById('backApplyImageButton');
+    const backResetImageButtonEl = document.getElementById('backResetImageButton');
+
+    // Modal Elements
+    const previewModalEl = document.getElementById('previewModal');
+    const frontPreviewModalContentEl = document.getElementById('front-preview-modal');
+    const backPreviewModalContentEl = document.getElementById('back-preview-modal');
+    let previewModalInstance;
+    if (previewModalEl) {
+        previewModalInstance = new bootstrap.Modal(previewModalEl);
+    }
+    
+    // --- Helper Functions ---
+
+    function mmToPx(mm) {
+        return mm * PX_PER_MM;
+    }
+
+    function applyStyles(element, styles) {
+        if (!element) return;
+        for (const property in styles) {
+            element.style[property] = styles[property];
+        }
+    }
+
+    function applyImageBorderRadius(imageElement, borderRadius) {
+        if (!imageElement) return;
+        imageElement.style.borderRadius = borderRadius + "%";
+    }
+
+    function handleImageUpload(inputElement, imageElement, callback) {
+        if (!inputElement || !imageElement) return;
+        const file = inputElement.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageElement.src = e.target.result;
+                if (callback) callback();
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async function generateBarcode(element, text, widthMm = 40, heightMm = 10) {
+        if (!element || !text) {
+            if (element) element.innerHTML = ''; // Clear if no text
+            return;
+        }
+        try {
+            JsBarcode(element, text, {
+                format: "CODE128",
+                displayValue: false, // No text below barcode, ID number is separate
+                lineColor: "#000",
+                width: mmToPx(widthMm) / 100, // JsBarcode width unit is a bit abstract
+                height: mmToPx(heightMm),
+                margin: 0
+            });
+        } catch (error) {
+            console.error("Barcode generation error:", error);
+            element.innerHTML = '<text fill="red">Error</text>'; // Display error in SVG
+        }
+    }
+    
+    // --- Validation Functions ---
+    function validatePhoneNumber(phoneNumber) {
+        const phoneRegex = /^\+?\d{7,15}$/; // Simplified regex, adjust as needed
+        return phoneRegex.test(phoneNumber);
+    }
+
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function validateWebsiteURL(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function displayValidationMessage(inputId, message, isValid) {
+        const inputEl = document.getElementById(inputId);
+        const errorEl = document.getElementById(inputId + 'Error'); // e.g., idcard-companyNameError
+
+        if (!inputEl || !errorEl) return;
+
+        if (isValid) {
+            inputEl.classList.remove('is-invalid');
+            inputEl.classList.add('is-valid');
+            errorEl.textContent = '';
+        } else {
+            inputEl.classList.remove('is-valid');
+            inputEl.classList.add('is-invalid');
+            errorEl.textContent = message;
+        }
+    }
+    
+    // --- Data Handling & Local Storage ---
+
+    function loadDataFromLocalStorage() {
+        const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+        try {
+            return data ? JSON.parse(data) : {};
+        } catch (e) {
+            console.error("Error parsing localStorage data:", e);
+            return {};
+        }
+    }
+
+    function saveDataToLocalStorage(data) {
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {
+            console.error("Error saving to localStorage:", e);
+        }
+    }
+
+    function getCurrentFormData() {
+        return {
+            // Company Details
+            companyName: companyNameInputEl.value,
+            companySubtitle: companySubtitleInputEl.value,
+            companyPhone: companyPhoneInputEl.value,
+            companyEmail: companyEmailInputEl.value,
+            companyWebsite: companyWebsiteInputEl.value,
+            companyLocation: companyLocationInputEl.value,
+            ceoName: ceoNameInputEl.value,
+
+            // Employee Details
+            employeeFullNameFront: employeeFullNameFrontInputEl.value,
+            employeePositionFront: employeePositionFrontInputEl.value,
+            employeeFullNameBack: employeeFullNameBackInputEl.value,
+            employeePositionBack: employeePositionBackInputEl.value,
+            employeePhone: employeePhoneInputEl.value,
+            employeeEmail: employeeEmailInputEl.value,
+            employeeIdNumber: employeeIdNumberInputEl.value,
+            employeeIdNumberBack: employeeIdNumberBackInputEl.value,
+            issueDate: issueDateInputEl.value,
+            expiryDate: expiryDateInputEl.value,
+            authorizationStatement: authorizationStatementInputEl.value,
+
+            // Image data URLs (updated on upload)
+            companyLogoDataUrl: companyLogoLiveEl.src.startsWith('data:image') ? companyLogoLiveEl.src : null,
+            employeePhotoDataUrl: employeePhotoLiveEl.src.startsWith('data:image') ? employeePhotoLiveEl.src : null,
+            ceoSignatureDataUrl: signatureLiveEl.src.startsWith('data:image') ? signatureLiveEl.src : null,
+            companyStampDataUrl: stampLiveEl.src.startsWith('data:image') ? stampLiveEl.src : null,
+
+            // Styles
+            styles: {
+                frontIdCardBackgroundColor: frontIdCardBackgroundColorEl.value,
+                frontHeaderBackgroundColor: frontHeaderBackgroundColorEl.value,
+                frontHeaderFontColor: frontHeaderFontColorEl.value,
+                frontEmployeePhotoBorderColor: frontEmployeePhotoBorderColorEl.value,
+                
+                frontEmployeeNameTop: frontEmployeeNameTopEl.value,
+                frontEmployeeNameLeft: frontEmployeeNameLeftEl.value,
+                frontEmployeeNameFontSize: frontEmployeeNameFontSizeEl.value,
+                frontEmployeeNameFontWeight: frontEmployeeNameFontWeightEl.value,
+                frontEmployeeNameTextAlign: frontEmployeeNameTextAlignEl.value,
+                
+                frontCompanyLogoWidth: frontCompanyLogoWidthEl.value,
+                frontCompanyLogoHeight: frontCompanyLogoHeightEl.value,
+                frontEmployeePhotoWidth: frontEmployeePhotoWidthEl.value,
+                frontEmployeePhotoHeight: frontEmployeePhotoHeightEl.value,
+                frontEmployeePhotoBorderRadius: frontEmployeePhotoBorderRadiusEl.value,
+                frontCompanyLogoBorderRadius: frontCompanyLogoBorderRadiusEl.value,
+                
+                backIdCardBackgroundColor: backIdCardBackgroundColorEl.value,
+                backCompanyLogoBorderRadius: backCompanyLogoBorderRadiusEl.value,
+                // Add all other style inputs here
+            }
+        };
+    }
+
+    function populateFormWithData(data) {
+        // Company Details
+        companyNameInputEl.value = data.companyName || '';
+        companySubtitleInputEl.value = data.companySubtitle || '';
+        companyPhoneInputEl.value = data.companyPhone || '';
+        companyEmailInputEl.value = data.companyEmail || '';
+        companyWebsiteInputEl.value = data.companyWebsite || '';
+        companyLocationInputEl.value = data.companyLocation || '';
+        ceoNameInputEl.value = data.ceoName || '';
+
+        // Employee Details
+        employeeFullNameFrontInputEl.value = data.employeeFullNameFront || '';
+        employeePositionFrontInputEl.value = data.employeePositionFront || '';
+        employeeFullNameBackInputEl.value = data.employeeFullNameBack || '';
+        employeePositionBackInputEl.value = data.employeePositionBack || '';
+        employeePhoneInputEl.value = data.employeePhone || '';
+        employeeEmailInputEl.value = data.employeeEmail || '';
+        employeeIdNumberInputEl.value = data.employeeIdNumber || '';
+        employeeIdNumberBackInputEl.value = data.employeeIdNumberBack || '';
+        issueDateInputEl.value = data.issueDate || '';
+        expiryDateInputEl.value = data.expiryDate || '';
+        authorizationStatementInputEl.value = data.authorizationStatement || '';
+
+        // Restore images if data URLs exist (from local storage or previous uploads)
+        if (data.companyLogoDataUrl) companyLogoLiveEl.src = data.companyLogoDataUrl;
+        else if (initialCompanySettings && initialCompanySettings.logo_url) companyLogoLiveEl.src = initialCompanySettings.logo_url;
+        
+        if (data.employeePhotoDataUrl) employeePhotoLiveEl.src = data.employeePhotoDataUrl;
+        else if (initialStaffData && initialStaffData.photo_url) employeePhotoLiveEl.src = initialStaffData.photo_url;
+
+        if (data.ceoSignatureDataUrl) signatureLiveEl.src = data.ceoSignatureDataUrl;
+        else if (initialCompanySettings && initialCompanySettings.signature_url) signatureLiveEl.src = initialCompanySettings.signature_url;
+        
+        if (data.companyStampDataUrl) stampLiveEl.src = data.companyStampDataUrl;
+        else if (initialCompanySettings && initialCompanySettings.stamp_url) stampLiveEl.src = initialCompanySettings.stamp_url;
+
+
+        // Populate Styles
+        if (data.styles) {
+            frontIdCardBackgroundColorEl.value = data.styles.frontIdCardBackgroundColor || '#FFFFFF';
+            frontHeaderBackgroundColorEl.value = data.styles.frontHeaderBackgroundColor || '#FF4900';
+            frontHeaderFontColorEl.value = data.styles.frontHeaderFontColor || '#FFFFFF';
+            frontEmployeePhotoBorderColorEl.value = data.styles.frontEmployeePhotoBorderColor || '#000000';
+            
+            frontEmployeeNameTopEl.value = data.styles.frontEmployeeNameTop || '45';
+            frontEmployeeNameLeftEl.value = data.styles.frontEmployeeNameLeft || '5';
+            frontEmployeeNameFontSizeEl.value = data.styles.frontEmployeeNameFontSize || '3.5';
+            frontEmployeeNameFontWeightEl.value = data.styles.frontEmployeeNameFontWeight || '500';
+            frontEmployeeNameTextAlignEl.value = data.styles.frontEmployeeNameTextAlign || 'center';
+            
+            frontCompanyLogoWidthEl.value = data.styles.frontCompanyLogoWidth || '10';
+            frontCompanyLogoHeightEl.value = data.styles.frontCompanyLogoHeight || '10';
+            frontEmployeePhotoWidthEl.value = data.styles.frontEmployeePhotoWidth || '30';
+            frontEmployeePhotoHeightEl.value = data.styles.frontEmployeePhotoHeight || '30';
+            frontEmployeePhotoBorderRadiusEl.value = data.styles.frontEmployeePhotoBorderRadius || '50';
+            frontCompanyLogoBorderRadiusEl.value = data.styles.frontCompanyLogoBorderRadius || '0';
+            
+            backIdCardBackgroundColorEl.value = data.styles.backIdCardBackgroundColor || '#FFFFFF';
+            backCompanyLogoBorderRadiusEl.value = data.styles.backCompanyLogoBorderRadius || '0';
+        }
+    }
+    
+    // --- Update Preview ---
+    async function updatePreview() {
+        const data = getCurrentFormData();
+
+        // Update Live Preview Text Content
+        if (companyNameLiveEl) companyNameLiveEl.textContent = data.companyName;
+        if (companySubtitleLiveEl) companySubtitleLiveEl.textContent = data.companySubtitle;
+        if (employeeNameLiveEl) employeeNameLiveEl.textContent = data.employeeFullNameFront;
+        if (employeePositionLiveEl) employeePositionLiveEl.textContent = data.employeePositionFront;
+        if (employeeIdLiveEl) employeeIdLiveEl.textContent = data.employeeIdNumber ? `ID: ${data.employeeIdNumber}` : '';
+        
+        if (backNameLiveEl) backNameLiveEl.textContent = data.employeeFullNameBack;
+        if (backPositionLiveEl) backPositionLiveEl.textContent = data.employeePositionBack;
+        if (backIdLiveEl) backIdLiveEl.textContent = data.employeeIdNumberBack;
+        if (issueDateLiveEl) issueDateLiveEl.textContent = data.issueDate ? `Issued: ${new Date(data.issueDate).toLocaleDateString()}`: '';
+        if (expiryDateLiveEl) expiryDateLiveEl.textContent = data.expiryDate ? `Expires: ${new Date(data.expiryDate).toLocaleDateString()}`: '';
+        
+        if (companyPhoneDisplayLiveEl) companyPhoneDisplayLiveEl.textContent = data.companyPhone ? `P: ${data.companyPhone}` : '';
+        if (companyEmailDisplayLiveEl) companyEmailDisplayLiveEl.textContent = data.companyEmail ? `E: ${data.companyEmail}` : '';
+        if (companyWebsiteDisplayLiveEl) companyWebsiteDisplayLiveEl.textContent = data.companyWebsite ? `W: ${data.companyWebsite}` : '';
+        if (companyLocationDisplayLiveEl) companyLocationDisplayLiveEl.textContent = data.companyLocation;
+        if (authorizationDisplayLiveEl) authorizationDisplayLiveEl.textContent = data.authorizationStatement;
+        if (ceoNameDisplayLiveEl) ceoNameDisplayLiveEl.textContent = data.ceoName ? `CEO: ${data.ceoName}` : '';
+        if (companyNameDisplayLiveEl) companyNameDisplayLiveEl.textContent = data.companyName; // Back footer
+
+        // Update images (src is handled by populate or image upload handlers)
+        // Apply Styles (will read from style control inputs)
+        applyAllStyles();
+
+        // Generate Barcodes
+        if (data.employeeIdNumber) {
+           await generateBarcode(frontBarcodeLiveEl, data.employeeIdNumber);
+        } else {
+           if(frontBarcodeLiveEl) frontBarcodeLiveEl.innerHTML = '';
+        }
+        if (data.employeeIdNumberBack) {
+           await generateBarcode(backBarcodeLiveEl, data.employeeIdNumberBack);
+        } else {
+            if(backBarcodeLiveEl) backBarcodeLiveEl.innerHTML = '';
+        }
+
+        // Save current state to local storage
+        saveDataToLocalStorage(data);
+    }
+
+    // --- Apply Styles Functions ---
+    function applyFrontCardColors() {
+        if (!frontIdCardEl) return;
+        applyStyles(frontIdCardEl, { backgroundColor: frontIdCardBackgroundColorEl.value });
+        const headerSection = frontIdCardEl.querySelector('.header-section');
+        if (headerSection) {
+            applyStyles(headerSection, { backgroundColor: frontHeaderBackgroundColorEl.value });
+            const headerText = headerSection.querySelector('#companyName'); // Assuming h1 or similar for text
+            if (headerText) applyStyles(headerText, { color: frontHeaderFontColorEl.value });
+        }
+        if (employeePhotoLiveEl) {
+            applyStyles(employeePhotoLiveEl, { borderColor: frontEmployeePhotoBorderColorEl.value });
+        }
+    }
+
+    function resetFrontCardColors() {
+        frontIdCardBackgroundColorEl.value = '#FFFFFF';
+        frontHeaderBackgroundColorEl.value = '#FF4900';
+        frontHeaderFontColorEl.value = '#FFFFFF';
+        frontEmployeePhotoBorderColorEl.value = '#000000';
+        applyFrontCardColors();
+        updatePreview();
+    }
+
+    function applyFrontCardFontsAndPositioning() {
+        if (employeeNameLiveEl) {
+            applyStyles(employeeNameLiveEl, {
+                position: 'absolute', // Assuming this is desired for direct positioning
+                top: frontEmployeeNameTopEl.value + 'mm',
+                left: frontEmployeeNameLeftEl.value + 'mm',
+                fontSize: frontEmployeeNameFontSizeEl.value + 'mm',
+                fontWeight: frontEmployeeNameFontWeightEl.value,
+                textAlign: frontEmployeeNameTextAlignEl.value,
+            });
+        }
+        // Add more font applications here for other elements if controls exist
+    }
+    
+    function resetFrontCardFontsAndPositioning() {
+        frontEmployeeNameTopEl.value = '45';
+        frontEmployeeNameLeftEl.value = '5';
+        frontEmployeeNameFontSizeEl.value = '3.5';
+        frontEmployeeNameFontWeightEl.value = '500';
+        frontEmployeeNameTextAlignEl.value = 'center';
+        applyFrontCardFontsAndPositioning();
+        updatePreview();
+    }
+
+    function applyFrontCardImagesAndRadius() {
+        if (companyLogoLiveEl) {
+            applyStyles(companyLogoLiveEl, {
+                width: frontCompanyLogoWidthEl.value + 'mm',
+                height: frontCompanyLogoHeightEl.value + 'mm',
+            });
+            applyImageBorderRadius(companyLogoLiveEl, frontCompanyLogoBorderRadiusEl.value);
+        }
+        if (employeePhotoLiveEl) {
+            applyStyles(employeePhotoLiveEl, {
+                width: frontEmployeePhotoWidthEl.value + 'mm',
+                height: frontEmployeePhotoHeightEl.value + 'mm',
+            });
+            applyImageBorderRadius(employeePhotoLiveEl, frontEmployeePhotoBorderRadiusEl.value);
+        }
+    }
+
+    function resetFrontCardImagesAndRadius() {
+        frontCompanyLogoWidthEl.value = '10';
+        frontCompanyLogoHeightEl.value = '10';
+        frontEmployeePhotoWidthEl.value = '30';
+        frontEmployeePhotoHeightEl.value = '30';
+        frontEmployeePhotoBorderRadiusEl.value = '50';
+        frontCompanyLogoBorderRadiusEl.value = '0';
+        applyFrontCardImagesAndRadius();
+        updatePreview();
+    }
+    
+    function applyBackCardColors() {
+        if (backIdCardEl) {
+            applyStyles(backIdCardEl, { backgroundColor: backIdCardBackgroundColorEl.value });
+        }
+    }
+
+    function resetBackCardColors() {
+        backIdCardBackgroundColorEl.value = '#FFFFFF';
+        applyBackCardColors();
+        updatePreview();
+    }
+    
+    function applyBackCardImagesAndRadius() {
+        if (backLogoLiveEl) { // Assuming backLogoLiveEl is the company logo on the back
+            applyImageBorderRadius(backLogoLiveEl, backCompanyLogoBorderRadiusEl.value);
+            // Add width/height controls if available for back logo
+        }
+    }
+
+    function resetBackCardImagesAndRadius() {
+        backCompanyLogoBorderRadiusEl.value = '0';
+        applyBackCardImagesAndRadius();
+        updatePreview();
+    }
+
+    function applyAllStyles() {
+        applyFrontCardColors();
+        applyFrontCardFontsAndPositioning();
+        applyFrontCardImagesAndRadius();
+        applyBackCardColors();
+        // applyBackCardFonts(); // Implement if back font controls exist
+        applyBackCardImagesAndRadius();
+    }
+
+    // --- Action Button Handlers ---
+    function validateAllFields() {
+        let isValid = true;
+        // Simplified validation chain
+        const fieldsToValidate = [
+            { el: companyNameInputEl, msg: 'Company name is required.', validator: val => val.trim() !== '' },
+            { el: companyPhoneInputEl, msg: 'Valid company phone is required.', validator: validatePhoneNumber },
+            { el: companyEmailInputEl, msg: 'Valid company email is required.', validator: validateEmail },
+            { el: companyWebsiteInputEl, msg: 'Valid company website is required.', validator: validateWebsiteURL, optional: true },
+            { el: companyLocationInputEl, msg: 'Company location is required.', validator: val => val.trim() !== '' },
+            { el: ceoNameInputEl, msg: 'CEO name is required.', validator: val => val.trim() !== '' },
+            { el: employeeFullNameFrontInputEl, msg: 'Employee full name (front) is required.', validator: val => val.trim() !== '' },
+            { el: employeePositionFrontInputEl, msg: 'Employee position (front) is required.', validator: val => val.trim() !== '' },
+            { el: employeeIdNumberInputEl, msg: 'Employee ID (front) is required.', validator: val => val.trim() !== '' },
+            { el: employeeIdNumberBackInputEl, msg: 'Employee ID (back) is required and must match front ID.', validator: val => val.trim() !== '' && val === employeeIdNumberInputEl.value },
+            { el: issueDateInputEl, msg: 'Issue date is required.', validator: val => val.trim() !== '' },
+            { el: expiryDateInputEl, msg: 'Expiry date is required.', validator: val => val.trim() !== '' },
+            { el: authorizationStatementInputEl, msg: 'Authorization statement is required.', validator: val => val.trim() !== '' },
+            { el: employeePhoneInputEl, msg: 'Valid employee phone format required if provided.', validator: validatePhoneNumber, optional: true },
+            { el: employeeEmailInputEl, msg: 'Valid employee email format required if provided.', validator: validateEmail, optional: true },
+        ];
+
+        fieldsToValidate.forEach(field => {
+            const value = field.el.value;
+            let fieldIsValid;
+            if (field.optional && value.trim() === '') {
+                fieldIsValid = true;
+            } else {
+                fieldIsValid = field.validator(value);
+            }
+            displayValidationMessage(field.el.id, field.msg, fieldIsValid);
+            if (!fieldIsValid) isValid = false;
+        });
+        return isValid;
+    }
+
+    async function handleGeneratePreview() {
+        if (!validateAllFields()) {
+            alert("Please correct the errors in the form.");
+            return;
+        }
+        await updatePreview();
+    }
+    
+    async function handleOpenFullPreview() {
+        await handleGeneratePreview(); // Ensure preview is up-to-date
+        if (frontPreviewModalContentEl) frontPreviewModalContentEl.innerHTML = frontIdCardEl.outerHTML;
+        if (backPreviewModalContentEl) backPreviewModalContentEl.innerHTML = backIdCardEl.outerHTML;
+        if (previewModalInstance) previewModalInstance.show();
+    }
+
+    async function handleExportPdf() {
+        await handleGeneratePreview();
+        try {
+            // Wait for images and styles to render, especially barcodes
+            await new Promise(resolve => setTimeout(resolve, 300)); 
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: [CARD_WIDTH_MM, CARD_HEIGHT_MM] // Note: standard CR80 is ~85.6x54mm. These seem custom portrait.
+            });
+
+            const frontCanvas = await html2canvas(frontIdCardEl, { scale: 2, useCORS: true });
+            pdf.addImage(frontCanvas.toDataURL('image/png'), 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+            
+            pdf.addPage([CARD_WIDTH_MM, CARD_HEIGHT_MM]);
+            const backCanvas = await html2canvas(backIdCardEl, { scale: 2, useCORS: true });
+            pdf.addImage(backCanvas.toDataURL('image/png'), 'PNG', 0, 0, CARD_WIDTH_MM, CARD_HEIGHT_MM);
+            
+            pdf.save(`id_card_${employeeFullNameFrontInputEl.value.replace(/\s/g, '_') || 'employee'}.pdf`);
+        } catch (error) {
+            console.error('Error exporting PDF:', error);
+            alert('Error exporting PDF. Check console for details.');
+        }
+    }
+
+    async function handleExportPng() {
+        await handleGeneratePreview();
+        try {
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            const frontCanvas = await html2canvas(frontIdCardEl, { scale: 2, useCORS: true });
+            const frontLink = document.createElement('a');
+            frontLink.download = `id_card_front_${employeeFullNameFrontInputEl.value.replace(/\s/g, '_') || 'employee'}.png`;
+            frontLink.href = frontCanvas.toDataURL('image/png');
+            frontLink.click();
+
+            const backCanvas = await html2canvas(backIdCardEl, { scale: 2, useCORS: true });
+            const backLink = document.createElement('a');
+            backLink.download = `id_card_back_${employeeFullNameFrontInputEl.value.replace(/\s/g, '_') || 'employee'}.png`;
+            backLink.href = backCanvas.toDataURL('image/png');
+            backLink.click();
+        } catch (error) {
+            console.error('Error exporting PNG:', error);
+            alert('Error exporting PNG. Check console for details.');
+        }
+    }
+
+    async function handlePrint() {
+        await handleGeneratePreview();
+        try {
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>Print ID Card</title>');
+            // Add styles to make it look somewhat like the card for printing
+            printWindow.document.write(`<style>
+                body { margin: 0; display: flex; flex-direction: column; align-items: center; }
+                .id-card-print-area { 
+                    width: ${CARD_WIDTH_MM}mm; 
+                    height: ${CARD_HEIGHT_MM}mm; 
+                    overflow: hidden; 
+                    margin-bottom: 10mm;
+                    page-break-after: always;
+                }
+                img { max-width: 100%; height: auto; }
+            </style></head><body>`);
+            printWindow.document.write('<h3>Front</h3><div class="id-card-print-area">' + frontIdCardEl.innerHTML + '</div>');
+            printWindow.document.write('<h3>Back</h3><div class="id-card-print-area">' + backIdCardEl.innerHTML + '</div>');
+            //printWindow.document.write('<script>window.onload = function() { window.print(); window.onafterprint = function() { window.close(); } }</body></html>'); // there is problem arround this line, the editor considering script close tag is here.
+            printWindow.document.write('window.onload = function() { window.print(); window.onafterprint = function() { window.close(); } }</body></html>');
+            printWindow.document.close();
+        } catch (error) {
+            console.error('Error printing:', error);
+            alert('Error printing. Check console for details.');
+        }
+    }
+
+    // --- Initialization ---
+    function initializePage() {
+        // 1. Prepare initial data structure from server (EJS global vars)
+        const serverData = {
+            companyName: initialCompanySettings.name || '',
+            companySubtitle: initialCompanySettings.subtitle || '',
+            companyPhone: initialCompanySettings.phone || '',
+            companyEmail: initialCompanySettings.email || '',
+            companyWebsite: initialCompanySettings.website || '',
+            companyLocation: initialCompanySettings.address || '', // Assuming 'address' field from companySettings
+            ceoName: initialCompanySettings.ceo_name || '',
+
+            employeeFullNameFront: initialStaffData.full_name || '',
+            employeePositionFront: initialStaffData.position || '',
+            employeeFullNameBack: initialStaffData.full_name || '', // Default to same as front
+            employeePositionBack: initialStaffData.position || '', // Default to same as front
+            employeePhone: initialStaffData.phone_number || '',
+            employeeEmail: initialStaffData.email || '',
+            employeeIdNumber: initialStaffData.staff_id || '',
+            employeeIdNumberBack: initialStaffData.staff_id || '', // Default to same as front
+            issueDate: initialStaffData.id_issue_date ? initialStaffData.id_issue_date.split('T')[0] : '', // Format date
+            expiryDate: initialStaffData.id_expiry_date ? initialStaffData.id_expiry_date.split('T')[0] : '', // Format date
+            authorizationStatement: initialCompanySettings.id_authorization_statement || 'This cardholder is an authorized member of our organization.',
+            
+            // Initial image URLs from server
+            companyLogoDataUrl: initialCompanySettings.logo_url,
+            employeePhotoDataUrl: initialStaffData.photo_url,
+            ceoSignatureDataUrl: initialCompanySettings.signature_url,
+            companyStampDataUrl: initialCompanySettings.stamp_url,
+
+            styles: {} // Default empty styles, to be overridden by local storage if exists
+        };
+        
+        // 2. Load customizations from local storage
+        const localCustomizations = loadDataFromLocalStorage();
+        
+        // 3. Merge: Server data is base, local storage overrides specific fields/styles
+        // For text/data fields, local storage takes precedence if it exists (user might have typed something)
+        // For styles, local storage always takes precedence.
+        const finalInitialData = { ...serverData };
+        for (const key in localCustomizations) {
+            if (key !== 'styles' && localCustomizations[key] !== null && localCustomizations[key] !== undefined) {
+                finalInitialData[key] = localCustomizations[key];
+            }
+        }
+        finalInitialData.styles = { ...serverData.styles, ...(localCustomizations.styles || {}) };
+
+        // Ensure image URLs are correctly set from server data if not overridden by local base64
+        if (!localCustomizations.companyLogoDataUrl) finalInitialData.companyLogoDataUrl = serverData.companyLogoDataUrl;
+        if (!localCustomizations.employeePhotoDataUrl) finalInitialData.employeePhotoDataUrl = serverData.employeePhotoDataUrl;
+        if (!localCustomizations.ceoSignatureDataUrl) finalInitialData.ceoSignatureDataUrl = serverData.ceoSignatureDataUrl;
+        if (!localCustomizations.companyStampDataUrl) finalInitialData.companyStampDataUrl = serverData.companyStampDataUrl;
+
+
+        // 4. Populate form with this merged data
+        populateFormWithData(finalInitialData);
+
+        // 5. Set up event listeners
+        // Inputs that trigger preview update and save
+        const inputsToWatch = [
+            companyNameInputEl, companySubtitleInputEl, companyPhoneInputEl, companyEmailInputEl,
+            companyWebsiteInputEl, companyLocationInputEl, ceoNameInputEl, employeeFullNameFrontInputEl,
+            employeePositionFrontInputEl, employeeFullNameBackInputEl, employeePositionBackInputEl,
+            employeePhoneInputEl, employeeEmailInputEl, employeeIdNumberInputEl, employeeIdNumberBackInputEl,
+            issueDateInputEl, expiryDateInputEl, authorizationStatementInputEl,
+            // Style inputs
+            frontIdCardBackgroundColorEl, frontHeaderBackgroundColorEl, frontHeaderFontColorEl,
+            frontEmployeePhotoBorderColorEl, frontEmployeeNameTopEl, frontEmployeeNameLeftEl,
+            frontEmployeeNameFontSizeEl, frontEmployeeNameFontWeightEl, frontEmployeeNameTextAlignEl,
+            frontCompanyLogoWidthEl, frontCompanyLogoHeightEl, frontEmployeePhotoWidthEl,
+            frontEmployeePhotoHeightEl, frontEmployeePhotoBorderRadiusEl, frontCompanyLogoBorderRadiusEl,
+            backIdCardBackgroundColorEl, backCompanyLogoBorderRadiusEl
+        ];
+        inputsToWatch.forEach(input => {
+            if (input) input.addEventListener('input', updatePreview);
+            if (input && (input.type === 'color' || input.type === 'date' || input.tagName === 'SELECT')) { // Some inputs need 'change'
+                input.addEventListener('change', updatePreview);
+            }
+        });
+
+        // Image uploads
+        if (companyLogoUploadEl) companyLogoUploadEl.addEventListener('change', () => handleImageUpload(companyLogoUploadEl, companyLogoLiveEl, updatePreview));
+        if (employeePhotoUploadEl) employeePhotoUploadEl.addEventListener('change', () => handleImageUpload(employeePhotoUploadEl, employeePhotoLiveEl, updatePreview));
+        if (ceoSignatureUploadEl) ceoSignatureUploadEl.addEventListener('change', () => handleImageUpload(ceoSignatureUploadEl, signatureLiveEl, updatePreview));
+        if (companyStampUploadEl) companyStampUploadEl.addEventListener('change', () => handleImageUpload(companyStampUploadEl, stampLiveEl, updatePreview));
+
+        // Action Buttons
+        if (generatePreviewBtnEl) generatePreviewBtnEl.addEventListener('click', handleGeneratePreview);
+        if (previewCardBtnEl) previewCardBtnEl.addEventListener('click', handleOpenFullPreview);
+        if (exportPdfBtnEl) exportPdfBtnEl.addEventListener('click', handleExportPdf);
+        if (exportPngBtnEl) exportPngBtnEl.addEventListener('click', handleExportPng);
+        if (printBtnEl) printBtnEl.addEventListener('click', handlePrint);
+
+        // Style Apply/Reset Buttons
+        if (frontApplyColorsButtonEl) frontApplyColorsButtonEl.addEventListener('click', () => { applyFrontCardColors(); updatePreview(); });
+        if (frontResetColorsButtonEl) frontResetColorsButtonEl.addEventListener('click', resetFrontCardColors);
+        if (frontApplyFontButtonEl) frontApplyFontButtonEl.addEventListener('click', () => { applyFrontCardFontsAndPositioning(); updatePreview(); });
+        if (frontResetFontButtonEl) frontResetFontButtonEl.addEventListener('click', resetFrontCardFontsAndPositioning);
+        if (frontApplyImageButtonEl) frontApplyImageButtonEl.addEventListener('click', () => { applyFrontCardImagesAndRadius(); updatePreview(); });
+        if (frontResetImageButtonEl) frontResetImageButtonEl.addEventListener('click', resetFrontCardImagesAndRadius);
+        
+        if (backApplyColorsButtonEl) backApplyColorsButtonEl.addEventListener('click', () => { applyBackCardColors(); updatePreview(); });
+        if (backResetColorsButtonEl) backResetColorsButtonEl.addEventListener('click', resetBackCardColors);
+        // Add back font apply/reset if controls exist
+        if (backApplyImageButtonEl) backApplyImageButtonEl.addEventListener('click', () => { applyBackCardImagesAndRadius(); updatePreview(); });
+        if (backResetImageButtonEl) backResetImageButtonEl.addEventListener('click', resetBackCardImagesAndRadius);
+        
+        // 6. Initial preview generation
+        updatePreview();
+    }
+
+    // --- Start the application ---
+    // Ensure server data is available (it should be, as EJS script runs before this)
+    if (typeof initialStaffData !== 'undefined' && typeof initialCompanySettings !== 'undefined') {
+        initializePage();
+    } else {
+        console.error("Initial data (staffMember, companySettings) not found. Ensure it's passed correctly from the server.");
+        // Fallback or error display
+        alert("Error: Could not load initial data for the ID card generator.");
+    }
+});
+</script>
+
+  
+<style>
+    /* --- General Styles (Mostly handled by Bootstrap in EJS) --- */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Bootstrap-like font stack */
+  line-height: 1.6;
+  background-color: #f8f9fa; /* Lighter Bootstrap-like background */
+  color: #212529; /* Bootstrap default text color */
+  margin: 0;
+  padding: 0;
+}
+
+/* The main page container defined in EJS already has Bootstrap classes like .container-fluid */
+/* .id-card-generator-page will be the top-level scope if specific overrides are needed */
+.id-card-generator-page {
+  /* Add any page-specific global styles here if needed */
+}
+
+/*
+Old header, main, section, footer styles are largely replaced by Bootstrap's card,
+container, and utility classes within the EJS.
+If you have a global layout.ejs that includes a common header/footer,
+styles for those would go in a more global stylesheet.
+*/
+
+/* --- ID Card Application Wrapper and Columns --- */
+#id-card-application-wrapper {
+  /* Styles for the main wrapper if Bootstrap's gx-0 isn't sufficient */
+}
+
+.id-card-controls-column .card {
+  /* Specific styles for the controls panel card if needed */
+}
+
+.id-card-controls-column .card-body {
+  max-height: 85vh; /* As per EJS */
+  overflow-y: auto; /* As per EJS */
+}
+
+.id-card-preview-column .sticky-top {
+  top: 20px; /* As per EJS */
+}
+
+/* --- ID Card Render Area (Preview) --- */
+/* This replaces the old .id-card class for the preview areas */
+.id-card-render-area {
+  width: 50mm;  /* Card Width */
+  height: 85mm; /* Card Height - Portrait orientation based on EJS IDs */
+  border: 1px solid #adb5bd; /* Bootstrap-like border color */
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Bootstrap shadow-sm */
+  margin-bottom: 1rem; /* Bootstrap mb-3 */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative; /* Required for absolute positioning of internal elements */
+  background-color: #fff; /* Default background */
+  overflow: hidden; /* Important to clip content to card boundaries */
+}
+
+/* --- Front Card Styles (#front-id-card in EJS) --- */
+#front-id-card {
+  /* background-color will be set by JS color picker */
+}
+
+#front-id-card .header-section {
+  /* background-color & color will be set by JS color pickers */
+  padding: 0.4em;
+  /* border-bottom: 2px solid #dee2e6; */ /* Example, if needed */
+  position: relative; /* For absolute positioning of logo/text if needed later */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align items to the start by default */
+  min-height: 15mm; /* Adjust as needed */
+  box-sizing: border-box;
+}
+
+#front-id-card .header-section #companyName { /* This is an h1 in EJS */
+  font-size: 3.5mm; /* Default, can be overridden by JS */
+  margin: 0 0 0.1em 0;
+  font-weight: 500; /* Default */
+  text-align: center; /* Default */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#front-id-card .header-section #companySubtitle { /* This is a div in EJS */
+  font-size: 2.5mm; /* Default */
+  margin: 0;
+  text-align: center; /* Default */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#front-id-card #companyLogo {
+  width: 10mm; /* Default, from EJS inputs */
+  height: 10mm; /* Default, from EJS inputs */
+  /* border: 1px solid #000; */ /* Example, border color can be from JS */
+  /* border-radius: 0%; */ /* Default, from EJS inputs */
+  object-fit: contain;
+  position: absolute; /* Example positioning, adjust with JS inputs */
+  top: 2mm;
+  left: 2mm;
+}
+
+#front-id-card #employeePhoto {
+  width: 30mm; /* Default, from EJS inputs */
+  height: 30mm; /* Default, from EJS inputs */
+  /* border-radius: 50%; */ /* Default, from EJS inputs */
+  object-fit: cover;
+  border: 2px solid; /* Border color will come from JS */
+  /* position: absolute; */ /* Example positioning, adjust with JS inputs */
+  /* top: 15mm; */
+  /* left: 10mm; */
+  /* Default position will be static flow, JS can make it absolute and position */
+  margin: 5mm auto 2mm auto; /* Example centering if not absolutely positioned */
+}
+
+#front-id-card .employee-name-box {
+  text-align: center; /* Default, from EJS inputs for text align */
+  padding: 0.1em;
+  /* background-color: transparent; */ /* Can be set by JS */
+  width: 90%;
+  margin: 0 auto;
+  position: relative; /* If JS sets top/left, this element needs to be positioned */
+}
+
+#front-id-card #employeeName {
+  font-size: 3.5mm; /* Default, from EJS inputs */
+  margin: 0;
+  font-weight: 500; /* Default, from EJS inputs */
+  /* color: #000; */ /* Can be set by JS */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#front-id-card .employee-position-box {
+  text-align: center; /* Default */
+  padding: 0.1em;
+  width: 90%;
+  margin: 0 auto;
+  position: relative;
+}
+
+#front-id-card #employeePosition {
+  font-size: 3mm; /* Default */
+  margin: 0;
+  font-weight: 400; /* Default */
+  /* color: #555; */ /* Can be set by JS */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#front-id-card .employee-id-box {
+  text-align: center; /* Default */
+  padding: 0.05em;
+  width: 90%;
+  margin: 0.5mm auto 0 auto;
+  position: relative;
+}
+
+#front-id-card #employeeId {
+  font-size: 2.8mm; /* Default */
+  margin: 0;
+  font-weight: 300; /* Default */
+  /* color: #777; */ /* Can be set by JS */
+}
+
+#front-id-card .barcode-box {
+  text-align: center;
+  position: absolute;
+  bottom: 5px; /* As per EJS inline style - can be adjusted by JS */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto; /* Barcode JS will set its own width/height via SVG attributes */
+  /* height: 10mm; */ /* JsBarcode will handle height */
+}
+
+#front-id-card #frontBarcode {
+  /* JsBarcode directly styles the SVG elements */
+  max-width: 100%;
+}
+
+/* --- Back Card Styles (#back-id-card in EJS) --- */
+#back-id-card {
+  padding: 2mm;
+  font-size: 2.2mm; /* Base font size for back card text */
+  /* background-color will be set by JS color picker */
+}
+
+#back-id-card #logo { /* This is the company logo on the back */
+  width: 12mm; /* Default, can be styled by JS */
+  height: 12mm; /* Default, can be styled by JS */
+  /* border-radius: 0%; */ /* Default, from EJS inputs */
+  object-fit: contain;
+  position: absolute;
+  top: 2mm;
+  right: 2mm;
+  /* background-color: white; */ /* Optional if logo has transparency */
+  /* border: 1px solid #000; */
+}
+
+#back-id-card .employee-details {
+  margin-top: 15mm; /* Space for logo */
+  margin-bottom: 0.5em;
+  text-align: left;
+  padding-bottom: 0.5em;
+  border-bottom: 0.5px solid #ccc;
+}
+
+#back-id-card .employee-details p {
+  margin: 0.2em 0;
+  line-height: 1.3;
+}
+#back-id-card .employee-details strong { /* For #backName */
+    font-weight: bold;
+}
+/* #backPosition and #backId are spans, can be styled if needed */
+
+#back-id-card .contact-info {
+  margin-bottom: 0.5em;
+  text-align: left;
+  padding-bottom: 0.5em;
+  border-bottom: 0.5px solid #ccc;
+}
+
+#back-id-card .contact-info p {
+  margin: 0.2em 0;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#back-id-card .authorization { /* #authorizationDisplay */
+  font-size: 2mm; /* Slightly smaller for potentially long text */
+  text-align: justify;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+#back-id-card .card-date { /* For #issueDate, #expiryDate */
+    font-size: 1.8mm;
+    color: #555;
+    margin: 0.1em 0;
+}
+
+#back-id-card .signature {
+  width: 15mm; /* Default, can be styled by JS */
+  height: auto;
+  max-height: 10mm;
+  object-fit: contain;
+  margin: 0.5em 0 0.1em auto; /* Align right */
+  display: block;
+}
+
+#back-id-card .ceoName { /* Contains #ceoNameDisplay */
+  font-size: 2mm;
+  text-align: right;
+  margin-bottom: 1em; /* Space above stamp if signature is above */
+  font-style: italic;
+}
+#back-id-card .ceoName p {
+    margin: 0;
+}
+
+#back-id-card .stamp {
+  width: 20mm; /* Default, can be styled by JS */
+  height: 20mm; /* Default, can be styled by JS */
+  object-fit: contain;
+  opacity: 0.2; /* Default opacity */
+  position: absolute;
+  /* Example positioning, can be adjusted */
+  bottom: 15mm;
+  left: 5mm;
+  pointer-events: none; /* So it doesn't interfere with text selection */
+}
+
+#back-id-card .footer { /* #companyNameDisplay */
+  font-size: 2mm;
+  text-align: center;
+  color: #333;
+  padding: 0.5em 0.2em;
+  background-color: #f0f0f0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#back-id-card .barcode-box {
+  text-align: center;
+  position: absolute;
+  bottom: 25px; /* As per EJS inline style - this is above footer */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  /* height: 10mm; */
+}
+#back-id-card #backBarcode {
+  max-width: 100%;
+}
+
+/* --- Controls Panel Forms (EJS uses Bootstrap heavily) --- */
+.id-card-controls-column fieldset {
+  /* border: 1px solid #ced4da; Bootstrap .border */
+  /* padding: 0.75rem; Bootstrap .p-2 */
+  /* margin-bottom: 1rem; Bootstrap .mb-3 */
+}
+
+.id-card-controls-column legend {
+  /* font-size: 0.875em; Bootstrap .h6 */
+  font-weight: 600;
+  /* padding: 0 0.5rem; Bootstrap .px-2 */
+  /* width: auto; Bootstrap .w-auto */
+}
+
+/* Bootstrap form-label, form-control, form-select, form-control-color handle most input styling */
+/* Customizations for specific input types if needed */
+.form-control-color { /* Ensure color pickers are reasonably sized */
+    min-height: calc(1.5em + 0.5rem + 2px); /* Match form-control-sm height */
+    padding: 0.25rem 0.5rem;
+}
+
+.invalid-feedback { /* Bootstrap handles this */
+    display: block; /* Ensure it's shown when .is-invalid is on input */
+    width: 100%;
+    margin-top: .25rem;
+    font-size: .875em;
+    color: #dc3545;
+}
+
+/* --- Style Customization Sections (details/summary) --- */
+.id-card-controls-column details > summary {
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  background-color: #e9ecef; /* Bootstrap-like background */
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  margin-bottom: -1px; /* To make border collapse with content */
+}
+.id-card-controls-column details[open] > summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.id-card-controls-column details > div.border { /* The div inside details */
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+
+/* --- Modal Styles (Bootstrap handles most) --- */
+#previewModal .modal-body .id-card-render-area {
+  margin-left: auto; /* .mx-auto */
+  margin-right: auto; /* .mx-auto */
+  transform: scale(1.2); /* Example: Make cards in modal slightly larger for better viewing */
+  transform-origin: top center;
+}
+#previewModal .modal-xl {
+    max-width: 90%; /* Allow modal to use more screen width */
+}
+
+
+/* --- Print Styles --- */
+@media print {
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact !important; /* For Chrome/Safari */
+        print-color-adjust: exact !important;         /* Standard */
+    }
+
+    /* Hide non-card elements */
+    .id-card-generator-page > .d-flex.justify-content-between, /* Header with title/back button */
+    .id-card-generator-page > .alert, /* Messages */
+    .id-card-controls-column, /* Entire controls column */
+    #previewModal, /* Modal itself */
+    .modal-backdrop, /* Modal backdrop */
+    nav, header, footer, /* Generic site elements if any */
+    .btn, /* All buttons */
+    .sticky-top > h5 /* "Live Preview" text */
+     {
+        display: none !important;
+    }
+
+    .id-card-preview-column {
+        width: 100% !important; /* Make preview column take full width for printing */
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .id-card-preview-column .sticky-top {
+        position: static !important; /* Undo sticky positioning */
+    }
+    .id-card-preview-column .row {
+        display: block !important; /* Stack cards for printing */
+    }
+    .id-card-preview-column .col-xl-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        page-break-after: always; /* Each card on a new page, or adjust if printing side-by-side */
+        display: flex;
+        justify-content: center; /* Center card on page */
+        align-items: flex-start;
+        padding: 10mm 0 !important; /* Add some margin for printing */
+    }
+     .id-card-preview-column .col-xl-6:last-child {
+        page-break-after: auto;
+    }
+
+
+    .id-card-render-area {
+        box-shadow: none !important;
+        border: 1px solid #000 !important; /* Explicit border for print */
+        width: 50mm !important;  /* CR80 width */
+        height: 85mm !important; /* CR80 height */
+        margin: 0 auto !important; /* Center the card on its print block */
+        font-size: 2.5mm !important; /* Base font size for print, adjust as needed */
+        overflow: hidden !important; /* Crucial for print */
+    }
+
+    /* Ensure background colors and images print */
+    #front-id-card .header-section,
+    #front-id-card, #back-id-card {
+        background-color: var(--original-bg-color, #fff) !important; /* Use CSS var if set by JS, else white */
+        color: var(--original-text-color, #000) !important;
+    }
+    #front-id-card .header-section {
+        background-color: var(--original-header-bg-color, #FF4900) !important;
+        color: var(--original-header-text-color, #fff) !important;
+    }
+
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    /* Specific elements inside the card might need !important if JS styling is too aggressive */
+    #front-id-card #companyName, #front-id-card #companySubtitle,
+    #front-id-card #employeeName, #front-id-card #employeePosition, #front-id-card #employeeId {
+        color: inherit !important; /* Inherit from parent if set, or default black */
+    }
+    #front-id-card .barcode-box svg, #back-id-card .barcode-box svg {
+        display: block !important;
+    }
+    #back-id-card .stamp {
+      opacity: 0.15 !important; /* Ensure stamp is visible but not too dark */
+    }
+} 
+</style>

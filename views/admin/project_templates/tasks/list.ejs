@@ -1,0 +1,36 @@
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1><%= pageTitle %></h1>
+        <a href="/admin/project-templates/<%= template.id %>/tasks/create" class="btn btn-success">
+            <i class="fas fa-plus-circle"></i> Add New Task to Template
+        </a>
+    </div>
+    <p class="text-muted">Define the structure and default properties for tasks in this system template.</p>
+
+    <%- include('../../../partials/_messages') %>
+
+    <% if (tasks && tasks.length > 0) { %>
+        <div class="card shadow-sm">
+            <div class="card-header">
+                Template Task Structure (WBS)
+            </div>
+            <div class="list-group list-group-flush template-task-list">
+                <% tasks.forEach(function(rootTask) { %>
+                    <%- include('_template_task_item_recursive', { task: rootTask, template: template, level: 0 }) %>
+                <% }); %>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info">
+            This template currently has no tasks defined. 
+            <a href="/admin/project-templates/<%= template.id %>/tasks/create">Add the first task now</a>.
+        </div>
+    <% } %>
+
+    <div class="mt-4">
+        <a href="/admin/project-templates" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to System Templates
+        </a>
+    </div>
+</div>
+<%- contentFor('end') %>

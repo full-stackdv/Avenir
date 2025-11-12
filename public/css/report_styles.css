@@ -1,0 +1,43 @@
+/* In main_styles.css or a new report-specific CSS file */
+.report-page .card-header {
+    /* background-color: #e9ecef; /* Lighter header */
+    /* border-bottom: 2px solid var(--bs-primary); */
+}
+
+.report-page h5.mb-0 { /* Card titles in report */
+    color: var(--bs-primary-darker); /* Or your theme's darker primary */
+}
+
+.report-tasks-table th, .report-financials-table th {
+    /* background-color: #f8f9fa; /* Light gray for table headers */
+    /* font-weight: 600; */
+}
+
+.report-tasks-table .task-child td:first-child { /* For indented task names */
+    /* padding-left: 25px !important; */ /* If not using the arrow span */
+}
+.report-tasks-table .task-child {
+    /* background-color: #fdfdfd; /* Slightly different bg for child tasks */
+}
+
+/* More colorful progress bars beyond Bootstrap defaults if desired */
+.progress-bar.bg-custom-planning { background-color: #6c757d !important; } /* Grey for ToDo/Planning */
+.progress-bar.bg-custom-inprogress { background-color: #0dcaf0 !important; } /* Info for InProgress */
+.progress-bar.bg-custom-completed { background-color: #198754 !important; } /* Success for Completed */
+.progress-bar.bg-custom-onhold { background-color: #ffc107 !important; } /* Warning for OnHold/Blocked */
+
+/* Apply these custom classes in your EJS for task progress bars if you want more granular color */
+/* e.g., based on task.status when rendering the progress bar */
+
+
+    /* Optional: Small CSS for better print layout / report readability */
+    @media print {
+        body { font-size: 10pt; }
+        .breadcrumb, .btn, .alert:not(.alert-danger):not(.alert-warning) { display: none !important; } /* Hide nav, buttons, success/info messages on print */
+        .card { box-shadow: none !important; border: 1px solid #ccc !important; margin-bottom: 1rem !important; }
+        .card-header { background-color: #f8f9fa !important; color: #000 !important; border-bottom: 1px solid #ccc !important;}
+        .table-responsive { overflow-x: hidden; } /* Prevent table scroll on print */
+        .progress-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; } /* Ensure progress bars print colors */
+    }
+    .badge.bg-purple { background-color: #6f42c1; color: white; } /* For milestone badge if not in main CSS */
+    .progress-bar.fs-xs { font-size: 0.7rem; line-height: 18px; } /* Make progress % smaller in table */

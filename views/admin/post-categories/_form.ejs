@@ -1,0 +1,22 @@
+
+
+<div class="mb-3">
+    <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" id="name" name="name" value="<%= typeof category !== 'undefined' && category.name ? category.name : '' %>" required>
+</div>
+<div class="mb-3">
+    <label for="description" class="form-label">Description</label>
+    <textarea class="form-control" id="description" name="description" rows="3"><%= typeof category !== 'undefined' && category.description ? category.description : '' %></textarea>
+</div>
+<div class="mb-3">
+    <% if (typeof category !== 'undefined' && category.slug) { %>
+        <p class="form-text">Current Slug: <code><%= category.slug %></code> (auto-generated on save if name changes)</p>
+    <% } else { %>
+        <p class="form-text">Slug will be auto-generated from the name.</p>
+    <% } %>
+</div>
+
+<button type="submit" class="btn btn-primary">
+    <%= typeof category !== 'undefined' && category.id ? 'Update Category' : 'Create Category' %>
+</button>
+<a href="/admin/post-categories" class="btn btn-secondary">Cancel</a>

@@ -1,0 +1,161 @@
+
+
+
+<!-- views/partials/_admin_sidebar.ejs -->
+<nav id="adminSidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse admin-sidebar-main">
+    <div class="position-sticky pt-3 sidebar-sticky-content"> <!-- Added sidebar-sticky-content for potential styling -->
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && (currentPath === '/admin' || currentPath === '/admin/')) ? 'active' : '' %>" href="/admin">
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/posts')) ? 'active' : '' %>" href="/admin/posts">
+                    <i class="fas fa-newspaper fa-fw me-2"></i> Post Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/users')) ? 'active' : '' %>" href="/admin/users"> <!-- Assuming /admin/users route -->
+                    <i class="fas fa-users fa-fw me-2"></i> User Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/contact-messages')) ? 'active' : '' %>" href="/admin/contact-messages"> <!-- Assuming /admin/contact-messages route -->
+                    <i class="fas fa-envelope-open-text fa-fw me-2"></i> Contact Messages
+                </a>
+            </li> 
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/projects-overview')) ? 'active' : '' %>" href="/dashboard"> <!-- Assuming /admin/projects-overview route -->
+                    <i class="fas fa-briefcase fa-fw me-2"></i> Projects Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/projects-overview')) ? 'active' : '' %>" href="/projects"> <!-- Assuming /admin/projects-overview route -->
+                    <i class="fas fa-briefcase fa-fw me-2"></i> Projects Overview
+                </a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/system-logs')) ? 'active' : '' %>" href="/admin/system-logs"> <!-- Assuming /admin/system-logs route -->
+                    <i class="fas fa-clipboard-list fa-fw me-2"></i> Audit Logs
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/admin/settings')) ? 'active' : '' %>" href="/admin/settings"> <!-- Assuming /admin/settings route -->
+                    <i class="fas fa-cog fa-fw me-2"></i> System Settings
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+            <span>Quick Actions</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/posts/create">
+                    <i class="fas fa-plus-circle fa-fw me-2"></i> New Post
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="admin/users/create"> <!-- Assuming /admin/users/create route -->
+                    <i class="fas fa-user-plus fa-fw me-2"></i> New User
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+<nav id="adminSidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse admin-sidebar-main">
+    <div class="position-sticky pt-3 sidebar-sticky-content">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin') %>" href="/admin">
+                    <i class="fas fa-tachometer-alt fa-fw me-2"></i> Dashboard
+                </a>
+            </li>
+
+            <li class="nav-header px-3 mt-3 mb-1 text-muted text-uppercase small">Content</li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/posts') %>" href="/admin/posts">
+                    <i class="fas fa-newspaper fa-fw me-2"></i> Post Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/contact-messages') %>" href="/admin/contact-messages">
+                    <i class="fas fa-envelope-open-text fa-fw me-2"></i> Contact Messages
+                </a>
+            </li>
+
+            <li class="nav-header px-3 mt-3 mb-1 text-muted text-uppercase small">User & System</li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/users') %>" href="/admin/users">
+                    <i class="fas fa-users-cog fa-fw me-2"></i> User Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/audit-logs') %>" href="/admin/audit-logs">
+                    <i class="fas fa-clipboard-list fa-fw me-2"></i> Audit Logs
+                </a>
+            </li>
+              
+         
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/project-templates') %>" href="/admin/project-templates">
+                    <i class="fas fa-layer-group fa-fw me-2"></i> Project Templates
+                </a>
+            </li>
+           
+            <li class="nav-item">
+                <a class="nav-link <%= isActive('/admin/settings') %>" href="/admin/settings">
+                    <i class="fas fa-cog fa-fw me-2"></i> System Settings
+                </a>
+            </li>
+
+            <li class="nav-header px-3 mt-3 mb-1 text-muted text-uppercase small">Application Links</li>
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-briefcase fa-fw me-2"></i> App Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/projects">
+                    <i class="fas fa-project-diagram fa-fw me-2"></i> App Projects
+                </a>
+            </li>
+        </ul>
+
+         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+            <span>Quick Actions</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/posts/create">
+                    <i class="fas fa-plus-circle fa-fw me-2"></i> New Post
+                </a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" href="/admin/users/create">
+                    <i class="fas fa-user-plus fa-fw me-2"></i> New User
+                </a>
+            </li>
+          
+        </ul>
+
+        <hr>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                 <a class="nav-link" href="/profile">
+                    <i class="fas fa-user-circle fa-fw me-2"></i> My Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                 <form action="/auth/logout" method="POST" class="d-inline w-100">
+                    <button type="submit" class="nav-link btn btn-link text-start w-100" style="color: var(--bs-nav-link-color);">
+                        <i class="fas fa-sign-out-alt fa-fw me-2"></i> Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>

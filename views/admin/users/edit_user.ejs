@@ -1,0 +1,80 @@
+<% /* views/admin/users/edit_user.ejs */ %>
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/admin/users">User Management</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit User: <%= formData.username || userToEdit.username %></li>
+        </ol>
+    </nav>
+
+    <h2><%= pageTitle %></h2>
+    <p class="text-muted">Username: <strong><%= formData.username || userToEdit.username %></strong> (cannot be changed here)</p>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="/admin/users/<%= userToEdit.id %>/edit" method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= errors.find(e => e.param === 'first_name') ? 'is-invalid' : '' %>"
+                               id="first_name" name="first_name" value="<%= formData.first_name || '' %>" required>
+                        <% errors.filter(e => e.param === 'first_name').forEach(error => { %><div class="invalid-feedback"><%= error.msg %></div><% }); %>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control <%= errors.find(e => e.param === 'last_name') ? 'is-invalid' : '' %>"
+                               id="last_name" name="last_name" value="<%= formData.last_name || '' %>" required>
+                        <% errors.filter(e => e.param === 'last_name').forEach(error => { %><div class="invalid-feedback"><%= error.msg %></div><% }); %>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control <%= errors.find(e => e.param === 'email') ? 'is-invalid' : '' %>"
+                           id="email" name="email" value="<%= formData.email || '' %>" required>
+                    <% errors.filter(e => e.param === 'email').forEach(error => { %><div class="invalid-feedback"><%= error.msg %></div><% }); %>
+                </div>
+
+                <div class="mb-3">
+                    <label for="company_name" class="form-label">Company Name (Optional)</label>
+                    <input type="text" class="form-control <%= errors.find(e => e.param === 'company_name') ? 'is-invalid' : '' %>"
+                           id="company_name" name="company_name" value="<%= formData.company_name || '' %>">
+                    <% errors.filter(e => e.param === 'company_name').forEach(error => { %><div class="invalid-feedback"><%= error.msg %></div><% }); %>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select <%= errors.find(e => e.param === 'role') ? 'is-invalid' : '' %>"
+                                id="role" name="role" required>
+                            <% availableRoles.forEach(roleOpt => { %>
+                                <option value="<%= roleOpt %>" <%= (formData.role || userToEdit.role) === roleOpt ? 'selected' : '' %>>
+                                    <%= roleOpt %>
+                                </option>
+                            <% }); %>
+                        </select>
+                        <% errors.filter(e => e.param === 'role').forEach(error => { %><div class="invalid-feedback"><%= error.msg %></div><% }); %>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="is_active_status" class="form-label">Account Status <span class="text-danger">*</span></label>
+                        <select class="form-select <%= errors.find(e => e.param === 'is_active_status') ? 'is-invalid' : '' %>"
+                                id="is_active_status" name="is_active_status" required>
+                            <option value="active" <%= (typeof formData.is_active_status !== 'undefined' ? formData.is_active_status === 'active' : userToEdit.is_active) ? 'selected' : '' %>>Active</option>
+                            <option value="inactive" <%= (typeof formData.is_active_status !== 'undefined' ? formData.is_active_status === 'inactive' : !userToEdit.is_active) ? 'selected' : '' %>>Inactive</option>
+                        </select>
+                         <% errors.filter(e => e.param === 'is_active_status').forEach(error => { %><div class="invalid-feedback"><%= error.msg %></div><% }); %>
+                    </div>
+                </div>
+
+                <hr>
+                <p class="text-muted small">To change this user's password, please use the separate "Change Password" action on the User Management page.</p>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                <a href="/admin/users" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,159 @@
+<%# views/layouts/public_layout.ejs %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= (typeof title !== 'undefined' ? title : 'AvenirCon Construction') %></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Google Fonts (Optional - Example) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <!-- Public Site CSS -->
+    <link rel="stylesheet" href="/css/public_styles.css"> <!-- Main public styles -->
+    <link rel="stylesheet" href="/css/general_styles.css"> <!-- General utility styles -->
+    <style>
+        
+/* styles.css or blog_styles.css */
+
+/* --- Public Aside Sidebar Styling --- */
+.public-aside-sidebar {
+    /* No specific styling needed for the container itself unless you want a background or border */
+}
+
+.public-aside-sidebar .card {
+    border: 1px solid #e0e0e0; /* Softer border for cards */
+    border-radius: 0.375rem; /* Standard Bootstrap card radius */
+}
+
+.public-aside-sidebar .card-header {
+    background-color: #f8f9fa; /* Bootstrap light background */
+    border-bottom: 1px solid #e0e0e0; /* Softer border */
+    padding: 0.85rem 1.15rem; /* Adjust padding */
+}
+
+.public-aside-sidebar .card-header h5 {
+    font-size: 1.1rem; /* Slightly smaller heading for widgets */
+    font-weight: 500; /* Medium weight */
+    color: #333; /* Darker text color */
+}
+
+.public-aside-sidebar .card-header h5 .fas,
+.public-aside-sidebar .card-header h5 .far,
+.public-aside-sidebar .card-header h5 .fab {
+    color: #007bff; /* Primary color for icons in headers, or a neutral one */
+    margin-right: 0.5rem;
+    font-size: 0.9em; /* Icons slightly smaller than text */
+}
+
+.public-aside-sidebar .card-body {
+    padding: 1.15rem; /* Consistent padding */
+}
+
+/* Search Widget */
+.public-aside-sidebar .input-group .form-control {
+    border-right: 0; /* Remove right border if button is adjacent */
+}
+.public-aside-sidebar .input-group .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Bootstrap focus shadow */
+    border-color: #80bdff;
+}
+.public-aside-sidebar .input-group .btn-outline-primary {
+    border-color: #ced4da; /* Match form control border initially */
+}
+.public-aside-sidebar .input-group .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+
+/* Recent Posts Widget */
+.public-aside-sidebar .list-group-flush .list-group-item {
+    padding: 0.85rem 1.15rem;
+    border-color: #e9ecef; /* Lighter border for list items */
+    background-color: #fff; /* Ensure white background */
+}
+.public-aside-sidebar .list-group-flush .list-group-item:last-child {
+    border-bottom: 0; /* Remove bottom border for the last item if card has no footer */
+}
+
+.public-aside-sidebar .list-group-item a {
+    color: #212529; /* Default dark text color */
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+.public-aside-sidebar .list-group-item a:hover {
+    color: #0056b3; /* Primary hover color */
+    text-decoration: none; /* Or underline, if preferred */
+}
+
+.public-aside-sidebar .list-group-item small.text-muted {
+    font-size: 0.8em;
+    margin-top: 0.2rem;
+}
+
+/* Categories/Tags Widget */
+.public-aside-sidebar .card-body .btn-outline-secondary {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.25rem; /* Slightly less rounded for a modern feel */
+    color: #5a6268;
+    border-color: #ced4da;
+    transition: all 0.2s ease-in-out;
+}
+.public-aside-sidebar .card-body .btn-outline-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+    border-color: #5a6268;
+}
+
+/* Optional: If you add other widgets */
+.public-aside-sidebar .widget-title { /* A generic class you could use for widget titles */
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+
+</style>
+    </style>
+    <!-- Page-specific styles (passed from controller) -->
+    <% if (typeof pageStyles !== 'undefined' && pageStyles.length > 0) { %>
+        <% pageStyles.forEach(function(style) { %>
+            <link rel="stylesheet" href="<%= style %>">
+        <% }); %>
+    <% } %>
+</head>
+<body class="d-flex flex-column min-vh-100"> <%# Ensures footer stays at bottom %>
+
+    <%- include('../partials/_public_navbar') %>
+
+    <main class="flex-shrink-0 page-content-wrapper">
+        <!-- Main Content Area for Public Layout -->
+        <%- body %>
+    </main>
+
+    <%- include('../partials/_public_footer') %>
+
+    <!-- Bootstrap JS Bundle (Popper.js and Bootstrap JS) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!-- General Public JS (e.g., for sidebar interactions if used broadly) -->
+    <script src="/js/public_scripts.js"></script>
+
+    <!-- Page-Specific Scripts -->
+    <% if (typeof pageScripts !== 'undefined' && pageScripts.length > 0) { %>
+        <% pageScripts.forEach(function(script) { %>
+            <script src="<%= script %>"></script>
+        <% }); %>
+    <% } %>
+</body>
+</html>
+

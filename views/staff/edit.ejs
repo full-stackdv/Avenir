@@ -1,0 +1,85 @@
+
+<%- contentFor('body') %>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    
+                    <h3 class="mb-0"><%= title %>: <%= formData.full_name %></h3>
+                </div>
+                <div class="card-body">
+                    <%- include('../partials/_messages') %>
+                    <form action="/staff/<%= formData.id %>/edit" method="POST" enctype="multipart/form-data" novalidate>
+                        <input type="hidden" name="existing_photo_filename" value="<%= currentStaff.photo_filename || '' %>">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="full_name" class="form-label">Full Name*</label>
+                                <input type="text" class="form-control <%= errors && errors.full_name ? 'is-invalid' : '' %>" id="full_name" name="full_name" value="<%= formData.full_name || '' %>" required>
+                                <% if (errors && errors.full_name) { %><div class="invalid-feedback"><%= errors.full_name %></div><% } %>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="position" class="form-label">Position*</label>
+                                <input type="text" class="form-control <%= errors && errors.position ? 'is-invalid' : '' %>" id="position" name="position" value="<%= formData.position || '' %>" required>
+                                <% if (errors && errors.position) { %><div class="invalid-feedback"><%= errors.position %></div><% } %>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="employee_id_number" class="form-label">Employee ID Number*</label>
+                                <input type="text" class="form-control <%= errors && errors.employee_id_number ? 'is-invalid' : '' %>" id="employee_id_number" name="employee_id_number" value="<%= formData.employee_id_number || '' %>" required>
+                                <% if (errors && errors.employee_id_number) { %><div class="invalid-feedback"><%= errors.employee_id_number %></div><% } %>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control <%= errors && errors.email ? 'is-invalid' : '' %>" id="email" name="email" value="<%= formData.email || '' %>">
+                                <% if (errors && errors.email) { %><div class="invalid-feedback"><%= errors.email %></div><% } %>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="<%= formData.phone || '' %>">
+                            </div>
+                             <div class="col-md-6 mb-3">
+                                <label for="staff_photo" class="form-label">New Staff Photo (Max 2MB, Image)</label>
+                                <input type="file" class="form-control <%= errors && errors.staff_photo ? 'is-invalid' : '' %>" id="staff_photo" name="staff_photo" accept="image/*">
+                                <% if (errors && errors.staff_photo) { %><div class="invalid-feedback"><%= errors.staff_photo %></div><% } %>
+                                <% if (currentStaff.photo_filename) { %>
+                                    <div class="mt-2">
+                                        <small>Current Photo:</small><br>
+                                        <img src="/uploads/staff_photos/<%= currentStaff.photo_filename %>?v=<%= Date.now() %>" alt="Current Photo" style="max-height: 80px; border-radius: 4px;">
+                                    </div>
+                                <% } else { %>
+                                    <small class="d-block mt-1 text-muted">No current photo.</small>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="issue_date" class="form-label">ID Issue Date*</label>
+                                <input type="date" class="form-control <%= errors && errors.issue_date ? 'is-invalid' : '' %>" id="issue_date" name="issue_date" value="<%= formData.issue_date || '' %>" required>
+                                <% if (errors && errors.issue_date) { %><div class="invalid-feedback"><%= errors.issue_date %></div><% } %>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="expiry_date" class="form-label">ID Expiry Date*</label>
+                                <input type="date" class="form-control <%= errors && errors.expiry_date ? 'is-invalid' : '' %>" id="expiry_date" name="expiry_date" value="<%= formData.expiry_date || '' %>" required>
+                                <% if (errors && errors.expiry_date) { %><div class="invalid-feedback"><%= errors.expiry_date %></div><% } %>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <a href="/staff" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Staff</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

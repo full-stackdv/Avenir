@@ -1,0 +1,44 @@
+<%# This view is rendered within main_layout.ejs (or your app layout) %>
+<%# pageTitle is set by controller, defaults to "My Profile" %>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i><%= pageTitle %></h4>
+            </div>
+            <div class="card-body">
+                <% if (profileUser) { %>
+                    <dl class="row">
+                        <dt class="col-sm-4">Username:</dt>
+                        <dd class="col-sm-8"><%= profileUser.username %></dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8"><%= profileUser.email %></dd>
+
+                        <dt class="col-sm-4">First Name:</dt>
+                        <dd class="col-sm-8"><%= profileUser.first_name || 'N/A' %></dd>
+
+                        <dt class="col-sm-4">Last Name:</dt>
+                        <dd class="col-sm-8"><%= profileUser.last_name || 'N/A' %></dd>
+
+                        <dt class="col-sm-4">Company:</dt>
+                        <dd class="col-sm-8"><%= profileUser.company_name || 'N/A' %></dd>
+                        
+                        <dt class="col-sm-4">Role:</dt>
+                        <dd class="col-sm-8"><%= profileUser.role %></dd>
+
+                        <dt class="col-sm-4">Member Since:</dt>
+                        <dd class="col-sm-8"><%= new Date(profileUser.created_at).toLocaleDateString() %></dd>
+                    </dl>
+                <% } else { %>
+                    <p class="text-danger">Could not load profile information.</p>
+                <% } %>
+            </div>
+            <div class="card-footer text-end">
+                <a href="/profile/edit" class="btn btn-outline-primary me-2"><i class="fas fa-edit me-1"></i> Edit Profile</a>
+                <a href="/profile/change-password" class="btn btn-outline-warning"><i class="fas fa-key me-1"></i> Change Password</a>
+            </div>
+        </div>
+    </div>
+</div>

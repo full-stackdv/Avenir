@@ -1,0 +1,37 @@
+<!-- views/projects/report.ejs - Financial Summary Section -->
+<div class="col-md-6">
+    <h4><i class="fas fa-coins me-1"></i>Financial Summary</h4>
+    <p><strong>Planned Budget:</strong>
+        $<%= reportData.project.planned_budget ? reportData.project.planned_budget.toFixed(2) : 'N/A' %>
+    </p>
+    <p><strong>Actual Cost:</strong>
+        $<%= reportData.project.actual_cost ? reportData.project.actual_cost.toFixed(2) : '0.00' %>
+    </p>
+    <p><strong>Variance:</strong>
+        <%
+            const planned = reportData.project.planned_budget || 0;
+            const actual = reportData.project.actual_cost || 0;
+            const varianceVal = planned - actual;
+        %>
+        <span class="fw-bold text-<%= varianceVal >= 0 ? 'success' : 'danger' %>">
+            $<%= varianceVal.toFixed(2) %>
+            <% if (planned > 0) { %>
+                <%= varianceVal >= 0 ? '(Under Budget)' : '(Over Budget)' %>
+            <% } else { %>
+                (No budget planned)
+            <% } %>
+        </span>
+    </p>
+</div>
+
+
+
+
+
+<!-- views/projects/report.ejs - near other download/print buttons -->
+<a href="/projects/<%= projectId %>/report/download/excel" class="btn btn-outline-success me-2">
+    <i class="fas fa-file-excel"></i> Download Excel
+</a>
+<a href="/projects/<%= projectId %>/report/download/csv" class="btn btn-outline-secondary me-2">
+    <i class="fas fa-file-csv"></i> Download CSV (Tasks)
+</a>

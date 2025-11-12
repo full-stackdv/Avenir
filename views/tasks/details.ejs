@@ -1,0 +1,147 @@
+<!-- views/tasks/details.ejs -->
+<% /* Rendered by main_layout.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, task (main task with .children, and now task.planned_budget, task.actual_cost), layout passed from controller */ %>
+
+<div class="container mt-4 mb-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Task: <%= task.name %></li>
+        </ol>
+    </nav>
+
+    <%- include('../partials/_messages') %>
+
+    <% if (task) { %>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0"><%= pageTitle %></h2>
+            <div>
+                <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/edit" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="fas fa-edit me-1"></i> Edit Task
+                </a>
+                <form action="/projects/<%= project.id %>/tasks/<%= task.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this task? This may also delete sub-tasks if ON DELETE CASCADE is set.');">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-trash-alt me-1"></i> Delete Task
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Task Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <% if (task.task_code) { %>
+                            <p class="mb-2"><strong>Task Code:</strong> <%= task.task_code %></p>
+                        <% } %>
+                        <p class="mb-2">
+                            <strong>Description:</strong><br>
+                            <%- task.description ? task.description.replace(/\n/g, '<br>') : 'No description provided.' %>
+                        </p>
+                         <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Status:</strong> <span class="badge bg-<%= task.status === 'Completed' ? 'success' : (task.status === 'InProgress' ? 'primary' : (task.status === 'ToDo' ? 'info text-dark' : (task.status === 'Blocked' ? 'danger' : (task.status === 'Cancelled' ? 'dark' : 'secondary')))) %>"><%= task.status %></span></p>
+                                <p class="mb-1"><strong>Priority:</strong> <span class="badge bg-<%= task.priority === 'Critical' ? 'danger' : (task.priority === 'High' ? 'warning text-dark' : (task.priority === 'Medium' ? 'info text-dark' : 'secondary')) %>"><%= task.priority || 'N/A' %></span></p>
+                                <p class="mb-1"><strong>Assigned To:</strong> <%= task.assignee_display_name || 'Unassigned' %></p>
+                                <% if (task.parent_task_name && task.parent_task_id_val) { %>
+                                    <p class="mb-1"><strong>Parent Task:</strong> <a href="/projects/<%= project.id %>/tasks/<%= task.parent_task_id_val %>/details"><%= task.parent_task_name %></a></p>
+                                <% } %>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Start Date:</strong> <%= task.start_date_formatted || 'N/A' %></p>
+                                <p class="mb-1"><strong>End Date:</strong> <%= task.end_date_formatted || 'N/A' %></p> 
+                                <p class="mb-1"><strong>Estimated Cost:</strong> <%= task.task_budget ? 'ETB ' + parseFloat(task.task_budget).toFixed(2) : 'N/A' %></p>
+                                <!-- Removed task.cost as it's now part of budget logs -->
+                                <p class="mb-1"><strong>Created By:</strong> <%= task.creator_username || 'N/A' %></p>
+                                <p class="mb-1"><strong>Created At:</strong> <%= task.created_at_formatted %></p>
+                                <% if (task.updated_at && new Date(task.updated_at).getTime() !== new Date(task.created_at).getTime()) { %>
+                                     <p class="mb-1"><strong>Last Updated:</strong> <%= task.updated_at_formatted %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <div class="col-lg-4">
+                <!-- Budget Overview Section for Task -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-dollar-sign me-2"></i>Budget Overview</h5>
+    </div>
+    <div class="card-body">
+        <%
+            // These values should be passed from taskController after calling getTaskBudgetSummary
+            // task.display_planned_budget, task.display_actual_cost, etc.
+            const taskDisplayPlanned = typeof task.planned_budget_summary !== 'undefined' ? task.planned_budget_summary : (task.task_budget || 0);
+            const taskDisplayActual = typeof task.actual_cost_summary !== 'undefined' ? task.actual_cost_summary : 0;
+            const taskDisplayVariance = taskDisplayPlanned - taskDisplayActual;
+        %>
+        <p><strong>Planned Budget:</strong> ETB <%= parseFloat(taskDisplayPlanned).toFixed(2) %></p>
+        <p><strong>Actual Cost:</strong> ETB <%= parseFloat(taskDisplayActual).toFixed(2) %></p>
+        <% if (typeof task.total_income_summary !== 'undefined' && task.total_income_summary > 0) { %>
+            <p><strong>Total Income:</strong> ETB <%= parseFloat(task.total_income_summary).toFixed(2) %></p>
+        <% } %>
+        <p><strong>Variance:</strong>
+            <span class="fw-bold text-<%= taskDisplayVariance >= 0 ? 'success' : 'danger' %>">
+                ETB <%= taskDisplayVariance.toFixed(2) %>
+                <%= taskDisplayVariance >= 0 ? '(Under Budget/On Target)' : '(Over Budget)' %>
+            </span>
+        </p>
+        <hr>
+        <div class="d-grid gap-2">
+            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/edit" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit"></i> Manage Task Budget
+            </a>
+            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/log/add" class="btn btn-sm btn-outline-success">
+                <i class="fas fa-plus-circle"></i> Add Budget Entry
+            </a>
+            <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/logs" class="btn btn-sm btn-outline-info">
+                <i class="fas fa-list-alt"></i> View Task Budget Log
+            </a>
+        </div>
+    </div>
+</div>
+              </div>
+        </div>
+
+        <% /* views/tasks/details.ejs - Budget Overview Snippet */ %>
+
+         
+        
+
+
+        <div class="mt-4" id="sub-tasks-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Sub-Tasks</h5>
+                <a href="/projects/<%= project.id %>/tasks/create?parent_task_id=<%= task.id %>" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus me-1"></i> Add Sub-task
+                </a>
+            </div>
+
+            <% if (task.children && task.children.length > 0) { %>
+                <div class="task-list-container list-group bg-white p-0 rounded shadow-sm">
+                    <% task.children.forEach(function(subTask) { %>
+                        <%- include('../partials/_task_item_recursive', { task: subTask, project: project, level: 0, canManageTaskActions: true }) %> <%# Assuming canManageTaskActions is true here, or pass appropriately %>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-light text-center py-3" role="alert">
+                    This task has no sub-tasks.
+                    <a href="/projects/<%= project.id %>/tasks/create?parent_task_id=<%= task.id %>" class="alert-link d-block mt-2">Add a sub-task now!</a>
+                </div>
+            <% } %>
+        </div>
+
+    <% } else { %>
+        <div class="alert alert-warning" role="alert">
+            Task details could not be loaded. Please try again or contact support.
+        </div>
+    <% } %>
+</div>

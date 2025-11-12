@@ -1,0 +1,72 @@
+<% /* views/tasks/upload_csv.ejs */ %>
+<div class="container mt-4 mb-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects">Projects</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Upload Tasks CSV</li>
+        </ol>
+    </nav>
+
+    <h2><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+    <h3>Tasks CSV (for a specific project):</h3>
+    <p> Use these headers on your task csv sheet: Headers: name, task_code, description, start_date (YYYY-MM-DD), end_date (YYYY-MM-DD), progress_percentage, task_budget, status, priority, parent_task_code (optional, uses task_code to find parent_task_id), assigned_to_username (optional), is_milestone (TRUE/FALSE).</p>
+    <br>
+    <p>Upload a CSV file to create multiple tasks for this project.</p>
+    <p>Expected CSV Headers: <code>name</code>, <code>task_code</code> (optional), <code>description</code> (optional), <code>start_date</code> (YYYY-MM-DD, optional), <code>end_date</code> (YYYY-MM-DD, optional), <code>progress_percentage</code> (0-100, optional, default 0), <code>task_budget</code> (optional, number), <code>status</code> (optional, default ToDo), <code>priority</code> (optional, default Medium), <code>parent_task_code</code> (optional, code of existing task in project or earlier in CSV), <code>assigned_to_username</code> (optional, existing username), <code>is_milestone</code> (TRUE/FALSE, optional, default FALSE).</p>
+    <p><a href="/samples/sample_tasks.csv" download>Download Sample Tasks CSV Template</a></p> <%# Replace with actual path or remove %>
+    <%- include('../partials/_messages', { errors: errors }) %>
+    
+    <% if (typeof successCount !== 'undefined' || typeof failureCount !== 'undefined') { %>
+        <div class="alert alert-info">
+            <p class="mb-1"><strong>Import Summary:</strong></p>
+            <% if (typeof successCount !== 'undefined') { %>
+                <p class="mb-1 text-success"><%= successCount %> task(s) imported successfully.</p>
+            <% } %>
+            <% if (typeof failureCount !== 'undefined' && failureCount > 0) { %>
+                <p class="mb-0 text-danger"><%= failureCount %> task(s) failed to import.</p>
+            <% } %>
+        </div>
+    <% } %>
+
+    <% if (detailedErrors && detailedErrors.length > 0) { %>
+        <div class="mt-3">
+            <h5>Detailed Import Errors:</h5>
+            <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>CSV Row</th>
+                        <th>Errors</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% detailedErrors.forEach(err => { %>
+                        <tr>
+                            <td><%= err.row %></td>
+                            <td>
+                                <ul>
+                                    <% err.errors.forEach(msg => { %>
+                                        <li><%= msg %></li>
+                                    <% }); %>
+                                </ul>
+                            </td>
+                            <td><pre style="font-size: 0.8em; white-space: pre-wrap; word-break: break-all;"><%= JSON.stringify(err.data, null, 2) %></pre></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+
+    <form action="/projects/<%= project.id %>/tasks/upload-csv" method="POST" enctype="multipart/form-data" class="mt-3">
+        <div class="mb-3">
+            <label for="tasks_csv_file" class="form-label">Select CSV File</label>
+            <input class="form-control" type="file" id="tasks_csv_file" name="tasks_csv_file" accept=".csv" required>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i> Upload and Process Tasks</button>
+        <a href="/projects/<%= project.id %>/details" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

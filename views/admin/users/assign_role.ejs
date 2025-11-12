@@ -1,0 +1,40 @@
+<% /* views/admin/users/assign_role.ejs */ %>
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/admin/users">User Management</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Assign Role to <%= userToEdit.username %></li>
+        </ol>
+    </nav>
+
+    <h2><%= pageTitle %></h2>
+    <p>Current Role: <span class="badge bg-primary"><%= userToEdit.role %></span></p>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="/admin/users/<%= userToEdit.id %>/assign-role" method="POST">
+                <div class="mb-3">
+                    <label for="new_role" class="form-label">Select New Role:</label>
+                    <select class="form-select <%= errors.find(e => e.msg.toLowerCase().includes('role')) ? 'is-invalid' : '' %>" 
+                            id="new_role" name="new_role" required>
+                        <% availableRoles.forEach(role => { %>
+                            <option value="<%= role %>" <%= role === userToEdit.role ? 'selected' : '' %> >
+                                <%= role %>
+                            </option>
+                        <% }); %>
+                    </select>
+                    <% errors.forEach(function(error) { %>
+                        <% if (error.msg.toLowerCase().includes('role')) { %>
+                            <div class="invalid-feedback"><%= error.msg %></div>
+                        <% } %>
+                    <% }); %>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Assign Role</button>
+                <a href="/admin/users" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

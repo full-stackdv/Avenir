@@ -1,0 +1,310 @@
+<%# views/public/gallery.ejs %>
+<% layout('../layouts/public_layout') -%>
+<% title = 'Our Projects - Avenir Construction Gallery' %>
+<% pageScripts = ['/js/gallery_scripts.js'] %> <%# Link gallery-specific JS %>
+
+<header class="gallery-hero">
+    <div class="container">
+        <h1 class="display-4">Project Gallery</h1>
+        <p class="lead">Showcasing our commitment to quality, innovation, and excellence in construction.</p>
+    </div>
+</header>
+
+<section class="project-gallery py-5">
+    <div class="container">
+        <div class="gallery-filter mb-4">
+            <button class="btn btn-outline-primary active" data-filter="all">All Projects</button>
+            <button class="btn btn-outline-primary" data-filter="commercial">Commercial</button>
+            <button class="btn btn-outline-primary" data-filter="residential">Residential</button>
+            <button class="btn btn-outline-primary" data-filter="infrastructure">Infrastructure</button>
+            <button class="btn btn-outline-primary" data-filter="water">Water Projects</button>
+            <!-- Add more categories as needed -->
+        </div>
+      
+        <div class="gallery-grid">
+            <%# Example Project Items - These should ideally come from a database/CMS %>
+            <% const projects = [
+                { img: '/images/project1.jpg', title: 'Modern Office Complex', category: 'commercial', desc: 'A state-of-the-art office space in Addis Ababa.' },
+                { img: '/images/project2.jpg', title: 'Luxury Apartment Tower', category: 'residential', desc: 'High-end living with premium amenities in Jimma.' },
+                { img: '/images/project3.jpg', title: 'City Bypass Bridge', category: 'infrastructure', desc: 'Connecting communities with robust infrastructure.' },
+                { img: '/images/project4.jpg', title: 'Rural Irrigation System', category: 'water', desc: 'Sustainable water solutions for agricultural growth.' },
+                { img: '/images/project-commercial-2.jpg', title: 'Retail Shopping Center', category: 'commercial', desc: 'A vibrant hub for shopping and entertainment.' },
+                { img: '/images/project-residential-2.jpg', title: 'Gated Community Villas', category: 'residential', desc: 'Exclusive family homes with modern designs.' }
+            ]; %>
+
+            <% projects.forEach(project => { %>
+            <div class="project-item" data-category="<%= project.category %>">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#projectModal" 
+                   data-project-title="<%= project.title %>" 
+                   data-project-image="<%= project.img %>" 
+                   data-project-desc="<%= project.desc %>"
+                   data-project-category="<%= project.category.charAt(0).toUpperCase() + project.category.slice(1) %>">
+                    <img src="<%= project.img %>" alt="<%= project.title %>" class="img-fluid">
+                    <div class="project-item-overlay">
+                        <div class="project-item-text">
+                            <h5 class="mb-0"><%= project.title %></h5>
+                            <small class="text-warning"><%= project.category.charAt(0).toUpperCase() + project.category.slice(1) %></small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% }); %>
+        </div>
+    </div>
+</section>
+
+<!-- Project Detail Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="projectModalLabel">Project Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <img src="" id="modalProjectImage" class="img-fluid mb-3" alt="Project Image">
+        <h3 id="modalProjectTitle"></h3>
+        <p class="text-muted"><strong id="modalProjectCategory"></strong></p>
+        <p id="modalProjectDesc"></p>
+        <!-- Add more project details here if available -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// JavaScript for Project Modal in gallery.ejs
+document.addEventListener('DOMContentLoaded', function () {
+    var projectModal = document.getElementById('projectModal');
+    if (projectModal) {
+        projectModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            var title = button.getAttribute('data-project-title');
+            var image = button.getAttribute('data-project-image');
+            var desc = button.getAttribute('data-project-desc');
+            var category = button.getAttribute('data-project-category');
+
+            var modalTitle = projectModal.querySelector('.modal-title');
+            var modalImage = projectModal.querySelector('#modalProjectImage');
+            var modalProjectTitle = projectModal.querySelector('#modalProjectTitle');
+            var modalProjectCategory = projectModal.querySelector('#modalProjectCategory');
+            var modalProjectDesc = projectModal.querySelector('#modalProjectDesc');
+
+            modalTitle.textContent = title;
+            modalImage.src = image;
+            modalImage.alt = title;
+            modalProjectTitle.textContent = title;
+            modalProjectCategory.textContent = category;
+            modalProjectDesc.textContent = desc;
+        });
+    }
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="gallery-hero hero-section">
+    <div class="container">
+      <h2>Our Projects</h2>
+      <p>Showcasing our commitment to quality and innovation in construction.</p>
+    </div>
+  </section>
+  
+  <section class="project-gallery">
+    <div class="container">
+      <div class="gallery-filter">
+        <button data-filter="all">All Projects</button>
+        <button data-filter="commercial">Commercial</button>
+        <button data-filter="residential">Residential</button>
+        <button data-filter="infrastructure">Infrastructure</button>
+        <button data-filter="water">Water Projects</button>
+      </div>
+      
+      <div class="gallery-grid">
+        <div class="project-item" data-category="commercial">
+          <img src="images/project1.jpg" alt="Commercial Building">
+          <h3>Modern Office Building</h3>
+          <p>A state-of-the-art office space designed for efficiency and collaboration.</p>
+        </div>
+        
+        <div class="project-item" data-category="residential">
+          <img src="images/project2.jpg" alt="Luxury Apartments">
+          <h3>Luxury Apartments</h3>
+          <p>High-end residential apartments with stunning views and premium amenities.</p>
+        </div>
+        
+        <div class="project-item" data-category="infrastructure">
+          <img src="images/project3.jpg" alt="Bridge Construction">
+          <h3>Bridge Construction</h3>
+          <p>A vital transportation link constructed with durability and safety in mind.</p>
+        </div>
+        
+        <div class="project-item" data-category="water">
+          <img src="images/project4.jpg" alt="Water Irrigation System">
+          <h3>Water Irrigation System</h3>
+          <p>An efficient and sustainable irrigation system for agricultural development.</p>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <style>
+    body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  color: #343a40;
+  line-height: 1.6;
+}
+
+.container {
+  width: 85%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  background-color: #343a40;
+  color: #fff;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+header nav {
+  margin-top: 1rem;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 1.1rem;
+}
+
+header nav a:hover {
+  text-decoration: underline;
+}
+
+.gallery-hero {
+  background-color: #e9ecef;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.gallery-hero h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #343a40;
+}
+
+.project-gallery {
+  padding: 4rem 0;
+}
+
+.gallery-filter {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.gallery-filter button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.gallery-filter button:hover {
+  background-color: #0056b3;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.project-item {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.project-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.project-item h3 {
+  font-size: 1.3rem;
+  margin: 1rem;
+  color: #343a40;
+}
+
+.project-item p {
+  font-size: 1rem;
+  margin: 0 1rem 1rem 1rem;
+  color: #6c757d;
+}
+
+.footer {
+  background-color: #343a40;
+  color: #fff;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    padding: 15px;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+  }
+  
+  .gallery-hero h2 {
+    font-size: 2rem;
+  }
+  
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gallery-filter button {
+    margin: 0 5px;
+  }
+}
+  </style>

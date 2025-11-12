@@ -1,0 +1,195 @@
+
+<%# File: views/admin/settings/index.ejs %>
+
+<div class="container-fluid mt-4">
+    <%- include('../../partials/_messages') %> <%# Ensure this partial exists and renders flash messages %>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0"><i class="fas fa-cogs mr-2"></i>System Settings</h3>
+        </div>
+        <form action="/admin/settings/update" method="POST">
+             
+            <div class="card-body">
+                <% if (typeof settingGroups !== 'undefined' && settingGroups && settingGroups.length > 0) { %>
+                    <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+                        <% settingGroups.forEach((group, index) => { %>
+                            <% const groupId = group.toLowerCase().replace(/\s+/g, '-'); %>
+                            <li class="nav-item">
+                                <a class="nav-link <%= index === 0 ? 'active' : '' %>" 
+                                   id="<%= groupId %>-tab" 
+                                   data-toggle="tab" <%# Bootstrap 4 tab toggle %>
+                                   href="#<%= groupId %>" 
+                                   role="tab" 
+                                   aria-controls="<%= groupId %>" 
+                                   aria-selected="<%= index === 0 ? 'true' : 'false' %>">
+                                    <%= group.charAt(0).toUpperCase() + group.slice(1) %>
+                                </a>
+                            </li>
+                        <% }); %>
+                    </ul>
+
+                    <div class="tab-content pt-3" id="settingsTabsContent">
+                        <% settingGroups.forEach((group, index) => { %>
+                            <% const groupId = group.toLowerCase().replace(/\s+/g, '-'); %>
+                            <div class="tab-pane fade <%= index === 0 ? 'show active' : '' %>" 
+                                 id="<%= groupId %>" 
+                                 role="tabpanel" 
+                                 aria-labelledby="<%= groupId %>-tab">
+                                
+                                <% if (typeof groupedSettings !== 'undefined' && groupedSettings[group] && groupedSettings[group].length > 0) { %>
+                                    <% groupedSettings[group].forEach((setting, settingIndex, arr) => { %>
+                                        <div class="form-group row mb-3">
+                                            <label for="<%= setting.setting_key %>" class="col-sm-3 col-form-label">
+                                                <%= setting.label %>
+                                                <% if (setting.description) { %>
+                                                    <i class="fas fa-info-circle text-muted ml-1" 
+                                                       data-toggle="tooltip" <%# Bootstrap 4 tooltip %>
+                                                       data-placement="top" 
+                                                       title="<%= setting.description %>"></i>
+                                                <% } %>
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <% if (setting.input_type === 'text') { %>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           name="<%= setting.setting_key %>" 
+                                                           id="<%= setting.setting_key %>" 
+                                                           value="<%= (setting.setting_value !== null && typeof setting.setting_value !== 'undefined') ? setting.setting_value : '' %>">
+                                                <% } else if (setting.input_type === 'password') { %>
+                                                    <input type="password" class="form-control form-control-sm"
+                                                           name="<%= setting.setting_key %>"
+                                                           id="<%= setting.setting_key %>"
+                                                           value="********" <%# Placeholder for sensitive fields %>
+                                                           autocomplete="new-password">
+                                                    <small class="form-text text-muted">Leave blank or as '********' to keep current password.</small>
+                                                <% } else if (setting.input_type === 'number') { %>
+                                                    <input type="number" class="form-control form-control-sm" 
+                                                           name="<%= setting.setting_key %>" 
+                                                           id="<%= setting.setting_key %>" 
+                                                           value="<%= (setting.setting_value !== null && typeof setting.setting_value !== 'undefined') ? setting.setting_value : '' %>"> <%# handles 0 correctly %>
+                                                <% } else if (setting.input_type === 'textarea') { %>
+                                                    <textarea class="form-control form-control-sm" 
+                                                              name="<%= setting.setting_key %>" 
+                                                              id="<%= setting.setting_key %>" 
+                                                              rows="3"><%= (setting.setting_value !== null && typeof setting.setting_value !== 'undefined') ? setting.setting_value : '' %></textarea>
+                                                <% } else if (setting.input_type === 'boolean') { %>
+                                                    <div class="form-check mt-2"> <%# BS4 form-check alignment might need mt-1 or mt-2 depending on line-height %>
+                                                        <input class="form-check-input" type="checkbox" 
+                                                               name="<%= setting.setting_key %>" 
+                                                               id="<%= setting.setting_key %>" 
+                                                               value="true" <%# Value is "true" when checked %>
+                                                               <%= (setting.setting_value === 'true' || setting.setting_value === true) ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="<%= setting.setting_key %>">
+                                                            Enable <%# Generic label for the checkbox action itself %>
+                                                        </label>
+                                                    </div>
+                                                <% } else if (setting.input_type === 'select' && setting.parsed_options) { %>
+                                                    <select class="form-control form-control-sm" <%# Bootstrap 4 select styling %>
+                                                            name="<%= setting.setting_key %>" 
+                                                            id="<%= setting.setting_key %>">
+                                                        <% setting.parsed_options.forEach(option => { %>
+                                                            <option value="<%= option.value %>" <%= setting.setting_value == option.value ? 'selected' : '' %>>
+                                                                <%= option.label %>
+                                                            </option>
+                                                        <% }); %>
+                                                    </select>
+                                                <% } else { %>
+                                                    <%# Fallback for an unrecognized input_type %>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           name="<%= setting.setting_key %>" 
+                                                           id="<%= setting.setting_key %>" 
+                                                           value="<%= (setting.setting_value !== null && typeof setting.setting_value !== 'undefined') ? setting.setting_value : '' %>"
+                                                           placeholder="Unknown input type: <%= setting.input_type %>">
+                                                    <small class="form-text text-danger">Configuration error: Unknown input type defined for this setting.</small>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        <%# Add a horizontal rule between settings, but not after the last one in the group %>
+                                        <% if (settingIndex < arr.length -1 ) { %>
+                                            <hr class="my-3">
+                                        <% } %>
+                                    <% }); %>
+
+                                    <%# Special button for SMTP test, only in the 'Email' group %>
+                                    <% if (group.toLowerCase() === 'email') { %>
+                                        <hr class="my-3"> <%# Separator before the button %>
+                                        <div class="form-group row mb-3">
+                                            <div class="col-sm-9 offset-sm-3">
+                                                <button type="button" class="btn btn-info btn-sm" id="testSmtpButton">
+                                                    <i class="fas fa-paper-plane"></i> Test SMTP Settings
+                                                </button>
+                                                <small class="form-text text-muted d-block mt-1">Save current settings before testing if you made changes.</small>
+                                            </div>
+                                        </div>
+                                    <% } %>
+
+                                <% } else { %>
+                                    <p class="text-muted">No settings found in the "<%= group %>" group.</p>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-danger">No system setting groups found or defined. Please check the application configuration and database.</p>
+                <% } %>
+            </div>
+            <div class="card-footer text-right bg-light">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div> 
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> <%# Or your local path %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script> <%# Or your local path to Bootstrap JS (bundle includes Popper.js) %>
+ <script>
+$(function () { // Document ready shorthand for jQuery
+  // Enable Bootstrap tooltips (Bootstrap 4 syntax)
+  $('[data-toggle="tooltip"]').tooltip();
+
+  // Handle tab persistence on page reload (e.g., after form submission or SMTP test)
+  var hash = window.location.hash;
+  if (hash) {
+    var $tabLink = $('#settingsTabs a[href="' + hash + '"]');
+    // Check if the tab link exists and the Bootstrap tab plugin is available
+    if ($tabLink.length && typeof $tabLink.tab === 'function') {
+        $tabLink.tab('show');
+    } else if ($tabLink.length) {
+        console.warn('Bootstrap .tab("show") function not available for link:', $tabLink, 'Is Bootstrap JavaScript loaded?');
+    } else {
+        // console.warn('Settings tab link not found for hash:', hash); // Can be noisy if no hash is present initially
+    }
+  }
+
+  // Update URL hash when a new tab is shown (Bootstrap 4 event)
+  $('#settingsTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    // e.target is the newly activated tab link
+    if (e.target && e.target.hash) {
+        if (history.pushState) { // Modern browsers
+            history.pushState(null, null, e.target.hash);
+        } else { // Fallback for older browsers
+            window.location.hash = e.target.hash;
+        }
+    }
+  });
+
+  // SMTP Test Button click handler
+  $('#testSmtpButton').on('click', function() {
+    // Create a temporary form to submit a POST request to the test-smtp endpoint
+    var $form = $('<form>', {
+        action: '/admin/settings/test-smtp',
+        method: 'POST'
+    }).appendTo('body'); // Append to body to ensure it's part of the DOM for submission
+    
+    // CSRF token is not used in this setup, so no need to add it here.
+    
+    $form.submit();
+  });
+
+});
+</script>
+
+

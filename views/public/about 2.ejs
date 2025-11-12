@@ -1,0 +1,115 @@
+
+<header class="about-hero">
+    <div class="container">
+        <h1 class="display-4" style="color:aliceblue">About Avenir Construction</h1>
+        <p class="lead">Building on a Foundation of Excellence and Integrity.</p>
+    </div>
+</header>
+
+<section class="about-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="/images/company-milestone.jpg" alt="Avenir Construction at Work" class="img-fluid rounded shadow-lg">
+            </div>
+            <div class="col-lg-6">
+                <h3>Our Story</h3>
+                <p><%= getSetting('aboutOurStory', 'Avenir Construction was established in 2017 in Jimma, Oromia, Ethiopia, with a vision to transform the construction landscape. From humble beginnings, we\'ve grown into a respected company, driven by a passion for quality, innovation, and client satisfaction. We\'ve tackled diverse projects, from residential buildings to complex infrastructure, always striving to deliver exceptional results.') %></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section bg-light py-5 mission-vision">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <h3><i class="fas fa-bullseye me-2 text-primary"></i>Our Mission</h3>
+                <p><%= getSetting('companyMission', 'To provide exceptional construction services that meet the needs of our clients, while contributing to the development of our communities. We are committed to delivering projects on time, within budget, and to the highest quality standards, fostering lasting relationships with our clients and partners.') %></p>
+            </div>
+            <div class="col-md-6">
+                <h3><i class="fas fa-eye me-2 text-primary"></i>Our Vision</h3>
+                <p><%= getSetting('companyVision', 'To be the leading construction company in Ethiopia, renowned for excellence and sustainability. We aspire to set new standards in the industry, contributing to the nation\'s development through innovative and responsible construction practices.') %></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section py-5 core-values">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Core Values</h2>
+        <div class="row text-center">
+            <% const values = getSetting('coreValuesList', 'Integrity,Innovation,Quality,Customer Satisfaction,Safety,Sustainability').split(','); %>
+            <% values.forEach(value => { %>
+                <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                             <% let iconClass = 'fa-star'; /* Default icon */
+                                if (value.toLowerCase().includes('integrity')) iconClass = 'fa-shield-alt';
+                                if (value.toLowerCase().includes('innovation')) iconClass = 'fa-lightbulb';
+                                if (value.toLowerCase().includes('quality')) iconClass = 'fa-award';
+                                if (value.toLowerCase().includes('customer') || value.toLowerCase().includes('client')) iconClass = 'fa-handshake';
+                                if (value.toLowerCase().includes('safety')) iconClass = 'fa-hard-hat';
+                                if (value.toLowerCase().includes('sustainability')) iconClass = 'fa-leaf';
+                            %>
+                            <i class="fas <%= iconClass %> fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title"><%= value.trim() %></h5>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</section>
+
+<section id="services" class="about-section bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Services</h2>
+        <div class="row">
+            <!-- Add service items here, similar to index.ejs or more detailed -->
+            <div class="col-md-4 mb-3"><h5>General Construction</h5><p>Commercial, residential, industrial.</p></div>
+            <div class="col-md-4 mb-3"><h5>Road & Bridge Construction</h5><p>Building essential infrastructure.</p></div>
+            <div class="col-md-4 mb-3"><h5>Water & Irrigation Projects</h5><p>Sustainable water solutions.</p></div>
+            <!-- Add more as configured -->
+        </div>
+    </div>
+</section>
+
+<section class="about-section py-5 team">
+    <div class="container">
+        <h2 class="text-center mb-5">Meet Our Leadership</h2>
+        <p class="text-center lead mb-5">The strength behind our success lies in our dedicated and experienced team.</p>
+        <div class="row">
+            <!-- Example Team Members (Make dynamic from settings or DB if needed) -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="card text-center shadow-sm h-100">
+                    <img src="/images/team-member-1.jpg" class="card-img-top" alt="CEO Temkin Sheref" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Eng. Temkin Sheref</h5>
+                        <p class="card-text text-muted">Chief Executive Officer</p>
+                        <p class="small">Founder with a passion for excellence and innovation in construction.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4">
+                 <div class="card text-center shadow-sm h-100">
+                    <img src="/images/team-member-2.jpg" class="card-img-top" alt="Project Manager" style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Eng. Mohammed Aba R.</h5>
+                        <p class="card-text text-muted">Head Project Manager</p>
+                         <p class="small">Experienced in managing large-scale construction projects efficiently.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Add more team members -->
+        </div>
+    </div>
+</section>
+
+<section class="about-section bg-primary text-white py-5 cta">
+    <div class="container text-center">
+        <h2 class="text-white">Ready to Partner with Avenir?</h2>
+        <p class="lead my-4">Contact us today to learn more about our services and how we can help you achieve your construction goals.</p>
+        <a href="/contact" class="btn btn-warning btn-lg px-4">Get in Touch</a>
+    </div>
+</section>

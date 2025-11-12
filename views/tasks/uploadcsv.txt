@@ -1,0 +1,13 @@
+<h3>Projects CSV</h3>:
+<p>Recomended CSV file Headers: name, project_code, description, client_name, start_date (YYYY-MM-DD), end_date (YYYY-MM-DD), budget, project_manager_username (optional, uses username to find ID).</p>
+
+Tasks CSV (for a specific project):
+Headers: name, task_code, description, start_date (YYYY-MM-DD), end_date (YYYY-MM-DD), progress_percentage, task_budget, status, priority, parent_task_code (optional, uses task_code to find parent_task_id), assigned_to_username (optional), is_milestone (TRUE/FALSE).
+
+Tasks CSV (for a specific project):
+Headers: name, task_code, description, start_date (YYYY-MM-DD), end_date (YYYY-MM-DD), progress_percentage, task_budget, status, priority, parent_task_code (optional, uses task_code to find parent_task_id), assigned_to_username (optional), is_milestone (TRUE/FALSE).
+
+<h3>Tasks CSV (for a specific project):</h3>
+    <p> Use these headers on your task csv sheet: Headers: name, task_code, description, start_date (YYYY-MM-DD), end_date (YYYY-MM-DD), progress_percentage, task_budget, status, priority, parent_task_code (optional, uses task_code to find parent_task_id), assigned_to_username (optional), is_milestone (TRUE/FALSE).</p>
+
+    <p><a href="tasks/upload_csv.ejs">Upload Tasks Via CSV Template</a>

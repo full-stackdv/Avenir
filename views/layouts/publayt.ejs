@@ -1,0 +1,62 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'AvenirCon' %></title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Global Styles (shared across layouts if needed) -->
+  <link rel="stylesheet" href="/css/styles.css"> 
+  <!-- Public Specific Styles -->
+  <link rel="stylesheet" href="/css/public_style.css"> 
+    <link rel="stylesheet" href="/css/general.css"> 
+
+  <!-- Landing Page Specific Styles (if index.ejs uses this layout) -->
+  <% if (typeof currentPath !== 'undefined' && currentPath === '/') { %>
+    <link rel="stylesheet" href="/css/landing-page.css">
+  <% } %>
+
+  <!-- Page-specific stylesheets passed from controller -->
+  <% if (typeof pageStylesheets !== 'undefined' && Array.isArray(pageStylesheets)) { %>
+    <% pageStylesheets.forEach(function(style) { %>
+      <link rel="stylesheet" href="<%= style %>">
+    <% }); %>
+  <% } %>
+</head>
+<body class="d-flex flex-column min-vh-100 public-body">
+  
+  <%- include('../partials/_public_navbar') %>
+
+  <main class="flex-shrink-0 pt-5"> <!-- pt-5 to offset fixed navbar -->
+    <div class="container mt-4 content-container"> <!-- Added content-container for potential general styling -->
+      <%- include('../partials/_messages') %>
+      
+      <% if (typeof pageTitle !== 'undefined' && pageTitle) { %>
+        <div class="page-header mb-4 text-center"> <!-- Centered page titles for public pages, can be adjusted -->
+          <h1><%- pageTitle %></h1>
+          <% if (typeof subTitle !== 'undefined' && subTitle) { %>
+            <p class="lead text-muted"><%- subTitle %></p>
+          <% } %>
+        </div>
+      <% } %>
+
+      <%- body %>
+    </div>
+  </main>
+
+  <%- include('../partials/_public_footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/scripts.js"></script> <!-- General public scripts-->
+    <% if (typeof pageScripts !== 'undefined' && Array.isArray(pageScripts)) { %>
+    <% pageScripts.forEach(function(script) { %>
+      <script src="<%= script %>"></script>
+    <% }); %>
+  <% } %>
+</body>
+</html>

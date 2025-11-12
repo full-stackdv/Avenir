@@ -1,0 +1,46 @@
+<% /* views/tasks/budget/edit_task_budget.ejs */ %>
+<% /* Variables: title, pageTitle, subTitle, project, task, formData, errors, layout */ %>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/details"><%= project.name %></a></li>
+            <li class="breadcrumb-item"><a href="/projects/<%= project.id %>/tasks/<%= task.id %>/details"><%= task.name %></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Manage Task Budget</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-3"><%= pageTitle %></h2>
+    <% if (subTitle) { %><p class="lead text-muted"><%= subTitle %></p><% } %>
+
+    <%- include('../../partials/_messages', { errors: errors }) %>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form action="/projects/<%= project.id %>/tasks/<%= task.id %>/budget/edit" method="POST">
+                <div class="mb-3">
+                    <label for="task_budget" class="form-label">Planned Task Budget (ETB)</label> <%# Changed for attribute %>
+                    <input type="number" class="form-control <%= errors.find(e => e.param === 'task_budget' || e.msg.toLowerCase().includes('budget')) ? 'is-invalid' : '' %>" 
+                           id="task_budget" name="task_budget"  <%# Changed id and name to "task_budget" %>
+                           value="<%= formData.task_budget || (task.task_budget || '') %>"  <%# Changed value to use task.task_budget %>
+                           step="0.01" min="0">
+                    <% errors.forEach(function(error) { %>
+                        <% if (error.param === 'task_budget' || error.msg.toLowerCase().includes('budget')) { %> <%# Check against 'task_budget' %>
+                            <div class="invalid-feedback"><%= error.msg %></div>
+                        <% } %>
+                    <% }); %>
+                    <div class="form-text">Set a specific planned budget for this task, if applicable.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Update Task Budget
+                </button>
+                <a href="/projects/<%= project.id %>/tasks/<%= task.id %>/details" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+

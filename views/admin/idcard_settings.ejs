@@ -1,0 +1,105 @@
+
+<%- contentFor('body') %>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><%= title %></h3>
+                </div>
+                <div class="card-body">
+                    <%- include('../partials/_messages') %>
+                    <p class="text-muted small mb-3">Last updated: <%= settings.last_updated || 'Never' %></p>
+
+                    <form action="/admin/idcard/settings" method="POST" enctype="multipart/form-data" novalidate>
+                        <input type="hidden" name="existing_logo_filename" value="<%= settings.logo_filename || '' %>">
+                        <input type="hidden" name="existing_signature_filename" value="<%= settings.signature_filename || '' %>">
+                        <input type="hidden" name="existing_stamp_filename" value="<%= settings.stamp_filename || '' %>">
+
+                        <h4>Company Information</h4>
+                        <hr class="mt-1">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="company_name" class="form-label">Company Name*</label>
+                                <input type="text" class="form-control <%= errors && errors.company_name ? 'is-invalid' : '' %>" id="company_name" name="company_name" value="<%= formData.company_name || '' %>" required>
+                                <% if (errors && errors.company_name) { %><div class="invalid-feedback"><%= errors.company_name %></div><% } %>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="company_subtitle" class="form-label">Company Subtitle</label>
+                                <input type="text" class="form-control" id="company_subtitle" name="company_subtitle" value="<%= formData.company_subtitle || '' %>">
+                            </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="company_phone" class="form-label">Company Phone</label>
+                                <input type="tel" class="form-control" id="company_phone" name="company_phone" value="<%= formData.company_phone || '' %>">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="company_email" class="form-label">Company Email</label>
+                                <input type="email" class="form-control" id="company_email" name="company_email" value="<%= formData.company_email || '' %>">
+                            </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="company_website" class="form-label">Company Website</label>
+                                <input type="url" class="form-control" id="company_website" name="company_website" value="<%= formData.company_website || '' %>" placeholder="https://example.com">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ceo_name" class="form-label">CEO Name</label>
+                                <input type="text" class="form-control" id="ceo_name" name="ceo_name" value="<%= formData.ceo_name || '' %>">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="company_location" class="form-label">Company Location/Address</label>
+                            <textarea class="form-control" id="company_location" name="company_location" rows="2"><%= formData.company_location || '' %></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="default_authorization_statement" class="form-label">Default ID Card Authorization Statement</label>
+                            <textarea class="form-control" id="default_authorization_statement" name="default_authorization_statement" rows="3"><%= formData.default_authorization_statement || '' %></textarea>
+                        </div>
+
+                        <h4 class="mt-4">Company Assets (Images)</h4>
+                        <hr class="mt-1">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="company_logo_upload" class="form-label">Company Logo (Max 1MB)</label>
+                                <input type="file" class="form-control" id="company_logo_upload" name="company_logo_upload" accept="image/*">
+                                <% if (settings.logo_filename) { %>
+                                    <div class="mt-2">
+                                        <small>Current:</small><br>
+                                        <img src="/uploads/company_assets/<%= settings.logo_filename %>?v=<%= Date.now() %>" alt="Logo" style="max-height: 50px; background: #f8f9fa; padding: 5px; border-radius: 4px;">
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="ceo_signature_upload" class="form-label">CEO Signature (Max 1MB)</label>
+                                <input type="file" class="form-control" id="ceo_signature_upload" name="ceo_signature_upload" accept="image/*">
+                                 <% if (settings.signature_filename) { %>
+                                    <div class="mt-2">
+                                        <small>Current:</small><br>
+                                        <img src="/uploads/company_assets/<%= settings.signature_filename %>?v=<%= Date.now() %>" alt="Signature" style="max-height: 50px; background: #f8f9fa; padding: 5px; border-radius: 4px;">
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="company_stamp_upload" class="form-label">Company Stamp (Max 1MB)</label>
+                                <input type="file" class="form-control" id="company_stamp_upload" name="company_stamp_upload" accept="image/*">
+                                <% if (settings.stamp_filename) { %>
+                                    <div class="mt-2">
+                                        <small>Current:</small><br>
+                                        <img src="/uploads/company_assets/<%= settings.stamp_filename %>?v=<%= Date.now() %>" alt="Stamp" style="max-height: 50px; background: #f8f9fa; padding: 5px; border-radius: 4px;">
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-lg">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
